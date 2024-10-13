@@ -1,0 +1,49 @@
+services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: ./Dockerfile
+    networks:
+      - matcha
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/matcha/:/app:rw
+      - vol_frontend:/opt/app/node_modules
+  backend:
+    build:
+      context: backend
+      dockerfile: ./Dockerfile
+    networks:
+      - matcha
+    ports:
+      - 3001:3001
+    volumes:
+      - ./backend/src:/app/src:rw
+      - vol_backend:/opt/app/node_modules
+    env_file:
+      - .env
+  mongo:
+    image: mongo
+    restart: always
+    networks:
+      - matcha
+    ports:
+      - 27017:27017
+    env_file: .env
+# temporarly, just like prisma studio
+  mongo-express:
+    image: mongo-express
+    restart: always
+    networks:
+      - matcha
+    ports:
+      - 8081:8081
+    env_file: .env
+
+networks:
+  matcha:
+
+volumes:
+  vol_backend:
+  vol_frontend:
