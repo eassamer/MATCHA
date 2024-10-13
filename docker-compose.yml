@@ -1,0 +1,53 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./backend/db/initDB.sh:/docker-entrypoint-initdb.d/0_init.sh"
+      - "./backend/db/schema.sql:/docker-entrypoint-initdb.d/1.sql"
+    networks:
+      - matcha
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  frontend:
+    build:
+      context: frontend
+      dockerfile: ./Dockerfile
+    networks:
+      - matcha
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/:/app:rw
+      - vol_frontend:/opt/app/node_modules
+  backend:
+    build:
+      context: backend
+      dockerfile: ./Dockerfile
+    networks:
+      - matcha
+    ports:
+      - 3001:3001
+    volumes:
+      - ./backend/src:/app/src:rw
+      - vol_backend:/opt/app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  matcha:
+
+volumes:
+  vol_backend:
+  vol_frontend:

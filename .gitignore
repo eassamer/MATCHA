@@ -1,0 +1,7 @@
+.env
+backend/node_modules
+backend/bin
+frontend/matcha/node_modules
+frontend/matcha/.next
+frontend/matcha/next-env.d.ts
+.vscode
