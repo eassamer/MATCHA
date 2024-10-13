@@ -1,3 +1,12 @@
 .env
+<<<<<<< HEAD
 ./backend/node_modules
 ./frontend/matcha/node_modules
+=======
+backend/node_modules
+backend/bin
+frontend/matcha/node_modules
+frontend/matcha/.next
+frontend/matcha/next-env.d.ts
+.vscode
+>>>>>>> 1e822208 (boilerplate createx)
