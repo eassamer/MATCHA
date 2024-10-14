@@ -2,7 +2,7 @@ FROM node:lts
 
 WORKDIR /app
 
-COPY ./matcha/package*.json /app
+COPY ./package*.json /app
 
 RUN npm install
 
