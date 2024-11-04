@@ -1,7 +1,9 @@
 .env
 backend/node_modules
 backend/bin
+# backend/package-lock.json
 frontend/matcha/node_modules
 frontend/matcha/.next
 frontend/matcha/next-env.d.ts
+# frontend/matcha/package-lock.json
 .vscode
