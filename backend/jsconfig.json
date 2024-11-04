@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@dao/*": ["src/lib/dao/*"],
+      "@lib/*": ["src/lib/*"],  
+			"@services/*":["src/services/*"],
+			"@controllers/*":["src/controllers/*"],
+    }
+  }
+}
