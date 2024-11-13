@@ -1,6 +1,7 @@
 .env
 backend/node_modules
 backend/bin
+node_modules
 backend/package-lock.json
 frontend/matcha/node_modules
 frontend/matcha/.next
