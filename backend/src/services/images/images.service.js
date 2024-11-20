@@ -9,10 +9,10 @@ cloudinary.config({
 });
 
 function validateImage(img) {
-  if (!img.body || img.body.data || !img.body.data.startsWith('data:image'))
+  if (!img || !img.data || !img.data.startsWith('data:image'))
     throw new Error('invalid image data');
   const idx = parseInt(img.idx);
-  if (idx < 0 || idx > 6)
+  if (idx < 0)
     throw new Error('invalid image index');
 }
 
