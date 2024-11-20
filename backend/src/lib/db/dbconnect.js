@@ -1,6 +1,6 @@
 const mysql = require("mysql2/promise");
 
-async function createConnection(retryCount = 0, maxRetries = 3, retryDelay = 5000) {
+async function createConnection(retryCount = 0, maxRetries = 5, retryDelay = 5000) {
   try {
     console.log(`Attempting to connect to the database (Attempt ${retryCount + 1}/${maxRetries})...`);
     
