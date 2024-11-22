@@ -34,7 +34,7 @@ async function verifyPassword(password, hash) {
  * @param {object} user - The user object containing at least the user's id and email.
  * @returns {string} The generated JWT, signed with a secret and set to expire in 1 hour.
  */
-async function generateToken(user) {
+function generateToken(user) {
   return jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
     expiresIn: "24h",
   });
