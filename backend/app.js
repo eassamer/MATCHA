@@ -15,7 +15,6 @@ var usersRouter = require("./src/routes/users");
 var imagesRouter = require("./src/routes/images");
 
 var app = express();
-
 var sanitizer = require("perfect-express-sanitizer");
 
 // view engine setup
