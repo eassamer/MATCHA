@@ -1,5 +1,4 @@
-// src/controllers/authController.js
-const authService = require("../services/authService");
+const authService = require("../../services/authService");
 
 register = async (req, res) => {
   try {
@@ -9,7 +8,6 @@ register = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 
 login = async (req, res) => {
   try {

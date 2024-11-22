@@ -4,8 +4,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const passport = require("./src/config/passport");
-
+const passport = require("./src/middleware/auth/passport");
 
 var indexRouter = require("./src/routes/index");
 var usersRouter = require("./src/routes/users");

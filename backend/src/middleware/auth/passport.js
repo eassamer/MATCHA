@@ -1,9 +1,9 @@
 // src/config/passport.js
 const passport = require("passport");
-const localStrategy = require("../strategies/localStrategy");
-const facebookStrategy = require("../strategies/facebookStrategy");
-const googleStrategy = require("../strategies/googleStrategy");
-const fortyTwoStrategy = require("../strategies/fortyTwoStrategy");
+const localStrategy = require("../../strategies/localStrategy");
+const facebookStrategy = require("../../strategies/facebookStrategy");
+const googleStrategy = require("../../strategies/googleStrategy");
+const fortyTwoStrategy = require("../../strategies/fortyTwoStrategy");
 
 passport.use(localStrategy);
 passport.use(facebookStrategy);

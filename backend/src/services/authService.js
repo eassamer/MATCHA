@@ -5,7 +5,6 @@ const userDao = require("@dao/users/users");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
-
 /**
  * Hashes a given password using Argon2.
  *
@@ -29,7 +28,6 @@ async function verifyPassword(password, hash) {
   return await argon2.verify(hash, password);
 }
 
-
 /**
  * Generates a JSON Web Token (JWT) for a given user.
  *
@@ -38,8 +36,21 @@ async function verifyPassword(password, hash) {
  */
 async function generateToken(user) {
   return jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "24h",
   });
+}
+
+/**
+ * Checks if a password is strong based on predefined criteria.
+ * A strong password must be at least 8 characters long and contain
+ * at least one uppercase letter, one lowercase letter, and one number.
+ *
+ * @param {string} password - The password to validate.
+ * @returns {boolean} true if the password is strong, false otherwise.
+ */
+function isPasswordStrong(password) {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  return regex.test(password);
 }
 
 /**
@@ -49,6 +60,12 @@ async function generateToken(user) {
  * @throws if the user object is invalid
  */
 async function registerUser(user) {
+  // check if Password is strong enough
+  if (!isPasswordStrong(user.password)) {
+    throw new Error(
+      "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+    );
+  }
   user.password = await hashPassword(user.password);
   const newUser = await userDao.create(user);
   return newUser;
@@ -82,10 +99,10 @@ async function authenticateUser(email, password) {
  * @param {object} user - An object with the following fields: googleId, email, firstName, lastName.
  * @returns {object} The user object.
  */
-async function findOrCreateUser({ googleId, email, firstName, lastName }) {
+async function findOrCreateUser({ id, email, firstName, lastName }) {
   try {
     const newUser = await userDao.create({
-      googleId,
+      id,
       email,
       firstName,
       lastName,

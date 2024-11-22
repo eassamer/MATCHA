@@ -18,7 +18,7 @@ module.exports = new GoogleStrategy(
   async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await authService.findOrCreateUser({
-        googleId: profile.id,
+        id: profile.id,
         email: profile.emails[0]?.value,
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
