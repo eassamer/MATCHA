@@ -6,13 +6,13 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var sanitizer = require("perfect-express-sanitizer");
 
-var authMiddleware = require("./src/middleware/auth/auth.middleware");
-var passport = require("./src/middleware/auth/passport.middleware");
+var authMiddleware = require("@middlewares/auth/auth.middleware");
+var passport = require("@middlewares/auth/passport.middleware");
 
-var indexRouter = require("./src/routes/index");
-var usersRouter = require("./src/routes/users");
-var authRoutes = require("./src/routes/auth");
-var imagesRouter = require("./src/routes/images");
+var indexRouter = require("@routes/index");
+var usersRouter = require("@routes/users");
+var authRoutes = require("@routes/auth");
+var imagesRouter = require("@routes/images");
 
 var app = express();
 

@@ -1,5 +1,5 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const authService = require("../services/auth/auth.service");
+const authService = require("@services/auth/auth.service");
 
 /**
  * @param {string} accessToken - The access token provided by Google.

@@ -1,5 +1,5 @@
 const FortyTwoStrategy = require("passport-42").Strategy;
-const authService = require("../services/auth/auth.service");
+const authService = require("@services/auth/auth.service");
 
 /**
  * @param {string} accessToken - The access token provided by 42.
