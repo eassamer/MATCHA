@@ -1,8 +1,6 @@
 const express = require("express");
 const passport = require("../middleware/auth/passport.middleware");
 const authController = require("@controllers/auth/auth.controllers");
-const authMiddleware = require("../middleware/auth/auth.middleware");
-
 const router = express.Router();
 
 /**
@@ -27,7 +25,7 @@ router.get(
 router.get("/42", passport.authenticate("42"));
 router.get(
   "/42/callback",
-  passport.authenticate("42", { session: false }),
+  passport.authenticate("42", { session: false, failureRedirect: '/' }),
   authController.oauthCallback
 );
 

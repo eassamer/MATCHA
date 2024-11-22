@@ -12,8 +12,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
  */
 module.exports = (req, res, next) => {
   const authPaths = [
-      "/login",
-      "/register",
+      "/auth/login",
+      "/auth/register",
       "/auth/facebook",
       "/auth/facebook/callback",
       "/auth/google",

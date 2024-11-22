@@ -1,7 +1,8 @@
 // src/services/authService.js
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
-const userDao = require("@dao/users/users");
+const userService = require("@services/users/users.service");
+const generator = require('generate-password');
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
@@ -40,18 +41,6 @@ function generateToken(user) {
   });
 }
 
-/**
- * Checks if a password is strong based on predefined criteria.
- * A strong password must be at least 8 characters long and contain
- * at least one uppercase letter, one lowercase letter, and one number.
- *
- * @param {string} password - The password to validate.
- * @returns {boolean} true if the password is strong, false otherwise.
- */
-function isPasswordStrong(password) {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-  return regex.test(password);
-}
 
 /**
  * Registers a new user by hashing the given password and creating a new entry in the database
@@ -60,14 +49,8 @@ function isPasswordStrong(password) {
  * @throws if the user object is invalid
  */
 async function registerUser(user) {
-  // check if Password is strong enough
-  if (!isPasswordStrong(user.password)) {
-    throw new Error(
-      "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
-    );
-  }
   user.password = await hashPassword(user.password);
-  const newUser = await userDao.create(user);
+  const newUser = await userService.create(user);
   return newUser;
 }
 
@@ -80,7 +63,7 @@ async function registerUser(user) {
  */
 async function authenticateUser(email, password) {
   try {
-    const users = await userDao.findByEmail(email);
+    const users = await userService.findByEmail(email);
     const user = users[0];
     if (user && (await verifyPassword(password, user.password))) {
       const token = await generateToken(user);
@@ -99,19 +82,25 @@ async function authenticateUser(email, password) {
  * @param {object} user - An object with the following fields: googleId, email, firstName, lastName.
  * @returns {object} The user object.
  */
-async function findOrCreateUser({ id, email, firstName, lastName }) {
+async function findOrCreateUser({ email, firstName, lastName }) {
   try {
-    const newUser = await userDao.create({
-      id,
+    const generatedPassword = generator.generate({
+      length: 32,
+      numbers: true,
+      uppercase: true,
+      lowercase: true,
+    });
+    console.log(generatedPassword);
+    const newUser = await userService.create({
       email,
       firstName,
       lastName,
       lastLocation: "",
-      password: "",
+      password: generatedPassword,
     });
     return newUser;
   } catch (error) {
-    return await userDao.findByEmail(email);
+    return await userService.findByEmail(email);
   }
 }
 
