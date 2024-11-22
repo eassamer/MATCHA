@@ -1,18 +1,20 @@
-require('module-alias/register');
+require("module-alias/register");
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var sanitizer = require("perfect-express-sanitizer");
 
- 
-var indexRouter = require("./src/routes/index");
-var usersRouter = require("./src/routes/users");
-var imagesRouter = require("./src/routes/images");
+var authMiddleware = require("@middlewares/auth/auth.middleware");
+var passport = require("@middlewares/auth/passport.middleware");
+
+var indexRouter = require("@routes/index");
+var usersRouter = require("@routes/users");
+var authRoutes = require("@routes/auth");
+var imagesRouter = require("@routes/images");
 
 var app = express();
-
-var sanitizer = require("perfect-express-sanitizer");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -24,11 +26,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(passport.initialize());
+app.all("/*", authMiddleware);
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/images", imagesRouter);
+app.use("/auth", authRoutes);
 
+app.use("/images", imagesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
