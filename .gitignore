@@ -3,6 +3,7 @@ backend/node_modules
 backend/bin
 node_modules
 backend/package-lock.json
+node_modules
 frontend/matcha/node_modules
 frontend/matcha/.next
 frontend/matcha/next-env.d.ts

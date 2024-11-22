@@ -17,17 +17,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
-  frontend:
-    build:
-      context: frontend
-      dockerfile: ./Dockerfile
-    networks:
-      - matcha
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend/:/app:rw
-      - vol_frontend:/opt/app/node_modules
+  # frontend:
+  #   build:
+  #     context: frontend
+  #     dockerfile: ./Dockerfile
+  #   networks:
+  #     - matcha
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./frontend/:/app:rw
+  #     - vol_frontend:/opt/app/node_modules
   backend:
     build:
       context: backend
@@ -37,7 +37,7 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - ./backend/src:/app/src:rw
+      - ./backend:/app:rw
       - vol_backend:/opt/app/node_modules
     env_file:
       - .env
