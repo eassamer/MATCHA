@@ -11,6 +11,19 @@ const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
  * @param {Function} next - The next middleware function in the stack.
  */
 module.exports = (req, res, next) => {
+  const authPaths = [
+      "/login",
+      "/register",
+      "/auth/facebook",
+      "/auth/facebook/callback",
+      "/auth/google",
+      "/auth/google/callback", 
+      "/auth/42",
+      "/auth/42/callback",
+    ];
+  if (authPaths.includes(req.path)) {
+    return next();
+  }
   const token = req.cookies.jwt;
   if (!token) {
     return res.status(401).json({ error: "Access denied, token missing!" });

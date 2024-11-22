@@ -1,5 +1,6 @@
 // src/config/passport.js
 const passport = require("passport");
+const userService = require("@services/users/users.service");
 const localStrategy = require("../../strategies/localStrategy");
 const facebookStrategy = require("../../strategies/facebookStrategy");
 const googleStrategy = require("../../strategies/googleStrategy");
@@ -16,7 +17,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await authService.findUserById(id); // Adapt to your authService function
+    const user = await userService.findById(id); // Adapt to your authService function
     done(null, user);
   } catch (error) {
     done(error, null);

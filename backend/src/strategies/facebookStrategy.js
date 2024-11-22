@@ -1,5 +1,5 @@
 const FacebookStrategy = require("passport-facebook").Strategy;
-const authService = require("../services/authService");
+const authService = require("../services/auth/auth.service");
 
 /**
  * @param {string} accessToken - The access token provided by Facebook.

@@ -1,6 +1,6 @@
 const LocalStrategy = require("passport-local").Strategy;
 const userService = require("../services/users/users.service"); // Service for user management
-const authService = require("@services/authService");
+const authService = require("@services/auth/auth.service");
 
 /**
  * @param {string} email - The user's email.

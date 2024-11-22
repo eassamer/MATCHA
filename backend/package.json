@@ -33,6 +33,8 @@
     "@dao": "src/lib/dao",
     "@lib": "src/lib",
     "@services": "src/services",
-    "@controllers": "src/controllers"
+    "@controllers": "src/controllers",
+    "@middlewares": "src/middlewares",
+    "@routes": "src/routes"
   }
 }
