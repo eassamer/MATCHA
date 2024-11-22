@@ -21,7 +21,6 @@ module.exports = new FortyTwoStrategy(
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
       });
-      console.log("user:",user);
       return done(null, user);
     } catch (error) {
       return done(error);

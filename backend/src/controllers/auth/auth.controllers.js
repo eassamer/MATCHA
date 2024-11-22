@@ -25,7 +25,6 @@ login = async (req, res) => {
 
 oauthCallback = (req, res) => {
   // Set JWT token on successful OAuth authentication
-  console.log(`zabi ha request ${req.user}, <=hahaia`);
   const token = authService.generateToken(req.user);
   res.cookie("jwt", token, { httpOnly: true });
   res.redirect("/"); // TODO: Redirect to the frontend URL

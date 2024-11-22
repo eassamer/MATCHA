@@ -288,7 +288,6 @@ async function findByEmail(email) {
  * @throws if database query fails
  */
 async function findUsersByName({ name, limit, offset }) {
-  console.log("la ay");
   try {
     if (!isNameValid(name)) {
       throw new Error("Invalid name");

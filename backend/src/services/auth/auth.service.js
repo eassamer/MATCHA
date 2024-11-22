@@ -90,12 +90,11 @@ async function findOrCreateUser({ email, firstName, lastName }) {
       uppercase: true,
       lowercase: true,
     });
-    console.log(generatedPassword);
     const newUser = await userService.create({
       email,
       firstName,
       lastName,
-      lastLocation: "",
+      lastLocation: "default",
       password: generatedPassword,
     });
     return newUser;
