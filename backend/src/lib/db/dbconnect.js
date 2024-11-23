@@ -1,5 +1,14 @@
 const mysql = require("mysql2/promise");
 
+/**
+ * Attempts to create a connection to the database with retry logic.
+ *
+ * @param {number} [retryCount=0] - The current retry attempt count.
+ * @param {number} [maxRetries=5] - The maximum number of retry attempts.
+ * @param {number} [retryDelay=5000] - The delay between retry attempts in milliseconds.
+ * @returns {Promise<Object>} - A promise that resolves to the database connection object.
+ * @throws {Error} - Throws an error if the connection could not be established after the maximum number of retries.
+ */
 async function createConnection(retryCount = 0, maxRetries = 5, retryDelay = 5000) {
   try {
     console.log(`Attempting to connect to the database (Attempt ${retryCount + 1}/${maxRetries})...`);
