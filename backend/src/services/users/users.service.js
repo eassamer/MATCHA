@@ -1,6 +1,7 @@
 // Description: This file contains the service layer functions for the users table.
 
 const userDao = require("@dao/users/users");
+const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 
 /**
@@ -44,8 +45,8 @@ function validateUser(user) {
   requiredFields = [
     "firstName",
     "lastName",
+		"age",
     "email",
-    "lastLocation",
     "password",
   ];
 
@@ -68,6 +69,22 @@ function validateUser(user) {
   if (!isNameValid(user.firstName)) {
     throw new Error(`Invalid first name`);
   }
+
+	if (user.age < 18) {
+		throw new Error(`User must be at least 18 years old`);
+	}
+}
+
+function validateOauthUser(user) {
+  if (!user.providerId) {
+    throw new Error("Missing required field: providerId");
+  }
+  if (!user.provider) {
+    throw new Error("Missing required field: provider");
+  }
+  if (!user.email || !isValidEmail(user.email)) {
+    throw new Error("Invalid email");
+  }
 }
 
 /**
@@ -80,6 +97,10 @@ function validateUser(user) {
 async function create(user) {
   try {
     validateUser(user);
+    const oauthUser = await oauthUserDao.findByEmail(user.email);
+    if (oauthUser.length > 0) {
+      await oauthUserDao.remove(user.email);
+    }
     const queryOutput = await userDao.create(user);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not created");
@@ -89,6 +110,29 @@ async function create(user) {
     return newUser;
   } catch (error) {
     throw new Error(`${errMessagePrefix}.create: ${error.message}`);
+  }
+}
+
+/**
+ * Finds an existing user by email or creates a new OAuth user.
+ *
+ * @param {Object} user - The user object.
+ * @returns {Promise<Object>} The existing user if found, otherwise the newly created user.
+ * @throws {Error} If the email is invalid or any other error occurs during the process.
+ * @note this function should only be called during oauth
+ */
+async function findOrCreate(user) {
+  try {
+    if (!user.email || !isValidEmail(user.email))
+      throw new Error("Invalid email");
+    const existingUser = await userDao.findByEmail(user.email);
+    if (existingUser.length > 0) {
+      return existingUser;
+    }
+    validateOauthUser(user);
+    return await oauthUserDao.create(user);
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
   }
 }
 
@@ -179,14 +223,15 @@ async function updateEmail(userId, email) {
  * @throws if the user does not exist
  * @throws if database query fails
  */
-async function updateLastLocation(userId, lastLocation) {
+async function updateLastLocation(userId, longitude, latitude) {
   try {
     const user = await findById(userId);
-    const queryOutput = await userDao.updateLastLocation(userId, lastLocation);
+    const queryOutput = await userDao.updateLastLocation(userId, longitude, latitude);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");
     }
-    user.lastLocation = lastLocation;
+    user.longitude = longitude;
+		user.latitude = latitude;
     return user;
   } catch (e) {
     throw new Error(`${errMessagePrefix}.updateLastLocation: ${error.message}`);
@@ -228,6 +273,9 @@ async function updatePassword(userId, password) {
 async function remove(userId) {
   try {
     const user = await findById(userId);
+		if (!user) {
+			throw new Error(`User with Id: ${userId} not found`);
+		}
     const queryOutput = await userDao.remove(userId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not removed");
@@ -247,7 +295,7 @@ async function remove(userId) {
 async function findById(userId) {
   try {
     const user = await userDao.findById(userId);
-    if (!user && user.length === 0) {
+    if (!user || user.length === 0) {
       throw new Error(`User with Id: ${userId} not found`);
     }
     return user[0];
@@ -266,7 +314,7 @@ async function findByEmail(email) {
   try {
     if (!isValidEmail(email)) return await userDao.findByEmail(email);
     const user = await userDao.findByEmail(email);
-    if (!user && user.length === 0) {
+    if (!user || user.length === 0) {
       throw new Error(`User with email ${email} not found`);
     }
     return user[0];
@@ -319,4 +367,5 @@ module.exports = {
   findById,
   findByEmail,
   findUsersByName,
+  findOrCreate,
 };

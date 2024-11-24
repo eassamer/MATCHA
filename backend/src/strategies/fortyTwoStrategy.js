@@ -1,5 +1,5 @@
 const FortyTwoStrategy = require("passport-42").Strategy;
-const authService = require("@services/auth/auth.service");
+const userService = require("@services/users/users.service");
 
 /**
  * @param {string} accessToken - The access token provided by 42.
@@ -16,10 +16,10 @@ module.exports = new FortyTwoStrategy(
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      let user = await authService.findOrCreateUser({
+      let user = await userService.findOrCreate({
+        providerId: profile.id,
+        provider: '42',
         email: profile.emails[0]?.value,
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
       });
       return done(null, user);
     } catch (error) {

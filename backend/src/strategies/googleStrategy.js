@@ -1,5 +1,5 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const authService = require("@services/auth/auth.service");
+const userService = require("@services/users/users.service");
 
 /**
  * @param {string} accessToken - The access token provided by Google.
@@ -17,11 +17,10 @@ module.exports = new GoogleStrategy(
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      let user = await authService.findOrCreateUser({
-        id: profile.id,
+      let user = await userService.findOrCreateUser({
+        providerId: profile.id,
+        provider: 'google',
         email: profile.emails[0]?.value,
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
       });
       return done(null, user);
     } catch (error) {
