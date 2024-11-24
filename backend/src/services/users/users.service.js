@@ -152,7 +152,15 @@ async function findOrCreate(user) {
       return existingUser;
     }
     validateOauthUser(user);
-    return await oauthUserDao.create(user);
+    const oauthUser = await oauthUserDao.findByEmail(user.email);
+    if (oauthUser.length > 0) {
+      return oauthUser;
+    }
+    const newOauthUser = await oauthUserDao.create(user);
+    if (newOauthUser.affectedRows === 0) {
+      throw new Error("User not created");
+    }
+    return await oauthUserDao.findByEmail(user.email);
   } catch (error) {
     throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
   }
