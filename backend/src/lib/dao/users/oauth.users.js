@@ -7,7 +7,7 @@ async function create(user) {
     user.providerId,
     user.provider,
     user.email,
-    Date.now(),
+    new Date(),
   ];
 
   return new Promise(

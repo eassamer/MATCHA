@@ -27,7 +27,7 @@ CREATE TABLE oauthUsers (
     providerId VARCHAR(50) NOT NULL, -- google, facebook, etc
     provider VARCHAR(50) NOT NULL, -- google, facebook, etc
     email VARCHAR(100) NOT NULL UNIQUE,
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME NOT NULL
 );
 
 CREATE TABLE images (
