@@ -1,7 +1,13 @@
 // Description: This file contains the service layer functions for the users table.
 
 const userDao = require("@dao/users/users");
+const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
+
+function isValidDate(date) {
+  const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
+  return dateRegex.test(date);
+}
 
 /**
  * @description validates a user email
@@ -19,7 +25,7 @@ function isValidEmail(email) {
  * @returns true if the password is strong, false otherwise
  */
 function isPasswordStrong(password) {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   return passwordRegex.test(password);
 }
 
@@ -34,6 +40,17 @@ function isNameValid(name) {
 }
 
 /**
+ * Validates if the given sex is either 'male' or 'female'.
+ *
+ * @param {string} sex - The sex to validate.
+ * @returns {boolean} - Returns true if the sex is valid, otherwise false.
+ */
+function isValidSex(sex) {
+  const sexRegex = /^(male|female)$/;
+  return sexRegex.test(sex);
+}
+
+/**
  * @description validates a user object
  * @param {*} user the user object to validate
  * @throws an error if the user object is invalid
@@ -44,9 +61,11 @@ function validateUser(user) {
   requiredFields = [
     "firstName",
     "lastName",
+    "displayName",
+		"birthDate",
     "email",
-    "lastLocation",
     "password",
+    "sex",
   ];
 
   for (const field of requiredFields) {
@@ -61,12 +80,32 @@ function validateUser(user) {
 
   if (!isPasswordStrong(user.password)) {
     throw new Error(
-      `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number`
+      `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one special character, one number`
     );
   }
 
-  if (!isNameValid(user.firstName)) {
+  if (!isNameValid(user.firstName) || !isNameValid(user.lastName) || !isNameValid(user.displayName)) {
     throw new Error(`Invalid first name`);
+  }
+
+	if (!isValidDate(user.birthDate) || new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18) {
+		throw new Error(`User must be at least 18 years old`);
+	}
+
+  if (!isValidSex(user.sex)) {
+    throw new Error(`Invalid sex`);
+  }
+}
+
+function validateOauthUser(user) {
+  if (!user.providerId) {
+    throw new Error("Missing required field: providerId");
+  }
+  if (!user.provider) {
+    throw new Error("Missing required field: provider");
+  }
+  if (!user.email || !isValidEmail(user.email)) {
+    throw new Error("Invalid email");
   }
 }
 
@@ -80,6 +119,10 @@ function validateUser(user) {
 async function create(user) {
   try {
     validateUser(user);
+    const oauthUser = await oauthUserDao.findByEmail(user.email);
+    if (oauthUser.length > 0) {
+      await oauthUserDao.remove(user.email);
+    }
     const queryOutput = await userDao.create(user);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not created");
@@ -89,6 +132,37 @@ async function create(user) {
     return newUser;
   } catch (error) {
     throw new Error(`${errMessagePrefix}.create: ${error.message}`);
+  }
+}
+
+/**
+ * Finds an existing user by email or creates a new OAuth user.
+ *
+ * @param {Object} user - The user object.
+ * @returns {Promise<Object>} The existing user if found, otherwise the newly created user.
+ * @throws {Error} If the email is invalid or any other error occurs during the process.
+ * @note this function should only be called during oauth
+ */
+async function findOrCreate(user) {
+  try {
+    if (!user.email || !isValidEmail(user.email))
+      throw new Error("Invalid email");
+    const existingUser = await userDao.findByEmail(user.email);
+    if (existingUser.length > 0) {
+      return existingUser;
+    }
+    validateOauthUser(user);
+    const oauthUser = await oauthUserDao.findByEmail(user.email);
+    if (oauthUser.length > 0) {
+      return oauthUser;
+    }
+    const newOauthUser = await oauthUserDao.create(user);
+    if (newOauthUser.affectedRows === 0) {
+      throw new Error("User not created");
+    }
+    return await oauthUserDao.findByEmail(user.email);
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
   }
 }
 
@@ -160,6 +234,7 @@ async function updateEmail(userId, email) {
       throw new Error("Invalid email");
     }
     const user = await findById(userId);
+    await findByEmail(email);
     const queryOutput = await userDao.updateEmail(userId, email);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");
@@ -179,14 +254,15 @@ async function updateEmail(userId, email) {
  * @throws if the user does not exist
  * @throws if database query fails
  */
-async function updateLastLocation(userId, lastLocation) {
+async function updateLastLocation(userId, longitude, latitude) {
   try {
     const user = await findById(userId);
-    const queryOutput = await userDao.updateLastLocation(userId, lastLocation);
+    const queryOutput = await userDao.updateLastLocation(userId, longitude, latitude);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");
     }
-    user.lastLocation = lastLocation;
+    user.longitude = longitude;
+		user.latitude = latitude;
     return user;
   } catch (e) {
     throw new Error(`${errMessagePrefix}.updateLastLocation: ${error.message}`);
@@ -228,6 +304,9 @@ async function updatePassword(userId, password) {
 async function remove(userId) {
   try {
     const user = await findById(userId);
+		if (!user) {
+			throw new Error(`User with Id: ${userId} not found`);
+		}
     const queryOutput = await userDao.remove(userId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not removed");
@@ -247,7 +326,7 @@ async function remove(userId) {
 async function findById(userId) {
   try {
     const user = await userDao.findById(userId);
-    if (!user && user.length === 0) {
+    if (!user || user.length === 0) {
       throw new Error(`User with Id: ${userId} not found`);
     }
     return user[0];
@@ -266,7 +345,7 @@ async function findByEmail(email) {
   try {
     if (!isValidEmail(email)) return await userDao.findByEmail(email);
     const user = await userDao.findByEmail(email);
-    if (!user && user.length === 0) {
+    if (!user || user.length === 0) {
       throw new Error(`User with email ${email} not found`);
     }
     return user[0];
@@ -319,4 +398,5 @@ module.exports = {
   findById,
   findByEmail,
   findUsersByName,
+  findOrCreate,
 };

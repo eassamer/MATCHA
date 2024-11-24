@@ -2,8 +2,9 @@ const authService = require("@services/auth/auth.service");
 
 register = async (req, res) => {
   try {
-    const user = await authService.registerUser(req.body);
-    res.status(201).json(user);
+    const { newUser, token } = await authService.registerUser(req.body);
+    res.cookie("jwt", token, { httpOnly: true });
+    res.status(201).json(newUser);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

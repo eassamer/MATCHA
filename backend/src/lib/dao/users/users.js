@@ -14,9 +14,12 @@ async function create(user) {
 	const queryInput = [
 		user.firstName,
 		user.lastName,
+		user.displayName,
+		user.birthDate,
 		user.email,
-		user.lastLocation,
 		user.password,
+		user.sex,
+		new Date(),
 	];
 	const userEmail = await findByEmail(user.email);
 	if (userEmail.length > 0) {
@@ -130,8 +133,8 @@ async function updateEmail(userId, email) {
  * @returns 0 affected rows if the user does not exist
  * @note this function does not check if the new location is valid
  */
-async function updateLastLocation(userId, lastLocation) {
-	const queryInput = [lastLocation, userId];
+async function updateLastLocation(userId, longitude, latitude) {
+	const queryInput = [longitude, latitude, userId];
 	return new Promise(
 		(resolve, reject) => {
 			client.execute(

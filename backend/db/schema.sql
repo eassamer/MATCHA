@@ -4,9 +4,30 @@ CREATE TABLE users (
     userId varchar(36) PRIMARY KEY,
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    lastLocation VARCHAR(255) NOT NULL,
+    displayName VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    createdAt DATETIME NOT NULL,
+    longitude float,
+    latitude float,
+    birthdate DATETIME NOT NULL,
+    includingRange INT, -- range 1, 2, 3, 4, 5
+    radiusInKm INT,
+    sex VARCHAR(10) NOT NULL,
+    bio TEXT,
+    emailVerified BOOLEAN default false,
+    emailVerificationToken VARCHAR(255),
+    emailVerificationTokenExpiresAt DATETIME,
+    passwordResetToken VARCHAR(255),
+    passwordResetTokenExpiresAt DATETIME,
     password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE oauthUsers (
+    userId varchar(36) PRIMARY KEY,
+    providerId VARCHAR(50) NOT NULL, -- google, facebook, etc
+    provider VARCHAR(50) NOT NULL, -- google, facebook, etc
+    email VARCHAR(100) NOT NULL UNIQUE,
+    createdAt DATETIME NOT NULL
 );
 
 CREATE TABLE images (
@@ -42,3 +63,5 @@ CREATE TABLE messages (
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
+
+-- TODO: add interests, tags, etc
