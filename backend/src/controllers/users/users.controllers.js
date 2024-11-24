@@ -4,20 +4,6 @@
 const userService = require('@services/users/users.service');
 
 /**
- * @description creates a new user
- * @param {*} req the request object
- * @param {*} res the response object
- */
-async function create(req, res) {
-		try {
-				const user = await userService.create(req.body);
-				res.status(201).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
-}
-
-/**
  * @description deletes a user
  * @param {*} req the request object
  * @param {*} res the response object
@@ -117,7 +103,6 @@ async function updatePassword(req, res) {
 
 
 module.exports = {
-		create,
 		deleteUser,
 		getUser,
 		getUsersByName,

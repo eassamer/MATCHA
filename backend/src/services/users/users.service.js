@@ -4,6 +4,11 @@ const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 
+function isValidDate(date) {
+  const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
+  return dateRegex.test(date);
+}
+
 /**
  * @description validates a user email
  * @param {*} email the email to validate
@@ -20,7 +25,7 @@ function isValidEmail(email) {
  * @returns true if the password is strong, false otherwise
  */
 function isPasswordStrong(password) {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   return passwordRegex.test(password);
 }
 
@@ -35,6 +40,17 @@ function isNameValid(name) {
 }
 
 /**
+ * Validates if the given sex is either 'male' or 'female'.
+ *
+ * @param {string} sex - The sex to validate.
+ * @returns {boolean} - Returns true if the sex is valid, otherwise false.
+ */
+function isValidSex(sex) {
+  const sexRegex = /^(male|female)$/;
+  return sexRegex.test(sex);
+}
+
+/**
  * @description validates a user object
  * @param {*} user the user object to validate
  * @throws an error if the user object is invalid
@@ -45,9 +61,11 @@ function validateUser(user) {
   requiredFields = [
     "firstName",
     "lastName",
-		"age",
+    "displayName",
+		"birthDate",
     "email",
     "password",
+    "sex",
   ];
 
   for (const field of requiredFields) {
@@ -62,17 +80,21 @@ function validateUser(user) {
 
   if (!isPasswordStrong(user.password)) {
     throw new Error(
-      `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number`
+      `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one special character, one number`
     );
   }
 
-  if (!isNameValid(user.firstName)) {
+  if (!isNameValid(user.firstName) || !isNameValid(user.lastName) || !isNameValid(user.displayName)) {
     throw new Error(`Invalid first name`);
   }
 
-	if (user.age < 18) {
+	if (!isValidDate(user.birthDate) || new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18) {
 		throw new Error(`User must be at least 18 years old`);
 	}
+
+  if (!isValidSex(user.sex)) {
+    throw new Error(`Invalid sex`);
+  }
 }
 
 function validateOauthUser(user) {
@@ -204,6 +226,7 @@ async function updateEmail(userId, email) {
       throw new Error("Invalid email");
     }
     const user = await findById(userId);
+    await findByEmail(email);
     const queryOutput = await userDao.updateEmail(userId, email);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");

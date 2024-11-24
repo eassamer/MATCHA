@@ -14,10 +14,12 @@ async function create(user) {
 	const queryInput = [
 		user.firstName,
 		user.lastName,
+		user.displayName,
 		user.birthDate,
 		user.email,
 		user.password,
-		Date.now(),
+		user.sex,
+		new Date(),
 	];
 	const userEmail = await findByEmail(user.email);
 	if (userEmail.length > 0) {

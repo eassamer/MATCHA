@@ -33,8 +33,7 @@ async function findByEmail(email) {
       queries.FIND_OAUTH_USER_BY_EMAIL,
       queryInput, (err, result) => {
         if (err) {
-          err.message = `${errMessagePrefix}.findByEmail: ${err.message}`;
-          return reject(err);
+          resolve([]);
         }
         resolve(result);
       });

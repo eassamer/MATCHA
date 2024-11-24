@@ -2,7 +2,7 @@ const queries = {
   USE_DB: "USE ?",
   // user queries
   ADD_NEW_USER:
-    "INSERT INTO users (userId, firstName, lastName, email, password, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?)",
   FIND_USERS_BY_FIRSTNAME: "SELECT * FROM users WHERE firstName = ?",
   FIND_USERS_BY_LASTNAME: "SELECT * FROM users WHERE lastName = ?",
   FIND_USER_BY_ID: "SELECT * FROM users WHERE userId = ?",

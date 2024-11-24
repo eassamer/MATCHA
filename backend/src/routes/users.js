@@ -15,8 +15,6 @@ router.get("/users", users.getUsersByName);
 ======POST Requests======
 */
 
-router.post("/create", users.create);
-
 router.post("/delete", users.deleteUser);
 
 router.post("/update/firstname", users.updateFirstName);
