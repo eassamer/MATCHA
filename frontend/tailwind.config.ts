@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,9 +10,14 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: "#C13D88", // Added primary color
+      },
+      fontFamily: {
+        montserrat: ["Montserrat", "sans-serif"], // Added Montserrat font
       },
     },
   },
   plugins: [],
 };
+
 export default config;
