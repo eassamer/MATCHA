@@ -16,7 +16,7 @@ export default function AuthLayout({
             bg-[rgb(252,175,183)]
             bg-[radial-gradient(circle,_rgba(252,175,183,1)_5%,_rgba(178,110,230,1)_100%)]
         ">
-            <div className="mb-[50px]">
+            <div className="absolute top-0">
                 <Image src="/logo.png" width={276} height={112} alt="Logo" />
             </div>
             <div
