@@ -21,10 +21,6 @@ export default function AuthLayout({
             </div>
             <div
                 className="
-                flex
-                flex-col
-                items-center
-                justify-center
                 w-[758px] h-[461px]
                 bg-white
                 rounded-[15px]"
