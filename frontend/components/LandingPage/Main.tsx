@@ -2,7 +2,7 @@ import Image from "@/node_modules/next/image";
 
 export const Main = () => {
   return (
-    <div className="w-full h-fit  flex items-center justify-center py-12">
+    <div className="w-full px-24 h-fit  flex items-center justify-center py-12">
       <div className="w-1/2 h-full flex flex-col items-start justify-center gap-2 px-12 overflow-hidden">
         <h1 className="font-bold  font-montserrat tracking-[1.7px] text-[45px] text-black">
           Start Matching
@@ -12,7 +12,7 @@ export const Main = () => {
         <p className=" font-montserrat tracking-[1.7px] text-[20px] text-black">
           Lorem ipsum omor set nigga light
         </p>
-        <button className="mt-4 px-16 py-4 tracking-[1.7px]  text-lg font-bold font-montserrat rounded-full bg-primary text-white">
+        <button className="mt-4 px-16 py-4 tracking-[1.7px]  text-lg font-bold font-montserrat rounded-full bg-primary text-white hover:bg-white hover:text-primary transition-all ease-in-out duration-300 hover:border hover:border-primary">
           Start Matching
         </button>
       </div>
