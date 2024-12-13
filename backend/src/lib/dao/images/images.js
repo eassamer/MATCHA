@@ -26,8 +26,8 @@ async function create(image) {
     idx = image.idx,
   ];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.ADD_IMAGE,
         queryInput,
         (err, result) => {
@@ -53,8 +53,8 @@ async function create(image) {
 async function update(idx, locationUrl, ownerId) {
   const queryInput = [idx, locationUrl, ownerId];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.UPDATE_IMAGE,
         queryInput,
         (err, result) => {
@@ -79,8 +79,8 @@ async function update(idx, locationUrl, ownerId) {
 async function deleteImage(imageId) {
   const queryInput = [imageId];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.DELETE_IMAGE,
         queryInput,
         (err, result) => {
@@ -106,8 +106,8 @@ async function deleteImage(imageId) {
 async function findByOwnerAndIdx(ownerId, idx) {
   const queryInput = [ownerId, idx];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.FIND_IMAGE_BY_OWNER_AND_IDX,
         queryInput,
         (err, result) => {
@@ -132,8 +132,8 @@ async function findByOwnerAndIdx(ownerId, idx) {
 async function findByOwner(ownerId) {
   const queryInput = [ownerId];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.FIND_IMAGES_BY_USER,
         queryInput,
         (err, result) => {
@@ -158,8 +158,8 @@ async function findByOwner(ownerId) {
 async function findById(imageId) {
   const queryInput = [imageId];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.FIND_IMAGE_BY_ID,
         queryInput,
         (err, result) => {

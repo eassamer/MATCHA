@@ -1,4 +1,4 @@
-const mysql = require("mysql2/promise");
+const mysql = require("mysql2");
 
 /**
  * Attempts to create a connection to the database with retry logic.
@@ -19,7 +19,6 @@ async function createConnection(retryCount = 0, maxRetries = 5, retryDelay = 500
       password: process.env.MYSQL_PASSWORD,
       database: process.env.DB_NAME,
     });
-
     console.log("Successfully connected to the database!");
     return connection;
   } catch (error) {
@@ -35,6 +34,7 @@ async function createConnection(retryCount = 0, maxRetries = 5, retryDelay = 500
     }
   }
 }
+
 
 module.exports = (async () => {
   try {
