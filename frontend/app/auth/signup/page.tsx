@@ -1,4 +1,4 @@
-'use server'
+import { Card } from "@/components/Card";
 import Image from "next/image";
 import React from "react";
 import { FaFacebookSquare, FaGoogle } from "react-icons/fa";
@@ -19,46 +19,37 @@ function handleOauth(index: number) {
 }
 
 
+
 function Signup() {
-    const icons = [
-        { icon: FaFacebookSquare, color: "#C13D88" },
-        { icon: FaGoogle, color: "#C13D88" },
-        { icon: Si42, color: "#C13D88" },
-    ];
+    const icons = [FaFacebookSquare, FaGoogle, Si42];
 
 
     return (
-        <div className="flex flex-row h-full w-full">
-            <div className="items-center justify-center flex flex-col w-[350px]">
+        <div className="flex flex-col lg:flex-row items-center justify-center h-full w-full">
+            <div className="flex items-center justify-center lg:hidden w-[178px] pb-[50px] top-0">
+                <Image src="/logo.png" width={276} height={112} alt="Logo" />
+            </div>
+            <div className="items-center justify-center flex w-[300px] lg:w-[350px]">
                 <Image src="/couple.svg" height={215} width={379} alt="" />
             </div>
             <div className="w-1/2 flex flex-col items-center justify-center">
-                <div className="text-black font-montserrat font-bold text-2xl mb-[60px]">
+                <div className="text-black font-montserrat font-bold text-xl lg:text-2xl mb-[60px]">
                     Signup to continue
                 </div>
-                <button className="btn-forward w-full">Continue with email</button>
-                <div className="flex flex-row items-center justify-cente w-full mt-[30px]">
-                    <div className="bg-slate-500 h-[1px] mx-[30px] w-[100px]"></div>
-                    <div className=" text-slate-500 text-center">
+                <button className="btn-forward w-[300px] lg:w-full">Continue with email</button>
+                <div className="flex flex-row items-center justify-around gap-2 w-full">
+                    <div className="bg-slate-500 h-[1px] w-full"></div>
+                    <div className=" text-slate-500 text-center w-[300px]">
                         or sign up with
                     </div>
-                    <div className="bg-slate-500 h-[1px] mx-[30px] w-[100px]"></div>
+                    <div className="bg-slate-500 h-[1px] w-full"></div>
                 </div>
-                <div className="flex flex-row items-center justify-between w-[250px]">
+                <div className="flex flex-row items-center justify-center gap-8 w-[250px]">
                     {icons.map((item, index) => (
-                        <a
-                            key={index}
-                            className="flex flex-row items-center justify-center rounded-[15px] h-[60px] w-[60px] border-spacing-5 border-slate-300 border-[1px]"
-                            href={handleOauth(index)}
-                        >
-                            {React.createElement(item.icon, {
-                                size: 30,
-                                color: item.color,
-                                className: "cursor-pointer",
-                            })}
-                        </a>
+                        <Card key={index} href={handleOauth(index)} Icon={item} />
                     ))}
                 </div>
+            </div>
                 <div className="flex flex-row items-center justify-between">
                     <a href="/policy/privacy" className="text-pink-500">
                         Terms of use
@@ -68,7 +59,6 @@ function Signup() {
                         Privacy Policy
                     </a>
                 </div>
-            </div>
         </div>
     );
 }
