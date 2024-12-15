@@ -9,7 +9,7 @@ export const Card = ({
   href: string
 }) => {
   return (
-    <Link href={href} className="p-4 rounded-[13px] border border-slate-400">
+    <Link href={href} className="p-4 rounded-[13px] border border-slate-300">
       <Icon className=" text-primary text-[30px]" />
     </Link>
   );
