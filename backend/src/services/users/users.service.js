@@ -120,6 +120,7 @@ async function create(user) {
   try {
     validateUser(user);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
+    console.log("here")
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
     }

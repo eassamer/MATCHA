@@ -4,6 +4,7 @@ const queries = require('@lib/db/queries');
 const client = require('@lib/db/dbconnect');
 const errMessagePrefix = 'UserDao: ' //for better debugging
 
+
 /**
  * @description creates a new user in the database
  * @param {*} user object with the following fields: firstName, lastName, email, lastLocation, password
@@ -26,8 +27,8 @@ async function create(user) {
 		throw new Error(`${errMessagePrefix}.create: User with email ${user.email} already exists`);
 	}
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.ADD_NEW_USER,
 				queryInput, (err, result) => {
 	  			if (err) {
@@ -53,8 +54,8 @@ async function create(user) {
 async function updateFirstName(userId, firstName) {
 	const queryInput = [firstName, userId];
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.UPDATE_USER_FIRSTNAME,
 				queryInput,
 				(err, result) => {
@@ -80,8 +81,8 @@ async function updateFirstName(userId, firstName) {
 async function updateLastName(userId, lastName) {
 	const queryInput = [lastName, userId];
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.UPDATE_USER_LASTNAME,
 				queryInput,
 				(err, result) => {
@@ -111,8 +112,8 @@ async function updateEmail(userId, email) {
 		throw new Error(`${errMessagePrefix}.updateEmail User with email ${user.email} already exists`);
 	}
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(queries.UPDATE_USER_EMAIL,
+		async (resolve, reject) => {
+			(await client).execute(queries.UPDATE_USER_EMAIL,
 				queryInput,
 				(err, result) => {
 					if (err) {
@@ -136,8 +137,8 @@ async function updateEmail(userId, email) {
 async function updateLastLocation(userId, longitude, latitude) {
 	const queryInput = [longitude, latitude, userId];
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.UPDATE_USER_LASTLOCATION,
 				queryInput,
 				(err, result) => {
@@ -163,8 +164,8 @@ async function updateLastLocation(userId, longitude, latitude) {
 async function updatePassword(userId, password) {
 	const queryInput = [password, userId];
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.UPDATE_USER_PASSWORD,
 				queryInput,
 				(err, result) => {
@@ -189,8 +190,8 @@ async function updatePassword(userId, password) {
 async function remove(userId) {
 	const queryInput = [userId];
 	return new Promise(
-		(resolve, reject) => {
-			client.execute(
+		async (resolve, reject) => {
+			(await client).execute(
 				queries.DELETE_USER_QUERY,
 				queryInput, (err, result) => {
 					if (err) {
@@ -213,8 +214,8 @@ async function remove(userId) {
 
 async function findById(userId) {
 	const queryInput = [userId];
-	return new Promise((resolve, reject) => {
-		client.execute(
+	return new Promise(async (resolve, reject) => {
+		(await client).execute(
 			queries.FIND_USER_BY_ID,
 			queryInput, (err, result) => {
 				if (err) {
@@ -236,8 +237,8 @@ async function findById(userId) {
 
 async function findByEmail(email) {
 	const queryInput = [email];
-	return new Promise((resolve, reject) => {
-		client.execute(queries.FIND_USER_BY_EMAIL, queryInput, (err, result) => {
+	return new Promise(async (resolve, reject) => {
+		(await client).execute(queries.FIND_USER_BY_EMAIL, queryInput, (err, result) => {
 		if (err) {
 			err.message = `${errMessagePrefix}.findByEmail: ${err.message}`;
 			return reject(err);
@@ -257,8 +258,8 @@ async function findByEmail(email) {
  */
 async function findUsersByName(name, take, skip) {
 	const queryInput = [name, name, take, skip]; //name repeated twice to search in both first and last names
-	return new Promise((resolve, reject) => {
-		client.execute(queries.FIND_USERS_BY_NAME, queryInput, (err, result) => {
+	return new Promise(async (resolve, reject) => {
+		(await client).execute(queries.FIND_USERS_BY_NAME, queryInput, (err, result) => {
 		if (err) {
 			err.message = `${errMessagePrefix}.findUsersByName: ${err.message}`;
 			return reject(err);

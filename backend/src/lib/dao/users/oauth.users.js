@@ -11,8 +11,8 @@ async function create(user) {
   ];
 
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.ADD_OAUTH_USER,
         queryInput, (err, result) => {
           if (err) {
@@ -28,12 +28,12 @@ async function create(user) {
 
 async function findByEmail(email) {
   const queryInput = [email];
-  return new Promise((resolve, reject) => {
-    client.execute(
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
       queries.FIND_OAUTH_USER_BY_EMAIL,
       queryInput, (err, result) => {
         if (err) {
-          resolve([]);
+          reject(`${errMessagePrefix}.findByEmail `, err);
         }
         resolve(result);
       });
@@ -43,8 +43,8 @@ async function findByEmail(email) {
 async function remove(email) {
   const queryInput = [email];
   return new Promise(
-    (resolve, reject) => {
-      client.execute(
+    async (resolve, reject) => {
+      (await client).execute(
         queries.DELETE_OAUTH_USER,
         queryInput, (err, result) => {
           if (err) {
