@@ -1,57 +1,108 @@
 "use client";
 import { Card } from "@/components/Card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FaXmark, FaCheck } from "react-icons/fa6";
 
 const cardData = [
   {
     id: 1,
-    url: "https://images.unsplash.com/photo-1512374382149-233c42b6a83b?q=80&w=2235&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User1.svg",
   },
   {
     id: 2,
-    url: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=2342&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User2.svg",
   },
   {
     id: 3,
-    url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2224&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User3.svg",
   },
   {
     id: 4,
-    url: "https://images.unsplash.com/photo-1516478177764-9fe5bd7e9717?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User4.svg",
   },
   {
     id: 5,
-    url: "https://images.unsplash.com/photo-1570464197285-9949814674a7?q=80&w=2273&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User5.svg",
   },
   {
     id: 6,
-    url: "https://images.unsplash.com/photo-1505784045224-1247b2b29cf3?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User6.svg",
   },
   {
     id: 7,
-    url: "https://images.unsplash.com/photo-1578608712688-36b5be8823dc?q=80&w=2187&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User7.svg",
   },
   {
     id: 8,
-    url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    url: "/User8.svg",
+  },
+  {
+    id: 9,
+    url: "/User9.svg",
+  },
+  {
+    id: 10,
+    url: "/User10.svg",
   },
 ];
 
 export default function Swipe() {
   const [cards, setCards] = useState(cardData);
+  const [direction, setDirection] = useState("");
+  const [sizeButton, setSizeButton] = useState(0);
+
   return (
-    <div className="w-screen h-screen bg-red-100 grid place-items-center">
-      {cards.map((card) => {
-        return (
-          <Card
-            key={card.id}
-            cards={cards}
-            setCards={setCards}
-            url={card.url}
-            id={card.id}
-          />
-        );
-      })}
+    <div className="w-screen h-screen bg-black flex items-center justify-center gap-12 flex-col">
+      <div className="h-[420px] w-[340px] grid place-items-center">
+        {!cards.length && (
+          <h1 className="text-2xl font-bold font-montserrat text-white">
+            No more users
+          </h1>
+        )}
+        {cards.map((card) => {
+          return (
+            <Card
+              key={card.id}
+              cards={cards}
+              setCards={setCards}
+              url={card.url}
+              id={card.id}
+              direction={direction}
+              setDirection={setDirection}
+              sizeButton={sizeButton}
+              setSizeButton={setSizeButton}
+            />
+          );
+        })}
+      </div>
+      <div className="w-fit h-[200px]  flex items-center justify-center gap-24">
+        <button
+          onClick={() => setDirection("left")}
+          style={{
+            width: 75 - sizeButton,
+            height: 75 - sizeButton,
+            maxWidth: 175,
+            maxHeight: 175,
+            display: sizeButton > 45 ? "none" : "",
+          }}
+          className=" text-xl font-bold font-montserrat bg-red-500 rounded-full flex items-center justify-center"
+        >
+          <FaXmark size={28} color="white" />
+        </button>
+        <button
+          onClick={() => setDirection("right")}
+          style={{
+            display: sizeButton < -45 ? "none" : "",
+            width: 75 + sizeButton,
+            height: 75 + sizeButton,
+            maxWidth: 175,
+            maxHeight: 175,
+          }}
+          className=" text-xl font-bold font-montserrat bg-green-500 rounded-full flex items-center justify-center"
+        >
+          <FaCheck size={28} color="white" />
+        </button>
+      </div>
     </div>
   );
 }
