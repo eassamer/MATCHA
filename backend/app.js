@@ -4,6 +4,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var cors = require("cors");
 var sanitizer = require("perfect-express-sanitizer");
 
 var authMiddleware = require("@middlewares/auth/auth.middleware");
@@ -22,12 +23,17 @@ app.set("view engine", "jade");
 
 app.use(logger("dev"));
 //limiting the size of the request body
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(passport.initialize());
 app.all("/*", authMiddleware);
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true, //access-control-allow-credentials:true
+};
+app.use(cors(corsOptions));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
