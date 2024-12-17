@@ -1,26 +1,12 @@
 import { SignUp } from "@/components/auth/Signup/Signup";
-import Link from "next/link";
+import { TermsAndPolicy } from "@/components/auth/Signup/TermsAndPolicy";
 
-
-const TermsAndPolicy = () => {
-    return (
-        <div className="h-auto w-fit flex absolute bottom-2">
-            <Link href="/policy/privacy" className="text-pink-500">
-                Terms of use
-            </Link>
-            <div className="w-[50px]"></div>
-            <Link href="/policy/termsofuse" className="text-pink-500">
-                Privacy Policy
-            </Link>
-        </div>
-    );
-}
 
 function Signup() {
     return(
-        <div className="h-full w-screen flex flex-col items-center">
+        <div className="h-full w-screen">
             <SignUp />
-            <TermsAndPolicy />
+            {/* <TermsAndPolicy /> */}
         </div>
     )
 }
