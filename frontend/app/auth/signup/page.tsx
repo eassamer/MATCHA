@@ -18,7 +18,7 @@ const TermsAndPolicy = () => {
 
 function Signup() {
     return(
-        <div className="h-screen w-screen flex flex-col items-center">
+        <div className="h-full w-screen flex flex-col items-center">
             <SignUp />
             <TermsAndPolicy />
         </div>
