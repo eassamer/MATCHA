@@ -75,7 +75,6 @@ async function authenticateUser(email, password) {
     throw new Error(error.message);
   }
 }
-
 /**
  * Finds or creates a user by their GoogleId, email, firstName, and lastName.
  * If the user already exists, return the existing user.
@@ -104,10 +103,15 @@ async function findOrCreateUser({ email, firstName, lastName }) {
   }
 }
 
+function FourtyTwoAuthenticate() {
+  return `${process.env.FORTY_API_LINK}/authorize?client_id=${process.env.FORTY_CLIENT_ID}&redirect_uri=${process.env.FORTY_TWO_REDIRECT_URI}&response_type=code`;
+}
+
 module.exports = {
   registerUser,
   authenticateUser,
   generateToken,
   findOrCreateUser,
   verifyPassword,
+  FourtyTwoAuthenticate
 };
