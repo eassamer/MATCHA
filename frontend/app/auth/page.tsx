@@ -4,8 +4,9 @@ import axios from "axios";
 export default function Auth() {
   const auth42 = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/auth/42");
-      console.log(res);
+      console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
+      const res = await axios.get('http://localhost:3001/auth/42');
+      window.location.href = res.data.authUrl;
     } catch (error) {
       console.log(error);
     }

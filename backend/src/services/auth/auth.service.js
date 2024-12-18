@@ -104,7 +104,7 @@ async function findOrCreateUser({ email, firstName, lastName }) {
 }
 
 function FourtyTwoAuthenticate() {
-  return `${process.env.FORTY_API_LINK}/authorize?client_id=${process.env.FORTY_CLIENT_ID}&redirect_uri=${process.env.FORTY_TWO_REDIRECT_URI}&response_type=code`;
+  return `${process.env.FORTY_API_LINK}/oauth/authorize?client_id=${process.env.FORTY_TWO_CLIENT_ID}&redirect_uri=${encodeURI(process.env.FORTY_TWO_REDIRECT_URI)}&response_type=code`;
 }
 
 module.exports = {
