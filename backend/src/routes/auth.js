@@ -15,14 +15,14 @@ router.get(
 );
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  authController.googleAuthenticate,
 );
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   authController.oauthCallback
 );
-router.get("/42", authController.FourtyTwoAuthenticate);
+router.get("/42", authController.fourtyTwoAuthenticate);
 router.get(
   "/42/callback",
   passport.authenticate("42", {session: false}),

@@ -1,12 +1,14 @@
 "use client";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
+  const router = useRouter();
   const auth42 = async () => {
     try {
       console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
-      const res = await axios.get('http://localhost:3001/auth/42');
-      window.location.href = res.data.authUrl;
+      const res = await axios.get("http://localhost:3001/auth/google");
+      router.push(res.data.authUrl);
     } catch (error) {
       console.log(error);
     }

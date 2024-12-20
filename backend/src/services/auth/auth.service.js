@@ -2,7 +2,7 @@
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const userService = require("@services/users/users.service");
-const generator = require('generate-password');
+const generator = require("generate-password");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
@@ -40,7 +40,6 @@ function generateToken(user) {
     expiresIn: "24h",
   });
 }
-
 
 /**
  * Registers a new user by hashing the given password and creating a new entry in the database
@@ -103,8 +102,16 @@ async function findOrCreateUser({ email, firstName, lastName }) {
   }
 }
 
-function FourtyTwoAuthenticate() {
-  return `${process.env.FORTY_API_LINK}/oauth/authorize?client_id=${process.env.FORTY_TWO_CLIENT_ID}&redirect_uri=${encodeURI(process.env.FORTY_TWO_REDIRECT_URI)}&response_type=code`;
+function fourtyTwoAuthenticate() {
+  return `${process.env.FORTY_API_LINK}?client_id=${
+    process.env.FORTY_TWO_CLIENT_ID
+  }&redirect_uri=${encodeURI(
+    process.env.FORTY_TWO_REDIRECT_URI
+  )}&response_type=code`;
+}
+
+function googleAuthenticate() {
+  return `${process.env.GOOGLE_API_LINK}?response_type=code&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&scope=profile%20email&client_id=${process.env.GOOGLE_CLIENT_ID}`;
 }
 
 module.exports = {
@@ -113,5 +120,6 @@ module.exports = {
   generateToken,
   findOrCreateUser,
   verifyPassword,
-  FourtyTwoAuthenticate
+  fourtyTwoAuthenticate,
+  googleAuthenticate,
 };

@@ -24,10 +24,15 @@ login = async (req, res) => {
   }
 };
 
-FourtyTwoAuthenticate = (req, res) => {
-  const authUrl = authService.FourtyTwoAuthenticate();
-  res.status(200).json({authUrl});
-}
+googleAuthenticate = (req, res) => {
+  const authUrl = authService.googleAuthenticate();
+  res.status(200).json({ authUrl });
+};
+
+fourtyTwoAuthenticate = (req, res) => {
+  const authUrl = authService.fourtyTwoAuthenticate();
+  res.status(200).json({ authUrl });
+};
 
 oauthCallback = (req, res) => {
   // Set JWT token on successful OAuth authentication
@@ -40,5 +45,6 @@ module.exports = {
   register,
   login,
   oauthCallback,
-  FourtyTwoAuthenticate,
+  fourtyTwoAuthenticate,
+  googleAuthenticate,
 };
