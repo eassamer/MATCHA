@@ -19,11 +19,14 @@ export const ContactUs = () => {
     },
   ];
   return (
-    <div className="w-full h-fit  pt-8 flex flex-col items-center justify-start">
-      <h1 className="font-bold font-montserrat tracking-[1.7px] text-[45px] text-black">
+    <div
+      id="contact-us"
+      className="w-full h-fit  pt-8 flex flex-col items-center justify-start"
+    >
+      <h1 className="font-bold font-montserrat tracking-[1.7px] text-[32px] lg:text-[45px] text-black">
         Contact Us
       </h1>
-      <div className="w-full h-fit py-12 flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 bg-[#FBCFE8] rounded-t-[24px] px-32">
+      <div className="w-full h-fit py-12 flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 bg-[#FBCFE8] rounded-t-[24px] px-12 lg:px-32">
         <div className="w-full md:w-1/3 h-full  flex flex-col items-center gap-6 justify-center">
           {ContactUsData.map((item, index) => (
             <ContactUsInfo
@@ -51,15 +54,15 @@ export const ContactUs = () => {
           </div>
         </div>
       </div>
-      <div className="w-full h-[150px] bg-black flex items-center justify-center relative px-24">
-        <div className="w-fit h-fit flex items-center absolute left-24 justify-center gap-4">
-          <FaRegCopyright className="tex" size={24} />
+      <div className="w-full h-[150px] bg-black flex items-center justify-between lg:justify-center relative px-8 lg:px-24">
+        <div className="w-fit h-fit flex items-center lg:absolute lg:left-24 justify-center gap-4">
+          <FaRegCopyright className="text-white" size={24} />
           <h1 className="font-bold font-montserrat tracking-[1.7px] text-[14px] text-white">
             Copyright 2023
           </h1>
         </div>
         <Image src="/white-logo.svg" alt="logo" width={140} height={200} />
-        <div className="w-[50px] h-[1px]"></div>
+        <div className="hidden lg:block w-[50px] h-[1px]"></div>
       </div>
     </div>
   );
