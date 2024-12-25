@@ -27,7 +27,7 @@ export const SignUpOptions = () => {
                   ))}
               </div>
               <div>
-                <Link href="/auth/signin" className="line-clamp-1 text-pink-500">Already have an account?</Link>
+                <Link href="/auth/signin" className="underline text-pink-500">Already have an account?</Link>
               </div>
       </div>
   </div>
