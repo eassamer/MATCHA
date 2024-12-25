@@ -10,20 +10,26 @@ export const SignUp = () => {
     return (
         <div className="
             flex
-            px-12 
+            px-12
+            lg:px-0
+            lg:justify-center
             flex-col
             lg:flex-row
             items-center
-            gap-12
             h-full
             w-full
             overflow-scroll
             lg:overflow-auto">
-            <Media />
+            <div className="lg:w-1/2">
+                <Media/>
+            </div>
             <div className="
                 flex
                 flex-col
-                gap-12">
+                h-fit
+                lg:px-10
+                lg:w-1/2
+                gap-16">
                 <SignUpOptions />
                 {/* <div className="h-1/6"></div> */}
                 <TermsAndPolicy />
