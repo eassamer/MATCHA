@@ -1,4 +1,5 @@
 import Image from "@/node_modules/next/image";
+import { SectionTitle } from "./SectionTitle";
 
 export const AboutUs = () => {
   return (
@@ -6,9 +7,7 @@ export const AboutUs = () => {
       id="about-us"
       className="w-full h-fit px-8 lg:px-24 py-8 flex flex-col items-center justify-start gap-12"
     >
-      <h1 className="font-bold font-montserrat tracking-[1.7px] text-[32px] lg:text-[45px] text-black">
-        About Us
-      </h1>
+      <SectionTitle title="About us" />
       <div className=" w-full lg:w-[700px] bg-white h-fit rounded-[13px] [box-shadow:-13px_35px_0px_0px_rgba(193,61,136,1)] flex flex-col lg:flex-row items-center justify-center px-6 lg:px-14">
         <div className="w-1/2 h-full flex items-center justify-center">
           <Image src="/About.svg" alt="about-us" width={300} height={300} />

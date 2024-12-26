@@ -2,6 +2,7 @@ import Image from "@/node_modules/next/image";
 import { FaRegCopyright } from "react-icons/fa6";
 import { ContactUsInfo } from "./ContactusInfo";
 import { ContactusInput } from "./ContactUsInput";
+import { SectionTitle } from "./SectionTitle";
 
 export const ContactUs = () => {
   const ContactUsData = [
@@ -23,9 +24,7 @@ export const ContactUs = () => {
       id="contact-us"
       className="w-full h-fit  pt-8 flex flex-col items-center justify-start"
     >
-      <h1 className="font-bold font-montserrat tracking-[1.7px] text-[32px] lg:text-[45px] text-black">
-        Contact Us
-      </h1>
+      <SectionTitle title="Contact us" />
       <div className="w-full h-fit py-12 flex flex-col md:flex-row items-center justify-center md:justify-between gap-8 bg-[#FBCFE8] rounded-t-[24px] px-12 lg:px-32">
         <div className="w-full md:w-1/3 h-full  flex flex-col items-center gap-6 justify-center">
           {ContactUsData.map((item, index) => (
