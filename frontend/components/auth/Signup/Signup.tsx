@@ -26,10 +26,12 @@ export const SignUp = () => {
             <div className="
                 flex
                 flex-col
-                h-fit
+                justify-between
+                h-full
+                lg:h-fit
                 lg:px-10
                 lg:w-1/2
-                gap-16">
+                ">
                 <SignUpOptions />
                 {/* <div className="h-1/6"></div> */}
                 <TermsAndPolicy />

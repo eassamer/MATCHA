@@ -14,9 +14,9 @@ export const SignUpOptions = () => {
               <button className="btn-forward justify-center w-full font-montserrat text-[20px] font-extralight">Continue with email</button>
           </div>
           <div className="flex flex-col items-center justify-center w-full h-fit gap-6">
-              <div className="flex flex-row items-center justify-between gap-2 w-full ">
+              <div className="flex flex-row items-center justify-between gap-2 w-full">
                   <div className="bg-slate-500 h-[1px] w-full"></div>
-                  <div className=" text-slate-500 text-center w-full">
+                  <div className=" text-slate-500 text-center w-full pt-5">
                       or sign up with
                   </div>
                   <div className="bg-slate-500 h-[1px] w-full"></div>
