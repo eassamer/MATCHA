@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { HeaderTitle } from "./LandingPage/HeaderTitle";
 import Link from "next/link";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const titles = [
@@ -32,6 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarHeader>
       <SidebarContent>
+        <VisuallyHidden.Root>Navigation</VisuallyHidden.Root>
         <div className="w-full h-full flex flex-col items-start pt-12 pl-6 justify-start gap-12">
           {titles.map((item, index) => (
             <Link href={`#${item.link}`} key={index}>
@@ -41,12 +43,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarContent>
       <SidebarFooter>
-        <button className=" py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full hover:bg-primary hover:text-white bg-white text-primary transition-all ease-in-out duration-300 border-2 hover:border-transparent border-primary">
+        <Link
+          href="/login"
+          className=" flex items-center justify-center py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full hover:bg-primary hover:text-white bg-white text-primary transition-all ease-in-out duration-300 border-2 hover:border-transparent border-primary"
+        >
           Login
-        </button>
-        <button className=" py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full bg-primary text-white hover:bg-white hover:text-primary transition-all ease-in-out duration-300 hover:border hover:border-primary">
+        </Link>
+        <Link
+          href="/signup"
+          className="mb-4 flex items-center justify-center py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full bg-primary text-white hover:bg-white hover:text-primary transition-all ease-in-out duration-300 hover:border hover:border-primary"
+        >
           Sign Up
-        </button>
+        </Link>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
