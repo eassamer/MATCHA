@@ -1,4 +1,4 @@
-import { Card } from "@/components/Card";
+import { Card } from "@/components/auth/Card";
 import Link from "next/link";
 import { FaFacebookSquare, FaGoogle } from "react-icons/fa";
 import { Si42 } from "react-icons/si";
