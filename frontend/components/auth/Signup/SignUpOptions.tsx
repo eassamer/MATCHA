@@ -21,7 +21,7 @@ export const SignUpOptions = () => {
               <div className="flex flex-row items-center justify-between gap-2 w-full">
                   <div className="bg-[#000000] opacity-[40%] h-[0.5px] w-[35%]"></div>
                   <h1 className=" text-black font-normal text-[12px] text-center pt-5">
-                      or sign up with
+                      or sign up<br />with
                   </h1>
                   <div className="bg-[#000000] opacity-[40%] h-[0.5px] w-[35%]"></div>
               </div>
