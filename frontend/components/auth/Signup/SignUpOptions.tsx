@@ -12,7 +12,7 @@ export const SignUpOptions = () => {
               <div className="text-black font-montserrat font-bold text-[18px] lg:text-l">
                   Sign up to continue
               </div>
-              <Button type={true}>
+              <Button type={true} className="font-bold">
                 Continue With Email
               </Button>
 

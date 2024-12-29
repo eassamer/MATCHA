@@ -20,7 +20,7 @@ export const SignUp = () => {
             w-full
             overflow-scroll
             lg:overflow-auto">
-            <div className="lg:w-1/2">
+            <div className="lg:w-1/2 pt-10">
                 <Media/>
             </div>
             <div className="
@@ -28,6 +28,7 @@ export const SignUp = () => {
                 flex-col
                 justify-around
                 h-full
+                w-full
                 gap-5
                 lg:h-fit
                 lg:px-10

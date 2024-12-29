@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const TermsAndPolicy = () => {
   return (
-      <div className="h-auto w-full flex lg:justify-center lg:items-center">
+      <div className="h-auto w-full flex justify-center items-center">
           <Link href="/policy/privacy" className="text-primary text-[15px] font-montserrat">
               Terms of use
           </Link>

@@ -17,7 +17,8 @@ export const Button = (
   return (
     <button
       className={
-        `${className}
+        `
+        ${className}
         ${type? 'bg-primary text-white' : 'bg-white text-primary'}
         shadow-md
         hover:bg-pink-500
@@ -26,7 +27,6 @@ export const Button = (
         ease-in-out
         justify-center
         font-montserrat
-        font-normal
         text-[16px]
         h-[58px]
         w-full
