@@ -28,6 +28,7 @@ export const SignUp = () => {
                 flex-col
                 justify-around
                 h-full
+                gap-5
                 lg:h-fit
                 lg:px-10
                 lg:w-1/2
