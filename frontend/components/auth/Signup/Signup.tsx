@@ -26,7 +26,7 @@ export const SignUp = () => {
             <div className="
                 flex
                 flex-col
-                justify-between
+                justify-around
                 h-full
                 lg:h-fit
                 lg:px-10
