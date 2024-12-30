@@ -10,7 +10,7 @@ export const Card = ({
 }) => {
   return (
     <Link href={href} className="p-4 rounded-[13px] border border-[#E8E6EA]">
-      <Icon className=" text-primary text-[30px] hover:text-pink-500" />
+      <Icon className=" text-primary text-[30px] transition-all duration-300 ease-in-out hover:text-pink-500" />
     </Link>
   );
 }

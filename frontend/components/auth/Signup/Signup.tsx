@@ -3,12 +3,10 @@ import { Media } from "./Media";
 import { SignUpOptions } from "./SignUpOptions";
 import { TermsAndPolicy } from "./TermsAndPolicy";
 
-
-
-
 export const SignUp = () => {
-    return (
-        <div className="
+  return (
+    <div
+      className="
             flex
             px-12
             lg:px-0
@@ -18,12 +16,13 @@ export const SignUp = () => {
             items-center
             h-full
             w-full
-            overflow-scroll
-            lg:overflow-auto">
-            <div className="lg:w-1/2 pt-10">
-                <Media/>
-            </div>
-            <div className="
+            lg:overflow-auto"
+    >
+      <div className="lg:w-1/2 pt-10">
+        <Media />
+      </div>
+      <div
+        className="
                 flex
                 flex-col
                 justify-around
@@ -33,11 +32,11 @@ export const SignUp = () => {
                 lg:h-fit
                 lg:px-10
                 lg:w-1/2
-                ">
-                <SignUpOptions />
-                {/* <div className="h-1/6"></div> */}
-                <TermsAndPolicy />
-            </div>
-        </div>
-    );
-}
+                "
+      >
+        <SignUpOptions />
+        <TermsAndPolicy />
+      </div>
+    </div>
+  );
+};
