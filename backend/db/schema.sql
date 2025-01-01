@@ -9,6 +9,8 @@ CREATE TABLE users (
     createdAt DATETIME NOT NULL,
     longitude float,
     latitude float,
+    city VARCHAR(50),
+    country VARCHAR(50),
     birthdate DATETIME NOT NULL,
     includingRange INT, -- range 1, 2, 3, 4, 5
     radiusInKm INT,
