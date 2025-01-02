@@ -46,6 +46,4 @@ services:
 networks:
   matcha:
 
-volumes:
-  vol_backend:
-  vol_frontend:
+
