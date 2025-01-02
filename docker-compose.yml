@@ -26,8 +26,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/:/app:rw
-      - vol_frontend:/opt/app/node_modules
+      - ./frontend:/app:rw
   backend:
     build:
       context: backend
@@ -38,7 +37,6 @@ services:
       - 3001:3001
     volumes:
       - ./backend:/app:rw
-      - vol_backend:/app/node_modules
     env_file:
       - .env
     depends_on:
