@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Matcha",
-  description: "meet new people",
+  description: "Matcha is a social media platform for developers.",
 };
 
 export default function RootLayout({
