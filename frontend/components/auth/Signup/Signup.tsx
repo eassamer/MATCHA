@@ -1,8 +1,8 @@
-'use client';
+"use client";
 import React from "react";
 import { Media } from "./Media";
 import { SignUpOptions } from "./SignUpOptions";
-import { TermsAndPolicy } from "./TermsAndPolicy";
+import { TermsAndPolicy } from "../TermsAndPolicy";
 
 export const SignUp = () => {
   return (
