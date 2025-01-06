@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import { Media } from "./Media";
 import { SignUpOptions } from "./SignUpOptions";
