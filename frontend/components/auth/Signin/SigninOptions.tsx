@@ -14,7 +14,7 @@ export const SignInOptions = () => {
           Sign In
         </Button>
       </div>
-      <div className="flex flex-col items-center justify-around w-full gap-3 py-4 static h-full">
+      <div className="flex flex-col items-center justify-around w-full gap-3 lg:py-0 py-4 static h-full">
         <div className="flex flex-row items-center justify-around gap-2 w-full">
           <div className="bg-[#000000] opacity-[40%] h-[0.5px] w-[35%]"></div>
           <h1 className=" text-black font-normal text-[12px] text-center pt-5">
@@ -30,14 +30,14 @@ export const SignInOptions = () => {
           ))}
         </div>
       </div>
-        <div>
-          <Link
-            href="/auth/signin"
-            className="underline text-primary text-[12px]"
-          >
-            Don&apos;t have an account?
-          </Link>
-        </div>
+      <div>
+        <Link
+          href="/auth/signup"
+          className="underline text-primary text-[12px]"
+        >
+          Don&apos;t have an account?
+        </Link>
+      </div>
     </div>
   );
 };
