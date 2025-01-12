@@ -10,6 +10,7 @@
     "@tensorflow-models/face-detection": "^1.0.3",
     "@types/node": "^22.10.2",
     "argon2": "^0.41.1",
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cookie-parser": "~1.4.4",
