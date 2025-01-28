@@ -22,12 +22,16 @@ export const Card = ({
   setSizeButton: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const x = useMotionValue(0);
+  const y = useMotionValue(0); // Add motion value for vertical movement
   const rotate = useTransform(x, [-100, 100], [-20, 20]);
   const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
-  const isFront = id == cards[cards.length - 1].id;
+
+  const isFront = id === cards[cards.length - 1].id;
+
   useEffect(() => {
     setSizeButton(x.get());
   }, [x.get()]);
+
   useEffect(() => {
     if (isFront && direction === "right") {
       x.set(100);
@@ -43,13 +47,25 @@ export const Card = ({
         setDirection("");
       }, 300);
     }
+    if (isFront && direction === "up") {
+      y.set(-200); // Move the card upward off-screen
+      setTimeout(() => {
+        setCards((cards) => cards.filter((card) => card.id !== id));
+        setDirection("");
+      }, 300);
+    }
   }, [direction]);
+
   const dragEnd = () => {
     setSizeButton(0);
-    if (Math.abs(x.get()) > 100) {
+    const dragThreshold = 100; 
+    if (Math.abs(x.get()) > dragThreshold) {
+      setCards((cards) => cards.filter((card) => card.id !== id));
+    } else if (y.get() < -dragThreshold) {
       setCards((cards) => cards.filter((card) => card.id !== id));
     }
   };
+
   return (
     <motion.img
       src={url}
@@ -60,16 +76,17 @@ export const Card = ({
         gridRow: 1,
         gridColumn: 1,
         x,
+        y,
         rotate,
         opacity,
-        transition: sizeButton == 0 ? "all 0.1s ease-in-out" : "",
+        transition: sizeButton === 0 ? "all 0.1s ease-in-out" : "",
       }}
       onDrag={() => {
         setSizeButton(x.get());
       }}
-      drag="x"
+      drag
       onDragEnd={dragEnd}
-      dragConstraints={{ left: 0, right: 0 }}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
     />
   );
 };

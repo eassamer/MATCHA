@@ -2,7 +2,7 @@
 import { Card } from "@/components/Card";
 import { useEffect, useState } from "react";
 import { FaXmark, FaCheck } from "react-icons/fa6";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaStar } from "react-icons/fa";
 
 const cardData = [
   {
@@ -80,47 +80,44 @@ export default function Swipe() {
         <button
           onClick={() => setDirection("left")}
           style={{
-            width: 75 - sizeButton,
-            height: 75 - sizeButton,
+            width: 75,
+            height: 75,
             maxWidth: 175,
             maxHeight: 175,
             minWidth: 45,
             minHeight: 45,
-            display: sizeButton > 45 ? "none" : "",
           }}
           className=" [box-shadow:0px_20px_50px_0px_rgba(0,0,0,0.07)] text-xl font-bold font-montserrat bg-white rounded-full flex items-center justify-center"
         >
-          <FaXmark size={28 - sizeButton / 3.6} color="#F27121" />
+          <FaXmark size={28} color="#F27121" />
         </button>
         <button
-          onClick={() => setDirection("right")}
+          onClick={() => setDirection("up")}
           style={{
-            display: sizeButton < -45 ? "none" : "",
             minWidth: 45,
             minHeight: 45,
-            width: 75 + sizeButton,
-            height: 75 + sizeButton,
+            width: 75,
+            height: 75,
             maxWidth: 175,
             maxHeight: 175,
           }}
           className=" [box-shadow:0px_15px_15px_0px_rgba(233,64,87,0.2)] text-xl font-bold font-montserrat bg-primary rounded-full flex items-center justify-center"
         >
-          <FaHeart size={28 + sizeButton / 3.6} color="white" />
+          <FaHeart size={28} color="white" />
         </button>
         <button
-          onClick={() => setDirection("left")}
+          onClick={() => setDirection("right")}
           style={{
-            width: 75 - sizeButton,
-            height: 75 - sizeButton,
-            maxWidth: 175,
-            maxHeight: 175,
             minWidth: 45,
             minHeight: 45,
-            display: sizeButton > 45 ? "none" : "",
+            width: 75,
+            height: 75,
+            maxWidth: 175,
+            maxHeight: 175,
           }}
           className=" [box-shadow:0px_20px_50px_0px_rgba(0,0,0,0.07)] text-xl font-bold font-montserrat bg-white rounded-full flex items-center justify-center"
         >
-          <FaXmark size={28 - sizeButton / 3.6} color="#F27121" />
+          <FaStar size={28} color="#F27121" />
         </button>
       </div>
     </div>
