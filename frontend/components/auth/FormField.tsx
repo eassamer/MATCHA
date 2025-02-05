@@ -3,6 +3,7 @@ export type FormFieldInput = {
   type: string;
   required: boolean;
   className?: string;
+  //TODO: Add more onChange event
 };
 
 export const FormField = (formFieldInput: FormFieldInput) => {

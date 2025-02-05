@@ -15,19 +15,18 @@ export const SignIn = () => {
     <div
       className="
         flex
-        lg:px-0
         lg:justify-center
         flex-col
         px-8
-        lg:flex-row
         h-full
         w-full
-        lg:overflow-auto"
+        lg:overflow-auto
+        "
     >
       <div className="lg:hidden py-10 flex items-center justify-center">
         <Image src="/logo.png" width={172} height={70} alt="Logo" />
       </div>
-      <div className="flex flex-col gap-8 justify-around">
+      <div className="flex flex-col gap-8 lg:gap-4 justify-around lg:justify-none">
         <h1 className="font-extrabold text-[34px]">Sign In</h1>
         <Form formFields={SigninFormFields} />
       </div>
@@ -36,12 +35,13 @@ export const SignIn = () => {
                 flex
                 flex-col
                 justify-around
+                lg:items-center
+                lg:justify-center
                 h-full
                 w-full
                 gap-5
                 lg:h-fit
                 lg:px-10
-                lg:w-1/2
                 "
       >
         <SignInOptions />
