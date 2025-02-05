@@ -23,10 +23,11 @@ export const NavItem = ({
           <div className="size-2 rounded-full absolute  right-0 bg-primary"></div>
         )}
         <Icon
+          variant="Bold"
           onClick={() => setActive(index)}
           className={`text-3xl  ${
             active === index ? "text-primary" : "text-[#ADAFBB]"
-          } mb-2`}
+          }`}
         />
       </div>
     </div>
