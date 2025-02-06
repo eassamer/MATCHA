@@ -37,12 +37,13 @@ export const SignIn = () => {
                 flex
                 flex-col
                 justify-around
+                lg:items-center
+                lg:justify-center
                 h-full
                 w-full
                 gap-5
                 lg:h-fit
                 lg:px-10
-                lg:w-1/2
                 "
       >
         <SignInOptions />
