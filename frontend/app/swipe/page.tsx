@@ -3,7 +3,7 @@ import { Card } from "@/components/Card";
 import { useEffect, useState } from "react";
 import { FaXmark, FaCheck } from "react-icons/fa6";
 import { FaHeart, FaStar } from "react-icons/fa";
-
+import { Like1, Heart, Dislike } from "iconsax-react";
 const cardData = [
   {
     id: 1,
@@ -56,7 +56,7 @@ export default function Swipe() {
     <div className="w-screen h-screen bg-[#F9F9F9] flex items-center justify-center gap-12 flex-col">
       <div className="h-[420px] w-[310px] grid place-items-center">
         {!cards.length && (
-          <h1 className="text-2xl font-bold font-montserrat text-white">
+          <h1 className="text-2xl font-bold font-montserrat text-black">
             No more users
           </h1>
         )}
@@ -89,21 +89,21 @@ export default function Swipe() {
           }}
           className=" [box-shadow:0px_20px_50px_0px_rgba(0,0,0,0.07)] text-xl font-bold font-montserrat bg-white rounded-full flex items-center justify-center"
         >
-          <FaXmark size={28} color="#F27121" />
+          <Dislike variant="Bold" size={24} color="#F27121" />
         </button>
         <button
           onClick={() => setDirection("up")}
           style={{
             minWidth: 45,
             minHeight: 45,
-            width: 75,
-            height: 75,
+            width: 99,
+            height: 99,
             maxWidth: 175,
             maxHeight: 175,
           }}
           className=" [box-shadow:0px_15px_15px_0px_rgba(233,64,87,0.2)] text-xl font-bold font-montserrat bg-primary rounded-full flex items-center justify-center"
         >
-          <FaHeart size={28} color="white" />
+          <Heart variant="Bold" size={38} color="white" />
         </button>
         <button
           onClick={() => setDirection("right")}
@@ -117,7 +117,7 @@ export default function Swipe() {
           }}
           className=" [box-shadow:0px_20px_50px_0px_rgba(0,0,0,0.07)] text-xl font-bold font-montserrat bg-white rounded-full flex items-center justify-center"
         >
-          <FaStar size={28} color="#F27121" />
+          <Like1 variant="Bold" size={24} color="#F27121" />
         </button>
       </div>
     </div>

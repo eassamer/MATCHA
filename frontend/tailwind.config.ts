@@ -14,6 +14,7 @@ const config: Config = {
       },
       fontFamily: {
         montserrat: ["Montserrat", "sans-serif"], // Added Montserrat font
+        poppins: ["Poppins", "sans-serif"], // Added Poppins font
       },
     },
   },

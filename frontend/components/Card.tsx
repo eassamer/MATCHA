@@ -1,7 +1,7 @@
 "use client";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
-
+import { Location } from "iconsax-react";
 export const Card = ({
   url,
   id,
@@ -58,7 +58,7 @@ export const Card = ({
 
   const dragEnd = () => {
     setSizeButton(0);
-    const dragThreshold = 100; 
+    const dragThreshold = 100;
     if (Math.abs(x.get()) > dragThreshold) {
       setCards((cards) => cards.filter((card) => card.id !== id));
     } else if (y.get() < -dragThreshold) {
@@ -67,18 +67,13 @@ export const Card = ({
   };
 
   return (
-    <motion.img
-      src={url}
-      key={id}
-      alt="card"
-      className="h-[420px] w-[340px] object-cover rounded-lg hover:cursor-grab active:cursor-grabbing"
+    <motion.div
       style={{
         gridRow: 1,
         gridColumn: 1,
+        rotate,
         x,
         y,
-        rotate,
-        opacity,
         transition: sizeButton === 0 ? "all 0.1s ease-in-out" : "",
       }}
       onDrag={() => {
@@ -87,6 +82,27 @@ export const Card = ({
       drag
       onDragEnd={dragEnd}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-    />
+      className="w-fit h-fit relative flex items-center justify-end hover:cursor-grab active:cursor-grabbing"
+    >
+      <div className="absolute right-0 w-[16px] h-[68px] rounded-tl-lg rounded-bl-lg  bg-[#FFFFFF26] flex flex-col items-center justify-center">
+        <div className="size-[6px] bg-white rounded-full"></div>
+      </div>
+      <div className="z-99 absolute flex items-center gap-1 justify-center top-3 left-3 w-fit px-2 h-[35px] bg-[#FFFFFF26] rounded-[7px]">
+        <Location size="16" color="#FFFFFF" />
+        <h1 className="text-[12px] font-bold font-poppins text-white">
+          Ifrane, Ma
+        </h1>
+      </div>
+      <img
+        draggable={false}
+        src={url}
+        key={id}
+        alt="card"
+        className="h-[420px] w-[290px] object-cover rounded-lg"
+        style={{
+          opacity: 1,
+        }}
+      />
+    </motion.div>
   );
 };
