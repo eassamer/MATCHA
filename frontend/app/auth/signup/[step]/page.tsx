@@ -11,12 +11,12 @@ const Email = () => {
   const emailFormFields = [{ label: "Email", type: "email", required: true }];
   const passwordFormFields = [
     { label: "Password", type: "password", required: true },
-    { label: "Confirm Password", type: "confirm password", required: true },
+    { label: "Confirm Password", type: "password", required: true },
   ];
 
   return (
     <div className="flex flex-col justify-center gap-4">
-      <Form formFields={emailFormFields} />
+      <Form formFields={emailFormFields} className="w-full justify-center items-center"/>
       <Form formFields={passwordFormFields} className="gap-4" />
     </div>
   );
@@ -26,24 +26,31 @@ const ProfileDetails = () => {
   const formFields = [
     { label: "First Name", type: "text", required: true },
     { label: "Last Name", type: "text", required: true },
-    { label: "Display Name", type: "text", required: true },
   ];
+  const displayNameField = [
+    { label: "Display Name", type: "text", required: true },
+  ]
 
   return (
     <div>
-      <div className="relative flex flex-col justify-center items-center w-full">
-        <Image
-          src={"/avatar.jpg"}
-          alt="avatar"
-          width={100}
-          height={100}
-          className="rounded-md"
-          />
-        <button className="absolute bottom-0 bg-primary rounded-full  h-[40px] w-[40px] flex justify-center items-center">
-          <HiCamera className="text-[20px] text-white" />
-        </button>
+      <div className="flex flex-col justify-center items-center lg:justify-normal gap-4 w-full">
+        <div className="relative flex flex-col justify-center items-center w-[80px] h-[80px] ">
+          <Image
+            src={"/avatar.jpg"}
+            alt="avatar"
+            width={70}
+            height={70}
+            className="rounded-[25px]"
+            />
+          <button className="absolute bottom-0 right-0 bg-primary border-white border-2 rounded-full h-[30px] w-[30px] flex justify-center items-center" onClick={() => console.log("Change Avatar")}>
+            <HiCamera className="text-[20px] text-white" />
+          </button>
+        </div>
       </div>
-      <Form formFields={formFields} className="gap-4" />
+      <div className="flex flex-col lg:gap-8">
+        <Form formFields={formFields} className="gap-4 pt-4 lg:pt-0 lg:flex-row" />
+        <Form formFields={displayNameField} className="gap-4 pt-4 lg:pt-0 justify-center" />
+      </div>
     </div>
   );
 };
@@ -91,22 +98,22 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 flex flex-col justify-between h-fit gap-8">
+    <div className="px-12 flex flex-col relative lg:static justify-between lg:justify-around h-full gap-8">
       <div className="lg:gap-8">
-        <div className="flex flex-col lg:flex-row w-full h-fit pb-12 ">
-          <button
-            className="text-primary font-extrabold font-montserrat py-12"
-            onClick={nextStep}
-          >
-            <span className="absolute right-12">Skip</span>
-          </button>
-          <div className="font-extrabold text-[30px] lg:text-[34px]">
+        <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
+          <div className="font-extrabold text-[30px] absolute lg:static top-20">
             {currentStep ? steps[(currentStep - 1) % steps.length] : "Sign Up"}
           </div>
+          <button
+            className="text-primary font-extrabold font-montserrat py-12 lg:py-0"
+            onClick={nextStep}
+          >
+            <span className="absolute lg:static right-12 top-8">Skip</span>
+          </button>
         </div>
         {renderFields()}
       </div>
-      <div className="flex gap-3 absolute lg:relative bottom-4 lg:bottom-0 left-0 px-12 justify-around w-full">
+      <div className="flex gap-3 lg:static absolute bottom-4 left-0 px-12 justify-around w-full">
         {currentStep > 1 ? (
           <Button type={false} className="font-bold" onClick={prevStep}>
             Go Back

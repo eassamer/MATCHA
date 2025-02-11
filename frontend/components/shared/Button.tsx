@@ -22,6 +22,7 @@ export const Button = (
         ${type? 'bg-primary text-white' : 'bg-white text-primary'}
         shadow-md
         hover:bg-pink-500
+        hover:text-white
         transition-all
         duration-300
         ease-in-out
