@@ -23,7 +23,8 @@ export function DatePicker() {
           variant={"outline"}
           className={cn(
             "w-[300px] lg:w-[300px] py-6 justify-center rounded-[15px] h-[58px] bg-pink-100",
-            !date && "text-muted-foreground"
+            !date && "text-muted-foreground",
+            "text-primary font-montserrat font-extrabold"
           )}
         >
           <LuCalendarDays className="text-primary text-3xl" />
