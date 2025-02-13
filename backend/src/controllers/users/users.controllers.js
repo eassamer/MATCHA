@@ -125,7 +125,7 @@ async function updateLastLocation(req, res) {
 
 async function getLocationByIP(req, res) {
   try {
-    const user = await userService.getLocationByIP(req.body.id);
+    const user = await userService.getLocationByIP(req.body.id, req.body.ip);
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });

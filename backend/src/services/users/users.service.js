@@ -399,9 +399,9 @@ async function findUsersByName({ name, limit, offset }) {
   }
 }
 
-async function getLocationByIP(id) {
+async function getLocationByIP(id, ip) {
   try {
-    const response = await fetch("http://ip-api.com/json/");
+    const response = await fetch("http://ip-api.com/json/" + ip);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
