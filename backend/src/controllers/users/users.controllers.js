@@ -1,7 +1,7 @@
 // Description: User controller for handling user requests
 
 // TODO: add a better error handling mechanism to send the error code and message
-const userService = require('@services/users/users.service');
+const userService = require("@services/users/users.service");
 
 /**
  * @description deletes a user
@@ -9,12 +9,12 @@ const userService = require('@services/users/users.service');
  * @param {*} res the response object
  */
 async function deleteUser(req, res) {
-		try {
-				const user = await userService.remove(req.query.id);
-				res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.remove(req.query.id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -23,12 +23,12 @@ async function deleteUser(req, res) {
  * @param {*} res the response object
  */
 async function getUser(req, res) {
-		try {
-			const user = await userService.findById(req.query.id);
-			res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.findById(req.query.id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -37,12 +37,12 @@ async function getUser(req, res) {
  * @param {*} res the response object
  */
 async function getUsersByName(req, res) {
-		try {
-				const users = await userService.findUsersByName(req.body);
-				res.status(200).json(users);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const users = await userService.findUsersByName(req.body);
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -51,12 +51,15 @@ async function getUsersByName(req, res) {
  * @param {*} res the response object
  */
 async function updateFirstName(req, res) {
-		try {
-				const user = await userService.updateFirstName(req.body.id, req.body.firstName);
-				res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.updateFirstName(
+      req.body.id,
+      req.body.firstName
+    );
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -65,12 +68,15 @@ async function updateFirstName(req, res) {
  * @param {*} res the response object
  */
 async function updateLastName(req, res) {
-		try {
-				const user = await userService.updateLastName(req.body.id, req.body.lastName);
-				res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.updateLastName(
+      req.body.id,
+      req.body.lastName
+    );
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -79,12 +85,12 @@ async function updateLastName(req, res) {
  * @param {*} res the response object
  */
 async function updateEmail(req, res) {
-		try {
-				const user = await userService.updateEmail(req.body.id, req.body.email);
-				res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.updateEmail(req.body.id, req.body.email);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 /**
@@ -93,21 +99,46 @@ async function updateEmail(req, res) {
  * @param {*} res the response object
  */
 async function updatePassword(req, res) {
-		try {
-				const user = await userService.updatePassword(req.body.id, req.body.password);
-				res.status(200).json(user);
-		} catch (error) {
-				res.status(400).json({ error: error.message });
-		}
+  try {
+    const user = await userService.updatePassword(
+      req.body.id,
+      req.body.password
+    );
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
+async function updateLastLocation(req, res) {
+  try {
+    const user = await userService.updateLastLocation(
+      req.body.id,
+      req.body.longitude,
+      req.body.latitude
+    );
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
+async function getLocationByIP(req, res) {
+  try {
+    const user = await userService.getLocationByIP(req.body.id, req.body.ip);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 module.exports = {
-		deleteUser,
-		getUser,
-		getUsersByName,
-		updateFirstName,
-		updateLastName,
-		updateEmail,
-		updatePassword,
+  deleteUser,
+  getUser,
+  getUsersByName,
+  updateFirstName,
+  updateLastName,
+  updateEmail,
+  updatePassword,
+  updateLastLocation,
+  getLocationByIP,
 };
