@@ -6,6 +6,7 @@ import { HiCamera } from "react-icons/hi2";
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { DatePicker } from "@/components/shared/DatePicker";
 
 const Email = () => {
   const emailFormFields = [{ label: "Email", type: "email", required: true }];
@@ -50,6 +51,9 @@ const ProfileDetails = () => {
       <div className="flex flex-col lg:gap-8">
         <Form formFields={formFields} className="gap-4 pt-4 lg:pt-0 lg:flex-row" />
         <Form formFields={displayNameField} className="gap-4 pt-4 lg:pt-0 justify-center" />
+        <div className="w-full flex justify-center items-center py-10 lg:hidden">
+          <DatePicker />
+        </div>
       </div>
     </div>
   );

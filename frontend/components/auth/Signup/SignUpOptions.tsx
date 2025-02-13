@@ -2,11 +2,13 @@
 import { Card } from "@/components/auth/Card";
 import { Button } from "@/components/shared/Button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FaFacebookSquare, FaGoogle } from "react-icons/fa";
 import { Si42 } from "react-icons/si";
 
 export const SignUpOptions = () => {
   const icons = [FaFacebookSquare, FaGoogle, Si42];
+  const router = useRouter();
   return (
     <div className="w-full h-fit flex items-center justify-center flex-col lg:pt-[27px]">
       <div className="w-full flex flex-col items-center justify-center gap-10 h-fit">
@@ -16,6 +18,7 @@ export const SignUpOptions = () => {
         <Button
           type={true}
           className="font-bold"
+          onClick={() => router.push("/auth/signup/1")}
         >
           Continue With Email
         </Button>
