@@ -7,6 +7,7 @@ import Email from "@/components/auth/Signup/Email";
 import ProfileDetails from "@/components/auth/Signup/ProfileDetails";
 import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
+import Interests from "@/components/auth/Signup/Interests";
 
 
 
@@ -41,6 +42,7 @@ const Page = () => {
     if (!isLargeScreen && currentStep === 3) {
       setCurrentStep(2);
     }
+    //eslint-disable-next-line
   }, [isLargeScreen]);
 
   const nextStep = () => {
@@ -67,7 +69,7 @@ const Page = () => {
         case 3:
           return <IAmA />;
         case 4:
-          return <div>Your Interests Fields</div>;
+          return <Interests />;
         default:
           return <Email />;
       }
@@ -82,7 +84,7 @@ const Page = () => {
         case 4:
           return <IAmA />;
         case 5:
-          return <div>Your Interests Fields</div>;
+          return <Interests />;
         default:
           return <Email />;
       }
