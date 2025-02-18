@@ -29,7 +29,8 @@ export const Button = (
         justify-center
         font-montserrat
         text-[16px]
-        h-[58px]
+        sm:h-[58px]
+        h-[40px]
         w-full
         rounded-[15px]
         tracking-[1px]

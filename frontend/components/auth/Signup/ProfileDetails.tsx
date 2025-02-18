@@ -40,7 +40,7 @@ const ProfileDetails = () => {
           formFields={displayNameField}
           className="gap-4 pt-4 lg:pt-0 justify-center"
         />
-        <div className="w-full flex justify-center items-center py-10 lg:hidden">
+        <div className="w-full flex justify-center items-center sm:py-10 py-6 lg:hidden">
           <DatePicker />
         </div>
       </div>

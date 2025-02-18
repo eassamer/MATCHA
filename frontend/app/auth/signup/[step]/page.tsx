@@ -92,7 +92,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 flex flex-col relative lg:static justify-between lg:justify-around h-full gap-8">
+    <div className="px-12 flex flex-col sm:relative lg:static justify-between lg:justify-around h-full gap-8">
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">
@@ -107,7 +107,7 @@ const Page = () => {
         </div>
         {renderFields()}
       </div>
-      <div className="flex lg:flex-row flex-col gap-3 lg:static absolute bottom-4 left-0 px-12 justify-around w-full">
+      <div className="flex lg:flex-row flex-col gap-3 lg:static sm:absolute bottom-4 left-0 sm:px-12 sm:pb-0 pb-3 justify-around w-full">
         {currentStep > 1 ? (
           <Button type={false} className="font-bold" onClick={prevStep}>
             Go Back
