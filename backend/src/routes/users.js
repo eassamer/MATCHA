@@ -8,9 +8,11 @@ var router = express.Router();
 
 router.get("/user", users.getUser);
 
-router.get("/users", users.getUsersByName);
+router.get("/all", users.getAllUsers);
 
+router.get("/", users.getUsersByName);
 
+router.get("/matches", users.getMatches);
 /**
  ======POST Requests======
  */
@@ -28,4 +30,5 @@ router.post("/update/password", users.updatePassword);
 router.post("/update/lastlocation", users.updateLastLocation);
 
 router.post("/location/ip", users.getLocationByIP);
+
 module.exports = router;

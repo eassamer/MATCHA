@@ -14,6 +14,7 @@
     "cloudinary": "^2.5.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "generate-password": "^1.7.1",
     "http-errors": "^2.0.0",
@@ -29,7 +30,8 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "passport-oauth2": "^1.8.0",
-    "perfect-express-sanitizer": "^2.0.2"
+    "perfect-express-sanitizer": "^2.0.2",
+    "uuid": "^11.0.5"
   },
   "_moduleAliases": {
     "@dao": "src/lib/dao",

@@ -399,6 +399,14 @@ async function findUsersByName({ name, limit, offset }) {
   }
 }
 
+/**
+ * @description Retrieves the geographical location of a user based on their IP address and updates their last location in the database.
+ * @param {number} id - The ID of the user whose location is being retrieved.
+ * @param {string} ip - The IP address used to determine the user's location.
+ * @returns {Object|null} An object containing the location data (latitude, longitude, city, country, region), or null if the location could not be retrieved.
+ * @throws Will log an error message if the HTTP request fails or if the location data retrieval fails.
+ */
+
 async function getLocationByIP(id, ip) {
   try {
     const response = await fetch("http://ip-api.com/json/" + ip);
@@ -427,6 +435,43 @@ async function getLocationByIP(id, ip) {
   }
 }
 
+/**
+ * @description Finds potential matches for a given user based on geographical proximity.
+ * @param {string} userEmail - The email of the user to find matches for.
+ * @returns {Promise<Array>} A promise that resolves to an array of match objects.
+ * @throws Will throw an error if the user does not exist or if the database query fails.
+ */
+async function getMatches(userEmail) {
+  try {
+    const user = await findByEmail(userEmail);
+    console.log(user);
+    if (!user) {
+      throw new Error(`User with Id: ${userEmail} not found`);
+    }
+    const matches = await userDao.getMatches(
+      user.userId,
+      user.latitude,
+      user.longitude
+    );
+    return matches;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.getMatches: ${error.message}`);
+  }
+}
+
+/**
+ * @description Retrieves all users from the database.
+ * @returns {Array} An array of user objects.
+ * @throws Will throw an error if the database query fails.
+ */
+async function findAll() {
+  try {
+    const users = await userDao.findAll();
+    return users;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.findAll: ${error.message}`);
+  }
+}
 // Example usage
 
 module.exports = {
@@ -442,4 +487,6 @@ module.exports = {
   findUsersByName,
   findOrCreate,
   getLocationByIP,
+  getMatches,
+  findAll,
 };

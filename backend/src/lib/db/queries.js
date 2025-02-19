@@ -8,11 +8,13 @@ const queries = {
   FIND_USER_BY_ID: "SELECT * FROM users WHERE userId = ?",
   FIND_USER_BY_EMAIL: "SELECT * FROM users WHERE email = ?",
   FIND_ALL_USERS: "SELECT * FROM users",
-  FIND_USERS_BY_NAME: "SELECT * FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?",
+  FIND_USERS_BY_NAME:
+    "SELECT * FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?",
   UPDATE_USER_FIRSTNAME: "UPDATE users SET firstName = ? WHERE userId = ?",
   UPDATE_USER_LASTNAME: "UPDATE users SET lastName = ? WHERE userId = ?",
   UPDATE_USER_EMAIL: "UPDATE users SET email = ? WHERE userId = ?",
-  UPDATE_USER_LASTLOCATION: "UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?",
+  UPDATE_USER_LASTLOCATION:
+    "UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?",
   UPDATE_USER_PASSWORD: "UPDATE users SET password = ? WHERE userId = ?",
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?, lastLocation = ? WHERE userId = ?`,
@@ -37,6 +39,19 @@ const queries = {
   ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
   FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
+  GET_MATCHES: `
+  SELECT userId, firstName, lastName, displayName, email, latitude, longitude,
+    (6371 * ACOS(
+      COS(RADIANS(?)) * COS(RADIANS(latitude)) *
+      COS(RADIANS(longitude) - RADIANS(?)) +
+      SIN(RADIANS(?)) * SIN(RADIANS(latitude))
+    )) AS distance
+  FROM users
+  WHERE userId != ?
+  AND latitude IS NOT NULL AND longitude IS NOT NULL
+  HAVING distance <= 100
+  ORDER BY distance ASC;
+`,
 };
 
 module.exports = queries;
