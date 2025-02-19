@@ -1,4 +1,5 @@
 export type FormFieldInput = {
+  id?: string;
   label: string;
   type: string;
   required: boolean;
@@ -18,7 +19,7 @@ export const FormField = (formFieldInput: FormFieldInput) => {
         {formFieldInput.label}
       </label>
       <input
-        id={formFieldInput.type}
+        id={formFieldInput.id ? formFieldInput.id : formFieldInput.type}
         type={formFieldInput.type}
         required={formFieldInput.required}
         className="w-full px-3 sm:py-4 py-2 mt-2 border border-[#E8E6EA] rounded-[15px] sm:text-sm outline-none focus:border-primary"

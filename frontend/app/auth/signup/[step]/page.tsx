@@ -9,8 +9,6 @@ import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 
-
-
 const Page = () => {
   const pathStep = parseInt(usePathname().split("/")[3]);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
@@ -99,13 +97,16 @@ const Page = () => {
             {currentStep ? steps[(currentStep - 1) % steps.length] : "Sign Up"}
           </div>
           <button
-            className="text-primary font-extrabold font-montserrat py-12 lg:py-0"
+            className={`text-primary font-extrabold font-montserrat py-12 lg:py-0 cursor-pointer ${
+              steps[currentStep - 1] !== "Your Interests" ? "opacity-40" : ""
+            }`}
             onClick={nextStep}
+            disabled={steps[currentStep - 1] !== "Your Interests"}
           >
             <span className="absolute lg:static right-12 top-8">Skip</span>
           </button>
         </div>
-        {renderFields()}
+        <form>{renderFields()}</form>
       </div>
       <div className="flex lg:flex-row flex-col gap-3 lg:static sm:absolute bottom-4 left-0 sm:px-12 sm:pb-0 pb-3 justify-around w-full">
         {currentStep > 1 ? (
