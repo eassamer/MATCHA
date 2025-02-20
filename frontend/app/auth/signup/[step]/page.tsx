@@ -98,7 +98,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 flex flex-col sm:relative lg:static justify-between lg:justify-around h-full gap-8">
+    <div className="px-12 flex flex-col sm:relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">
@@ -114,7 +114,7 @@ const Page = () => {
             <span className="absolute lg:static right-12 top-8">Skip</span>
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex-1 sm:flex-none overflow-y-auto lg:overflow-y-auto max-h-[50vh] sm:max-h-[60vh] sm:overflow-y-hidden">
           {renderFields()}
           <button className="hidden" type="submit"></button>
         </form>

@@ -48,7 +48,7 @@ const Interests = () => {
     }
   };
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-hidden">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-hidden">
       {interests.map((interest, key) => {
         return (
           <div
@@ -59,7 +59,7 @@ const Interests = () => {
                 : null
             }`}
           >
-            
+
             <input
               type="checkbox"
               id={interest.name}
