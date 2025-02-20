@@ -10,9 +10,6 @@ import { usePathname, useRouter } from "next/navigation";
 
 const Page = () => {
   const pathname = usePathname();
-  const step = Number.isNaN(parseInt(pathname.split("/")[3]))
-    ? 1
-    : parseInt(pathname.split("/")[3]);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
   const router = useRouter();
 
@@ -39,6 +36,10 @@ const Page = () => {
       ]
     : ["Sign Up", "Profile details", "I am a", "Your Interests"];
 
+  const step = Number.isNaN(parseInt(pathname.split("/")[3]))
+    ? 1
+    : parseInt(pathname.split("/")[3]) % (steps.length + 1);
+
   useEffect(() => {
     if (!isLargeScreen && step === 3 && steps[step - 1] === "Profile details") {
       router.push("/auth/signup/2");
@@ -47,6 +48,7 @@ const Page = () => {
   }, [isLargeScreen]);
 
   const nextStep = () => {
+    console.log(step);
     if (step === steps.length) {
       console.log("Submit");
       return;
@@ -114,7 +116,10 @@ const Page = () => {
             <span className="absolute lg:static right-12 top-8">Skip</span>
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="flex-1 sm:flex-none overflow-y-auto lg:overflow-y-auto max-h-[50vh] sm:max-h-[60vh] sm:overflow-y-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto max-h-[50vh] sm:overflow-y-hidden"
+        >
           {renderFields()}
           <button className="hidden" type="submit"></button>
         </form>
@@ -131,11 +136,7 @@ const Page = () => {
         >
           Go Back
         </Button>
-        <Button
-          type={true}
-          className="font-bold"
-          onClick={nextStep}
-        >
+        <Button type={true} className="font-bold" onClick={nextStep}>
           Continue
         </Button>
       </div>

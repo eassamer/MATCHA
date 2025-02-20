@@ -42,13 +42,16 @@ const Interests = () => {
   const handleSelectInterest = (e: any) => {
     const value = e.target.value;
     if (state.interests.includes(value)) {
-      dispatch({type: "SET_INTERESTS", payload: state.interests.filter((interest) => interest !== value)});
+      dispatch({
+        type: "SET_INTERESTS",
+        payload: state.interests.filter((interest) => interest !== value),
+      });
     } else {
-      dispatch({type: "SET_INTERESTS", payload: [...state.interests, value]});
+      dispatch({ type: "SET_INTERESTS", payload: [...state.interests, value] });
     }
   };
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-hidden">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto">
       {interests.map((interest, key) => {
         return (
           <div
@@ -59,7 +62,6 @@ const Interests = () => {
                 : null
             }`}
           >
-
             <input
               type="checkbox"
               id={interest.name}
@@ -73,7 +75,7 @@ const Interests = () => {
               className="flex items-center gap-2 w-full h-full cursor-pointer whitespace-nowrap text-center"
             >
               <div
-                className={`text-[25px] ${
+                className={`text-[20px] ${
                   state.interests.includes(interest.name)
                     ? "text-white"
                     : "text-primary"
