@@ -1,8 +1,14 @@
 import { DatePicker } from "@/components/shared/DatePicker";
+import { SignupContext } from "@/context/SignupContext";
 import Image from "next/image";
+import { useContext } from "react";
 import { HiCamera } from "react-icons/hi2";
 
 const ProfileDetailsLarge = () => {
+  const { state, dispatch } = useContext(SignupContext);
+  const handleDateChange = (date: Date) => {
+    dispatch({ type: "SET_BIRTHDATE", payload: date });
+  };
   return (
     <div>
       <div className="w-full flex flex-col justify-center items-center gap-4">
@@ -23,7 +29,7 @@ const ProfileDetailsLarge = () => {
         </div>
       </div>
       <div className="w-full flex justify-center items-center py-10">
-        <DatePicker />
+        <DatePicker date={state.birthdate} setDate={handleDateChange}/>
       </div>
     </div>
   );

@@ -1,14 +1,39 @@
-import { FormField } from "../FormField";
+import { useContext } from "react";
+import { FormField, FormFieldInput } from "../FormField";
+import { SignupContext } from "@/context/SignupContext";
 
 const Email = () => {
-  const emailFormField = { label: "Email", type: "email", required: true };
-  const passwordFormFields = [
-    { label: "Password", type: "password", required: true },
+  const { state, dispatch } = useContext(SignupContext);
+  const emailFormField = {
+    label: "Email",
+    type: "email",
+    id: "email",
+    required: true,
+    value: state.email,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({ type: "SET_EMAIL", payload: e.target.value });
+    },
+  };
+  const passwordFormFields: FormFieldInput[] = [
+    {
+      label: "Password",
+      type: "password",
+      id: "password",
+      required: true,
+      value: state.password,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({ type: "SET_PASSWORD", payload: e.target.value });
+      },
+    },
     {
       label: "Confirm Password",
       type: "password",
       id: "confirmPassword",
       required: true,
+      value: state.confirmPassword,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({ type: "SET_CONFIRM_PASSWORD", payload: e.target.value });
+      },
     },
   ];
 

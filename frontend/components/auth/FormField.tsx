@@ -4,7 +4,8 @@ export type FormFieldInput = {
   type: string;
   required: boolean;
   className?: string;
-  //TODO: Add more onChange event
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export const FormField = (formFieldInput: FormFieldInput) => {
@@ -22,7 +23,9 @@ export const FormField = (formFieldInput: FormFieldInput) => {
         id={formFieldInput.id ? formFieldInput.id : formFieldInput.type}
         type={formFieldInput.type}
         required={formFieldInput.required}
-        className="w-full px-3 sm:py-4 py-2 mt-2 border border-[#E8E6EA] rounded-[15px] sm:text-sm outline-none focus:border-primary"
+        value={formFieldInput.value}
+        onChange={formFieldInput.onChange}
+        className="w-full px-3 sm:py-4 py-3 mt-2 border border-[#E8E6EA] rounded-[15px] sm:text-sm outline-none focus:border-primary"
       />
     </div>
   );

@@ -13,10 +13,11 @@ import { BiRun } from "react-icons/bi";
 import { MdOutlineVideogameAsset } from "react-icons/md";
 import { LiaSmokingSolid } from "react-icons/lia";
 import { GiMeditation } from "react-icons/gi";
-import { useState } from "react";
+import { SignupContext } from "@/context/SignupContext";
+import { useContext } from "react";
 
 const Interests = () => {
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const { state, dispatch } = useContext(SignupContext);
   const interests = [
     { name: "Photography", icon: <IoCameraOutline /> },
     { name: "Shopping", icon: <AiOutlineShopping /> },
@@ -40,12 +41,10 @@ const Interests = () => {
   // eslint-disable-next-line
   const handleSelectInterest = (e: any) => {
     const value = e.target.value;
-    if (selectedInterests.includes(value)) {
-      setSelectedInterests(
-        selectedInterests.filter((interest) => interest !== value)
-      );
+    if (state.interests.includes(value)) {
+      dispatch({type: "SET_INTERESTS", payload: state.interests.filter((interest) => interest !== value)});
     } else {
-      setSelectedInterests([...selectedInterests, value]);
+      dispatch({type: "SET_INTERESTS", payload: [...state.interests, value]});
     }
   };
   return (
@@ -55,11 +54,12 @@ const Interests = () => {
           <div
             key={key}
             className={`flex border-2 border-black border-opacity-10 rounded-[15px] p-2 ${
-              selectedInterests.includes(interest.name)
+              state.interests.includes(interest.name)
                 ? "bg-primary text-white font-extrabold"
                 : null
             }`}
           >
+            
             <input
               type="checkbox"
               id={interest.name}
@@ -74,7 +74,7 @@ const Interests = () => {
             >
               <div
                 className={`text-[25px] ${
-                  selectedInterests.includes(interest.name)
+                  state.interests.includes(interest.name)
                     ? "text-white"
                     : "text-primary"
                 }`}

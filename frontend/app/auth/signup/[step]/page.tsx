@@ -1,17 +1,22 @@
 "use client";
 import { Button } from "@/components/shared/Button";
-import { usePathname } from "next/navigation";
-
 import React, { useEffect, useState } from "react";
 import Email from "@/components/auth/Signup/Email";
 import ProfileDetails from "@/components/auth/Signup/ProfileDetails";
 import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
+import { usePathname, useRouter } from "next/navigation";
 
 const Page = () => {
-  const pathStep = parseInt(usePathname().split("/")[3]);
+  const pathname = usePathname();
+  const step = Number.isNaN(parseInt(pathname.split("/")[3]))
+    ? 1
+    : parseInt(pathname.split("/")[3]);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const router = useRouter();
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -34,32 +39,35 @@ const Page = () => {
       ]
     : ["Sign Up", "Profile details", "I am a", "Your Interests"];
 
-  const [currentStep, setCurrentStep] = useState(pathStep);
-
   useEffect(() => {
-    if (!isLargeScreen && currentStep === 3) {
-      setCurrentStep(2);
+    if (!isLargeScreen && step === 3 && steps[step - 1] === "Profile details") {
+      router.push("/auth/signup/2");
     }
     //eslint-disable-next-line
   }, [isLargeScreen]);
 
   const nextStep = () => {
-    if (currentStep === steps.length) {
+    if (step === steps.length) {
+      console.log("Submit");
       return;
-    }
-    setCurrentStep(currentStep + 1);
+    } else router.push("/auth/signup/" + (step + 1));
   };
 
   const prevStep = () => {
-    if (currentStep === 1) {
+    if (step === 1) {
       return;
     }
-    setCurrentStep(currentStep - 1);
+    router.push("/auth/signup/" + (step - 1));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    nextStep();
   };
 
   const renderFields = () => {
     if (!isLargeScreen) {
-      switch (currentStep) {
+      switch (step) {
         case 1:
           return <Email />;
         case 2:
@@ -72,7 +80,7 @@ const Page = () => {
           return <Email />;
       }
     } else {
-      switch (currentStep) {
+      switch (step) {
         case 1:
           return <Email />;
         case 2:
@@ -94,27 +102,40 @@ const Page = () => {
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">
-            {currentStep ? steps[(currentStep - 1) % steps.length] : "Sign Up"}
+            {step ? steps[(step - 1) % steps.length] : "Sign Up"}
           </div>
           <button
             className={`text-primary font-extrabold font-montserrat py-12 lg:py-0 cursor-pointer ${
-              steps[currentStep - 1] !== "Your Interests" ? "opacity-40" : ""
+              steps[step - 1] !== "Your Interests" ? "opacity-0" : ""
             }`}
             onClick={nextStep}
-            disabled={steps[currentStep - 1] !== "Your Interests"}
+            disabled={steps[step - 1] !== "Your Interests"}
           >
             <span className="absolute lg:static right-12 top-8">Skip</span>
           </button>
         </div>
-        <form>{renderFields()}</form>
+        <form onSubmit={handleSubmit}>
+          {renderFields()}
+          <button className="hidden" type="submit"></button>
+        </form>
       </div>
       <div className="flex lg:flex-row flex-col gap-3 lg:static sm:absolute bottom-4 left-0 sm:px-12 sm:pb-0 pb-3 justify-around w-full">
-        {currentStep > 1 ? (
-          <Button type={false} className="font-bold" onClick={prevStep}>
-            Go Back
-          </Button>
-        ) : null}
-        <Button type={true} className="font-bold" onClick={nextStep}>
+        <div className="text-red-500 font-bold text-center">{errorMessage}</div>
+        <Button
+          type={false}
+          className={`font-bold ${
+            step === 1 ? "opacity-50 pointer-events-none" : ""
+          }`}
+          disabled={step === 1}
+          onClick={prevStep}
+        >
+          Go Back
+        </Button>
+        <Button
+          type={true}
+          className="font-bold"
+          onClick={nextStep}
+        >
           Continue
         </Button>
       </div>

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { SignupContext } from "@/context/SignupContext";
+import { useContext } from "react";
 import { FaCheck } from "react-icons/fa6";
 
 const IAmA = () => {
   const genders = ["Woman", "Man", "Other"];
-  const [selectedGender, setSelectedGender] = useState("");
+  const { state, dispatch } = useContext(SignupContext);
   return (
     <div className="lg:px-[25%]">
       <div className="flex flex-col gap-4">
@@ -18,7 +19,7 @@ const IAmA = () => {
                   duration-300
                   ease-in-out
                   ${
-                    gender === selectedGender
+                    gender === state.gender
                       ? "bg-primary text-white font-bold"
                       : ""
                   } cursor-pointer`}
@@ -26,9 +27,10 @@ const IAmA = () => {
                   <input
                     type="radio"
                     name="sex"
+                    id="sex"
                     value={gender}
                     onChange={(e) => {
-                      setSelectedGender(e.target.value);
+                      dispatch({ type: "SET_GENDER", payload: e.target.value });
                     }}
                     className="hidden"
                   />
