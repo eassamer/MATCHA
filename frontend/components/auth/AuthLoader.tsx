@@ -28,23 +28,35 @@ const AuthLoader = () => {
       setTimeout(() => {
         setStage(3);
         setFadeOut(false);
-        setHideBackground(true);
       }, 1000);
     }, 8000);
 
     const timer4 = setTimeout(() => {
-      setStage(4);
-    }, 10000);
+      setFadeOut(true);
+      setTimeout(() => {
+        setStage(4);
+        setFadeOut(false);
+        setHideBackground(true);
+      }, 1000);
+    }, 11000);
+    
+    const timer5 = setTimeout(() => {
+      setFadeOut(true);
+      setTimeout(() => {
+        setStage(5);
+      }, 1000);
+    }, 12000);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
       clearTimeout(timer4);
+      clearTimeout(timer5);
     };
   }, []);
 
-  if (stage === 4) return null;
+  if (stage === 5) return null;
 
   return (
     <div
@@ -72,7 +84,12 @@ const AuthLoader = () => {
         )}
         {stage === 2 && (
           <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary">
-            Start your journey to love
+            it&apos;s not just another dating app
+          </h1>
+        )}
+        {stage === 3 && (
+          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary">
+            it&apos;s a lifestyle
           </h1>
         )}
       </div>

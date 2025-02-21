@@ -1,4 +1,3 @@
-"use client";
 import { Card } from "@/components/auth/Card";
 import { Button } from "@/components/shared/Button";
 import Link from "next/link";

@@ -71,11 +71,10 @@ const Page = () => {
   }, [isLargeScreen]);
 
   const nextStep = () => {
-    setErrorMessage("");
     const result = schemas[step - 1].safeParse(state);
     if (result.error) {
       result.error.errors.map((error) => {
-        setErrorMessage(errorMessage + error.message);
+        setErrorMessage(error.message);
       });
       return;
     }
@@ -157,7 +156,7 @@ const Page = () => {
       <div className="flex text-red-600 font-bold justify-center">
         {errorMessage}
       </div>
-      <div className="flex lg:flex-row flex-col gap-3 lg:static sm:absolute bottom-4 left-0 sm:px-12 sm:pb-0 pb-3 justify-around w-full">
+      <div className="flex lg:flex-row flex-col gap-3 lg:static absolute bottom-4 left-0 px-12 sm:pb-0 pb-3 justify-around w-full">
         <Button
           type={false}
           className={`font-bold ${

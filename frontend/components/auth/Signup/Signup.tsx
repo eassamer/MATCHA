@@ -33,10 +33,13 @@ export const SignUp = () => {
         <TermsAndPolicy />
       </div>
       <div
-        className={`flex justify-center items-center h-full w-full ${
+        className={`flex gap-4 flex-col justify-center items-center h-full w-full ${
           isLoading ? "" : "hidden"
         }`}
       >
+        <h1 className="text-2xl text-primary px-12 font-bold font-montserrat">
+          one minute while we craft our magic...
+        </h1>
         <BounceLoader color="#C13D88" />
       </div>
     </div>
