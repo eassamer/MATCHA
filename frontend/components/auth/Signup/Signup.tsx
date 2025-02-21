@@ -33,7 +33,7 @@ export const SignUp = () => {
         <TermsAndPolicy />
       </div>
       <div
-        className={`flex justify-center items-center ${
+        className={`flex justify-center items-center h-full w-full ${
           isLoading ? "" : "hidden"
         }`}
       >
