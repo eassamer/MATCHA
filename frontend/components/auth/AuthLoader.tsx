@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
-const Loader = () => {
+const AuthLoader = () => {
   const [stage, setStage] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
   const [hideBackground, setHideBackground] = useState(false);
@@ -80,4 +80,4 @@ const Loader = () => {
   );
 };
 
-export default Loader;
+export default AuthLoader;

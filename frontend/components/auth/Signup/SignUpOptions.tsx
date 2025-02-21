@@ -6,11 +6,15 @@ import { useRouter } from "next/navigation";
 import { FaFacebookSquare, FaGoogle } from "react-icons/fa";
 import { Si42 } from "react-icons/si";
 
-export const SignUpOptions = () => {
+export const SignUpOptions = (
+  {setIsLoading}: {setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>}
+) => {
   const icons = [FaFacebookSquare, FaGoogle, Si42];
   const router = useRouter();
 
   const handleClick = () => {
+    if (setIsLoading)
+      setIsLoading(true);
     router.push("/auth/signup/1");
   };
 

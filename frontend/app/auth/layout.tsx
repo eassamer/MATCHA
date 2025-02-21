@@ -1,5 +1,5 @@
 "use client";
-import Loader from "@/components/auth/Loader";
+import AuthLoader from "@/components/auth/AuthLoader";
 import { SignupProvider } from "@/context/SignupContext";
 import Image from "next/image";
 
@@ -34,7 +34,7 @@ export default function AuthLayout({
           bg-white
           lg:rounded-[15px]"
         >
-          <Loader />
+          <AuthLoader />
           {children}
         </div>
       </div>
