@@ -9,17 +9,18 @@ import { Si42 } from "react-icons/si";
 export const SignUpOptions = () => {
   const icons = [FaFacebookSquare, FaGoogle, Si42];
   const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/auth/signup/1");
+  };
+
   return (
     <div className="w-full h-fit flex items-center justify-center flex-col lg:pt-[27px]">
       <div className="w-full flex flex-col items-center justify-center gap-10 h-fit">
         <div className="text-black font-montserrat font-bold text-[18px] lg:text-l">
           Sign up to continue
         </div>
-        <Button
-          type={true}
-          className="font-bold"
-          onClick={() => router.push("/auth/signup/1")}
-        >
+        <Button type={true} className="font-bold" onClick={handleClick}>
           Continue With Email
         </Button>
       </div>

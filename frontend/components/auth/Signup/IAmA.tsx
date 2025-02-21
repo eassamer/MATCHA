@@ -28,6 +28,7 @@ const IAmA = () => {
                     type="radio"
                     name="sex"
                     id="sex"
+                    required={true}
                     value={gender}
                     onChange={(e) => {
                       dispatch({ type: "SET_GENDER", payload: e.target.value });

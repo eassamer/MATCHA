@@ -2,14 +2,40 @@ import { DatePicker } from "@/components/shared/DatePicker";
 import Image from "next/image";
 import { HiCamera } from "react-icons/hi2";
 import { FormField } from "../FormField";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { SignupContext } from "@/context/SignupContext";
 
 const ProfileDetails = () => {
   const { state, dispatch } = useContext(SignupContext);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
   const handleDateChange = (date: Date) => {
     dispatch({ type: "SET_BIRTHDATE", payload: date });
   };
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert("File size must be 2MB or less.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      dispatch({ type: "SET_IMAGE", payload: base64String });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const formFields = [
     {
       label: "First Name",
@@ -44,7 +70,7 @@ const ProfileDetails = () => {
       <div className="flex flex-col justify-center items-center lg:justify-normal gap-4 w-full">
         <div className="relative flex flex-col justify-center items-center w-[60px] h-[60px] lg:hidden">
           <Image
-            src={"/avatar.jpg"}
+            src={state.image || "/avatar.jpg"}
             alt="avatar"
             width={70}
             height={70}
@@ -52,10 +78,18 @@ const ProfileDetails = () => {
           />
           <button
             className="absolute bottom-0 right-0 bg-primary border-white border-2 rounded-full h-[30px] w-[30px] flex justify-center items-center"
-            onClick={() => console.log("Change Avatar")}
+            onClick={handleButtonClick}
+            type="button"
           >
             <HiCamera className="text-[20px] text-white" />
           </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
         </div>
       </div>
       <div className="flex flex-col lg:gap-8 gap-4">
@@ -68,7 +102,7 @@ const ProfileDetails = () => {
           <FormField {...displayNameField} />
         </div>
         <div className="w-full flex justify-center items-center sm:py-10 py-0 lg:hidden">
-          <DatePicker date={state.birthdate} setDate={handleDateChange}/>
+          <DatePicker date={state.birthdate} setDate={handleDateChange} />
         </div>
       </div>
     </div>

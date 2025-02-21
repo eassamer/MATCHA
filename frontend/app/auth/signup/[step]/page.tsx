@@ -1,17 +1,27 @@
 "use client";
 import { Button } from "@/components/shared/Button";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Email from "@/components/auth/Signup/Email";
 import ProfileDetails from "@/components/auth/Signup/ProfileDetails";
 import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  GenderSchema,
+  InterestsSchema,
+  ProfileDetailsImageAndBirthdateSchema,
+  ProfileDetailsLargeSchema,
+  ProfileDetailsSchema,
+  SignupSchema,
+} from "@/lib/SignupSchema";
+import { SignupContext } from "@/context/SignupContext";
 
 const Page = () => {
   const pathname = usePathname();
   const [isLargeScreen, setIsLargeScreen] = useState(true);
   const router = useRouter();
+  const { state } = useContext(SignupContext);
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -26,6 +36,10 @@ const Page = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  useEffect(() => {
+    setErrorMessage("");
+  }, [state]);
+
   const steps = isLargeScreen
     ? [
         "Sign Up",
@@ -35,6 +49,15 @@ const Page = () => {
         "Your Interests",
       ]
     : ["Sign Up", "Profile details", "I am a", "Your Interests"];
+  const schemas = isLargeScreen
+    ? [
+        SignupSchema,
+        ProfileDetailsLargeSchema,
+        ProfileDetailsImageAndBirthdateSchema,
+        GenderSchema,
+        InterestsSchema,
+      ]
+    : [SignupSchema, ProfileDetailsSchema, GenderSchema, InterestsSchema];
 
   const step = Number.isNaN(parseInt(pathname.split("/")[3]))
     ? 1
@@ -48,7 +71,14 @@ const Page = () => {
   }, [isLargeScreen]);
 
   const nextStep = () => {
-    console.log(step);
+    setErrorMessage("");
+    const result = schemas[step - 1].safeParse(state);
+    if (result.error) {
+      result.error.errors.map((error) => {
+        setErrorMessage(errorMessage + error.message);
+      });
+      return;
+    }
     if (step === steps.length) {
       console.log("Submit");
       return;
@@ -124,8 +154,10 @@ const Page = () => {
           <button className="hidden" type="submit"></button>
         </form>
       </div>
+      <div className="flex text-red-600 font-bold justify-center">
+        {errorMessage}
+      </div>
       <div className="flex lg:flex-row flex-col gap-3 lg:static sm:absolute bottom-4 left-0 sm:px-12 sm:pb-0 pb-3 justify-around w-full">
-        <div className="text-red-500 font-bold text-center">{errorMessage}</div>
         <Button
           type={false}
           className={`font-bold ${
