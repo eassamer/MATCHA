@@ -129,7 +129,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 lg:py-6 py-0 flex flex-col sm:relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
+    <div className="px-12 lg:py-6 py-0 flex flex-col relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">
@@ -153,10 +153,10 @@ const Page = () => {
           <button className="hidden" type="submit"></button>
         </form>
       </div>
-      <div className="flex text-red-600 font-bold justify-center">
-        {errorMessage}
-      </div>
       <div className="flex lg:flex-row flex-col gap-3 lg:static absolute bottom-4 left-0 px-12 sm:pb-0 pb-3 justify-around w-full">
+        <div className="flex text-red-600 font-bold text-center justify-center">
+          {errorMessage}
+        </div>
         <Button
           type={false}
           className={`font-bold ${
