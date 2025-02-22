@@ -129,7 +129,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 flex flex-col sm:relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
+    <div className="px-12 lg:py-6 py-0 flex flex-col sm:relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">

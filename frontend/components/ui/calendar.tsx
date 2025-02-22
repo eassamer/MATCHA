@@ -20,6 +20,7 @@ function Calendar({
   showOutsideDays = true,
   onDayClick,
   ...props
+  //eslint-disable-next-line
 }: CalendarProps & { onDayClick?: (event: any) => void }) {
   const [month, setMonth] = React.useState<Date>(new Date());
 
