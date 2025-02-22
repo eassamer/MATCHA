@@ -59,9 +59,10 @@ const Page = () => {
       ]
     : [SignupSchema, ProfileDetailsSchema, GenderSchema, InterestsSchema];
 
-  const step = Number.isNaN(parseInt(pathname.split("/")[3]))
+  const param = parseInt(pathname.split("/")[3]);
+  const step = isNaN(param) || param < 1 || param > steps.length
     ? 1
-    : parseInt(pathname.split("/")[3]) % (steps.length + 1);
+    : param;
 
   useEffect(() => {
     if (!isLargeScreen && step === 3 && steps[step - 1] === "Profile details") {
@@ -71,7 +72,8 @@ const Page = () => {
   }, [isLargeScreen]);
 
   const nextStep = () => {
-    const result = schemas[step - 1].safeParse(state);
+    console.log(step);
+    const result = schemas[(step - 1)].safeParse(state);
     if (result.error) {
       result.error.errors.map((error) => {
         setErrorMessage(error.message);
@@ -129,7 +131,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 lg:py-6 py-0 flex flex-col relative lg:static justify-between lg:justify-around h-screen lg:h-full gap-8">
+    <div className="px-12 lg:py-6 py-0 flex flex-col relative sm:static justify-between lg:justify-around h-full gap-8">
       <div className="lg:gap-8">
         <div className="flex flex-col lg:flex-row lg:justify-between w-full h-fit pb-16 lg:pb-8">
           <div className="font-extrabold text-[30px] absolute lg:static top-20">
@@ -153,23 +155,25 @@ const Page = () => {
           <button className="hidden" type="submit"></button>
         </form>
       </div>
-      <div className="flex lg:flex-row flex-col gap-3 lg:static absolute bottom-4 left-0 px-12 sm:pb-0 pb-3 justify-around w-full">
+      <div className="flex flex-col gap-2 sm:static absolute bottom-4 left-0 px-12 sm:pb-0 pb-3 justify-around w-full">
         <div className="flex text-red-600 font-bold text-center justify-center">
           {errorMessage}
         </div>
-        <Button
-          type={false}
-          className={`font-bold ${
-            step === 1 ? "opacity-50 pointer-events-none" : ""
-          }`}
-          disabled={step === 1}
-          onClick={prevStep}
-        >
-          Go Back
-        </Button>
-        <Button type={true} className="font-bold" onClick={nextStep}>
-          Continue
-        </Button>
+        <div className="flex lg:flex-row flex-col gap-3">
+          <Button
+            type={false}
+            className={`font-bold ${
+              step === 1 ? "opacity-50 pointer-events-none" : ""
+            }`}
+            disabled={step === 1}
+            onClick={prevStep}
+          >
+            Go Back
+          </Button>
+          <Button type={true} className="font-bold" onClick={nextStep}>
+            Continue
+          </Button>
+        </div>
       </div>
     </div>
   );

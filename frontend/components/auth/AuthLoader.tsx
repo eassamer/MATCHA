@@ -78,17 +78,17 @@ const AuthLoader = () => {
           />
         )}
         {stage === 1 && (
-          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary">
+          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary text-center">
             Welcome to Matcha
           </h1>
         )}
         {stage === 2 && (
-          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary">
+          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary text-center">
             it&apos;s not just another dating app
           </h1>
         )}
         {stage === 3 && (
-          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary">
+          <h1 className="lg:text-4xl text-2xl font-bold font-montserrat text-primary text-center">
             it&apos;s a lifestyle
           </h1>
         )}
