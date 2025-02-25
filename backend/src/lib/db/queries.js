@@ -17,7 +17,7 @@ const queries = {
     "UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?",
   UPDATE_USER_PASSWORD: "UPDATE users SET password = ? WHERE userId = ?",
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
-  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?, lastLocation = ? WHERE userId = ?`,
+  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?,password = ?, latitude = ?, longitude = ? WHERE userId = ?`,
   // oauth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,
@@ -28,18 +28,19 @@ const queries = {
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
-  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (?, ?, ?)`,
+  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   FIND_LIKES_BY_USER: `SELECT * FROM likes WHERE senderId = ?`,
   // match queries
-  ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (?, ?, ?)`,
+  ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
   DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
   FIND_MATCHES_BY_USER: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
   // message queries
   ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
   FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
-  GET_MATCHES: `
+  // relations
+  GET_NEARBY_USERS: `
   SELECT userId, firstName, lastName, displayName, email, latitude, longitude,
     (6371 * ACOS(
       COS(RADIANS(?)) * COS(RADIANS(latitude)) *
@@ -52,6 +53,8 @@ const queries = {
   HAVING distance <= 100
   ORDER BY distance ASC;
 `,
+  GET_LIKES: `SELECT * FROM likes WHERE receiverId = ?`,
+  GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
 };
 
 module.exports = queries;

@@ -174,139 +174,6 @@ async function findOrCreate(user) {
   }
 }
 
-/**
- * @description updates the user's first name
- * @param {*} userId the id of the user to update
- * @param {*} firstName the new first name
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new first name is invalid
- * @throws if database query fails
- */
-async function updateFirstName(userId, firstName) {
-  try {
-    if (!isNameValid(firstName)) {
-      throw new Error("Invalid first name");
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateFirstName(userId, firstName);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.firstName = firstName;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateFirstName: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's last name
- * @param {*} userId the id of the user to update
- * @param {*} lastName the new last name
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new last name is invalid
- * @throws if database query fails
- */
-async function updateLastName(userId, lastName) {
-  try {
-    if (!isNameValid(lastName)) {
-      throw new Error("Invalid last name");
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateLastName(userId, lastName);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.lastName = lastName;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateLastName: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's email
- * @param {*} userId the id of the user to update
- * @param {*} email the new email
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new email is invalid
- * @throws if the email already exists in the database
- * @throws if database query fails
- */
-async function updateEmail(userId, email) {
-  try {
-    if (!isValidEmail(email)) {
-      throw new Error("Invalid email");
-    }
-    const user = await findById(userId);
-    await findByEmail(email);
-    const queryOutput = await userDao.updateEmail(userId, email);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.email = email;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateEmail: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's last location
- * @param {*} userId the id of the user to update
- * @param {*} lastLocation the new last location
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if database query fails
- */
-async function updateLastLocation(userId, longitude, latitude) {
-  try {
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateLastLocation(
-      userId,
-      longitude,
-      latitude
-    );
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.longitude = longitude;
-    user.latitude = latitude;
-    return user;
-  } catch (e) {
-    throw new Error(`${errMessagePrefix}.updateLastLocation: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's password
- * @param {*} userId the id of the user to update
- * @param {*} password the new password
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new password is invalid
- * @throws if database query fails
- */
-async function updatePassword(userId, password) {
-  try {
-    if (!isPasswordStrong(password)) {
-      throw new Error(
-        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
-      );
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updatePassword(userId, password);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
-  }
-}
 
 /**
  * @description finds all users
@@ -436,30 +303,6 @@ async function getLocationByIP(id, ip) {
 }
 
 /**
- * @description Finds potential matches for a given user based on geographical proximity.
- * @param {string} userEmail - The email of the user to find matches for.
- * @returns {Promise<Array>} A promise that resolves to an array of match objects.
- * @throws Will throw an error if the user does not exist or if the database query fails.
- */
-async function getMatches(userEmail) {
-  try {
-    const user = await findByEmail(userEmail);
-    console.log(user);
-    if (!user) {
-      throw new Error(`User with Id: ${userEmail} not found`);
-    }
-    const matches = await userDao.getMatches(
-      user.userId,
-      user.latitude,
-      user.longitude
-    );
-    return matches;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.getMatches: ${error.message}`);
-  }
-}
-
-/**
  * @description Retrieves all users from the database.
  * @returns {Array} An array of user objects.
  * @throws Will throw an error if the database query fails.
@@ -472,21 +315,45 @@ async function findAll() {
     throw new Error(`${errMessagePrefix}.findAll: ${error.message}`);
   }
 }
-// Example usage
+
+async function update(user) {
+  try {
+    validateUser(user);
+    const {
+      userId,
+      firstName,
+      lastName,
+      email,
+      password,
+      latitude,
+      longitude,
+    } = user;
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    return await userDao.update(
+      userId,
+      firstName,
+      lastName,
+      email,
+      password,
+      latitude,
+      longitude
+    );
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.update: ${error.message}`);
+  }
+}
 
 module.exports = {
   create,
-  updateFirstName,
-  updateLastName,
-  updateEmail,
-  updateLastLocation,
-  updatePassword,
   remove,
   findById,
   findByEmail,
   findUsersByName,
   findOrCreate,
   getLocationByIP,
-  getMatches,
   findAll,
+  update,
 };

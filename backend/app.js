@@ -16,7 +16,7 @@ var indexRouter = require("@routes/index");
 var usersRouter = require("@routes/users");
 var authRoutes = require("@routes/auth");
 var imagesRouter = require("@routes/images");
-
+var relationsRouter = require("@routes/relations");
 var app = express();
 
 const locations = [
@@ -29,7 +29,7 @@ const locations = [
 
 async function generateDummyUsers() {
   try {
-    const connection = await db; 
+    const connection = await db;
     console.log("Inserting dummy users...");
 
     for (let i = 0; i < 100; i++) {
@@ -129,6 +129,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRoutes);
 app.use("/images", imagesRouter);
+app.use("/relations", relationsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
