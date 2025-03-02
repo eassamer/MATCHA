@@ -12,8 +12,8 @@ router.get("/users", users.getUsersByName);
 
 
 /**
-======POST Requests======
-*/
+ ======POST Requests======
+ */
 
 router.post("/delete", users.deleteUser);
 
@@ -25,6 +25,7 @@ router.post("/update/email", users.updateEmail);
 
 router.post("/update/password", users.updatePassword);
 
+router.post("/update/lastlocation", users.updateLastLocation);
 
-
+router.post("/location/ip", users.getLocationByIP);
 module.exports = router;

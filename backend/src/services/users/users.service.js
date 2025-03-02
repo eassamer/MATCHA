@@ -3,6 +3,7 @@
 const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
+const fetch = require("node-fetch");
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -62,7 +63,7 @@ function validateUser(user) {
     "firstName",
     "lastName",
     "displayName",
-		"birthDate",
+    "birthDate",
     "email",
     "password",
     "sex",
@@ -84,13 +85,20 @@ function validateUser(user) {
     );
   }
 
-  if (!isNameValid(user.firstName) || !isNameValid(user.lastName) || !isNameValid(user.displayName)) {
+  if (
+    !isNameValid(user.firstName) ||
+    !isNameValid(user.lastName) ||
+    !isNameValid(user.displayName)
+  ) {
     throw new Error(`Invalid first name`);
   }
 
-	if (!isValidDate(user.birthDate) || new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18) {
-		throw new Error(`User must be at least 18 years old`);
-	}
+  if (
+    !isValidDate(user.birthDate) ||
+    new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18
+  ) {
+    throw new Error(`User must be at least 18 years old`);
+  }
 
   if (!isValidSex(user.sex)) {
     throw new Error(`Invalid sex`);
@@ -120,7 +128,6 @@ async function create(user) {
   try {
     validateUser(user);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
-    console.log("here")
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
     }
@@ -258,12 +265,16 @@ async function updateEmail(userId, email) {
 async function updateLastLocation(userId, longitude, latitude) {
   try {
     const user = await findById(userId);
-    const queryOutput = await userDao.updateLastLocation(userId, longitude, latitude);
+    const queryOutput = await userDao.updateLastLocation(
+      userId,
+      longitude,
+      latitude
+    );
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");
     }
     user.longitude = longitude;
-		user.latitude = latitude;
+    user.latitude = latitude;
     return user;
   } catch (e) {
     throw new Error(`${errMessagePrefix}.updateLastLocation: ${error.message}`);
@@ -305,9 +316,9 @@ async function updatePassword(userId, password) {
 async function remove(userId) {
   try {
     const user = await findById(userId);
-		if (!user) {
-			throw new Error(`User with Id: ${userId} not found`);
-		}
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
     const queryOutput = await userDao.remove(userId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not removed");
@@ -388,6 +399,36 @@ async function findUsersByName({ name, limit, offset }) {
   }
 }
 
+async function getLocationByIP(id, ip) {
+  try {
+    const response = await fetch("http://ip-api.com/json/" + ip);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    if (data.status === "fail") {
+      throw new Error(data.message);
+    }
+
+    // Build and return the location object
+    const location = {
+      latitude: data.lat,
+      longitude: data.lon,
+      city: data.city,
+      country: data.country,
+      region: data.regionName,
+    };
+    userDao.updateLastLocation(id, location.longitude, location.latitude);
+    return location;
+  } catch (error) {
+    console.error(`Failed to get location: ${error.message}`);
+    return null; // Or throw the error based on your needs
+  }
+}
+
+// Example usage
+
 module.exports = {
   create,
   updateFirstName,
@@ -400,4 +441,5 @@ module.exports = {
   findByEmail,
   findUsersByName,
   findOrCreate,
+  getLocationByIP,
 };

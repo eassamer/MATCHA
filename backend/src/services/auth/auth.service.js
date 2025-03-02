@@ -2,7 +2,7 @@
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const userService = require("@services/users/users.service");
-const generator = require('generate-password');
+const generator = require("generate-password");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
@@ -41,7 +41,6 @@ function generateToken(user) {
   });
 }
 
-
 /**
  * Registers a new user by hashing the given password and creating a new entry in the database
  * @param {object} user - An object with the following fields: firstName, lastName, email, password
@@ -65,7 +64,10 @@ async function registerUser(user) {
 async function authenticateUser(email, password) {
   try {
     const users = await userService.findByEmail(email);
-    const user = users[0];
+    let user;
+    if (typeof users === "object") {
+      user = users;
+    } else user = users[0];
     if (user && (await verifyPassword(password, user.password))) {
       const token = await generateToken(user);
       return { user, token };
