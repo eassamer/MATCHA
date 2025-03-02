@@ -68,7 +68,7 @@ const ProfileDetails = () => {
   return (
     <div>
       <div className="flex flex-col justify-center items-center lg:justify-normal gap-4 w-full">
-        <div className="relative flex flex-col justify-center items-center w-[60px] h-[60px] lg:hidden">
+        <div className="relative flex flex-col justify-center items-center bg-cover w-[60px] h-[60px] lg:hidden">
           <Image
             src={state.image || "/avatar.jpg"}
             alt="avatar"

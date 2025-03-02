@@ -38,7 +38,7 @@ const ProfileDetailsLarge = () => {
   return (
     <div>
       <div className="w-full flex flex-col justify-center items-center gap-4">
-        <div className="relative flex flex-col justify-center items-center w-[80px] h-[80px]">
+        <div className="relative flex flex-col justify-center bg-cover items-center w-[80px] h-[80px]">
           <Image
             src={state.image || "/avatar.jpg"}
             alt="avatar"
