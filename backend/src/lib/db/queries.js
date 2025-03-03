@@ -2,7 +2,7 @@ const queries = {
   USE_DB: "USE ?",
   // user queries
   ADD_NEW_USER:
-    "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, interests, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)",
   FIND_USERS_BY_FIRSTNAME: "SELECT * FROM users WHERE firstName = ?",
   FIND_USERS_BY_LASTNAME: "SELECT * FROM users WHERE lastName = ?",
   FIND_USER_BY_ID: "SELECT * FROM users WHERE userId = ?",
@@ -15,6 +15,18 @@ const queries = {
   UPDATE_USER_LASTLOCATION: "UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?",
   UPDATE_USER_PASSWORD: "UPDATE users SET password = ? WHERE userId = ?",
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
+  SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
+  FIND_USERS_BY_INTERESTS: `SELECT * FROM users WHERE interests = ?`,
+  FIND_USERS_BY_ONE_INTEREST: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_TWO_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_THREE_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_FOUR_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_FIVE_INTERESTS: `SELECT * FROM users WHERE
+  MOD(interests >> ?, 2) = 1 AND
+  MOD(interests >> ?, 2) = 1 AND
+  MOD(interests >> ?, 2) = 1 AND
+  MOD(interests >> ?, 2) = 1 AND
+  MOD(interests >> ?, 2) = 1`,
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?, lastLocation = ? WHERE userId = ?`,
   // oauth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,

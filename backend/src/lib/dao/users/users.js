@@ -20,6 +20,7 @@ async function create(user) {
 		user.email,
 		user.password,
 		user.sex,
+		user.interests,
 		new Date(),
 	];
 	const userEmail = await findByEmail(user.email);

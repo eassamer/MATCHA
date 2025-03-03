@@ -14,32 +14,37 @@ errMessagePrefix = 'ImageDao: ';
  * @throws {Error} If there is an error during the database operation.
  */
 async function create(image) {
-  const images = await findByOwner(image.ownerId);
-  if (images.length == 0 || image.idx > images.length)
-    image.idx = images.length;
-  if (images[image.idx]) {
-    await deleteImage(images[image.idx].imageId);
-  }
-  const queryInput = [
-    locationUrl = image.locationUrl,
-    ownerId = image.ownerId,
-    idx = image.idx,
-  ];
-  return new Promise(
-    async (resolve, reject) => {
-      (await client).execute(
-        queries.ADD_IMAGE,
-        queryInput,
-        (err, result) => {
-          if (err) {
-            err.message = `${errMessagePrefix}.create: ${err.message}`;
-            return reject(err);
-          }
-          resolve(result);
-        }
-      )
+  try {
+
+    const images = await findByOwner(image.ownerId);
+    if (images.length == 0 || image.idx > images.length)
+      image.idx = images.length;
+    if (images[image.idx]) {
+      await deleteImage(images[image.idx].imageId);
     }
-  )
+    const queryInput = [
+      locationUrl = image.locationUrl,
+      ownerId = image.ownerId,
+      idx = image.idx,
+    ];
+    return new Promise(
+      async (resolve, reject) => {
+        (await client).execute(
+          queries.ADD_IMAGE,
+          queryInput,
+          (err, result) => {
+            if (err) {
+              err.message = `${errMessagePrefix}.create: ${err.message}`;
+              return reject(err);
+            }
+            resolve(result);
+          }
+        )
+      }
+    )
+  } catch (error) {
+    throw new Error(errMessagePrefix + error.message);
+  }
 }
 
 /**
