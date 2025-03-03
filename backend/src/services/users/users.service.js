@@ -3,6 +3,7 @@
 const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
+const fetch = require("node-fetch");
 const imagesService = require("@services/images/images.service");
 
 function isValidDate(date) {
