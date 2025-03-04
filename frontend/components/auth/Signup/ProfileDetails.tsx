@@ -102,7 +102,7 @@ const ProfileDetails = () => {
           <FormField {...displayNameField} />
         </div>
         <div className="w-full flex justify-center items-center sm:py-10 py-0 lg:hidden">
-          <DatePicker date={state.birthdate} setDate={handleDateChange} />
+          <DatePicker date={state.birthDate} setDate={handleDateChange} />
         </div>
       </div>
     </div>

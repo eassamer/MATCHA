@@ -30,14 +30,14 @@ export const SignIn = () => {
       </div>
       <div className="flex flex-col gap-8 justify-around lg:w-full lg:justify-between lg:px-10">
         <h1 className="font-extrabold text-[20px] lg:text-[34px]">Sign In</h1>
-        <Form formFields={SigninFormFields} />
+        <Form  className="gap-4" formFields={SigninFormFields} />
       </div>
       <div
         className="
                 flex
                 flex-col
                 justify-around
-                lg:items-center
+                items-center
                 lg:justify-center
                 h-full
                 w-full

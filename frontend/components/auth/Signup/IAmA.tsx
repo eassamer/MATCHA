@@ -3,7 +3,11 @@ import { useContext } from "react";
 import { FaCheck } from "react-icons/fa6";
 
 const IAmA = () => {
-  const genders = ["Woman", "Man", "Other"];
+  const genders = [
+    { sex: "female", gender: "Woman" },
+    { sex: "male", gender: "Man" },
+    { sex: "other", gender: "Other" },
+  ];
   const { state, dispatch } = useContext(SignupContext);
   return (
     <div className="lg:px-[25%]">
@@ -19,7 +23,7 @@ const IAmA = () => {
                   duration-300
                   ease-in-out
                   ${
-                    gender === state.gender
+                    gender.sex === state.gender
                       ? "bg-primary text-white font-bold"
                       : ""
                   } cursor-pointer`}
@@ -29,14 +33,14 @@ const IAmA = () => {
                     name="sex"
                     id="sex"
                     required={true}
-                    value={gender}
+                    value={gender.sex}
                     onChange={(e) => {
                       dispatch({ type: "SET_GENDER", payload: e.target.value });
                     }}
                     className="hidden"
                   />
                   <span className="flex justify-between w-full">
-                    {gender}
+                    {gender.gender}
                     <FaCheck className="text-slate-200 text-[20px]" />
                   </span>
                 </label>

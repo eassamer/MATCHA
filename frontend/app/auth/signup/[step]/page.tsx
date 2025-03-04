@@ -7,6 +7,7 @@ import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
 import {
   GenderSchema,
   InterestsSchema,
@@ -15,6 +16,7 @@ import {
   ProfileDetailsSchema,
   SignupSchema,
 } from "@/lib/SignupSchema";
+import { toast } from 'react-hot-toast';
 import { SignupContext } from "@/context/SignupContext";
 
 const Page = () => {
@@ -25,6 +27,21 @@ const Page = () => {
 
   const [errorMessage, setErrorMessage] = useState("");
 
+  const constructPayload = () => {
+      const img = { data: state.image.toString('base64url'), idx: 0 };
+      console.log(state.birthDate);
+      const payload = {
+        email: state.email,
+        password: state.password,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        displayName: state.displayName,
+        birthDate: state.birthDate,
+        sex: state.gender,
+        img: img,
+      }
+      return payload;
+  }
   useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
@@ -72,7 +89,6 @@ const Page = () => {
   }, [isLargeScreen]);
 
   const nextStep = () => {
-    console.log(step);
     const result = schemas[(step - 1)].safeParse(state);
     if (result.error) {
       result.error.errors.map((error) => {
@@ -81,7 +97,15 @@ const Page = () => {
       return;
     }
     if (step === steps.length) {
-      console.log("Submit");
+     axios.post(process.env.NEXT_PUBLIC_API_URL + "/auth/register", constructPayload()).then((res) => {
+        console.log(res);
+        toast.success("Account created successfully");
+        if (res.status === 200) {
+          router.push("/auth/login");
+        }
+      }).catch((err) => {
+        toast.error("An error occurred" + err.response.data.error , { duration: 5000 });
+      });
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };

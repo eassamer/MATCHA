@@ -11,7 +11,7 @@ interface ProfileDetails {
   lastName: string;
   displayName: string;
   image: string;
-  birthdate: Date;
+  birthDate: Date;
 }
 
 interface ProfileDetailsLarge {
@@ -22,11 +22,11 @@ interface ProfileDetailsLarge {
 
 interface ProfileDetailsImageAndBirthdate {
   image: string;
-  birthdate: Date;
+  birthDate: Date;
 }
 
 interface Gender {
-  gender: "Woman" | "Man" | "Other";
+  gender: "female" | "male" | "other";
 }
 
 interface Interests {
@@ -65,8 +65,8 @@ export const ProfileDetailsSchema: ZodType<ProfileDetails> = z.object({
     .string()
     .min(3, { message: "Display name has to be at least three letter long" })
     .regex(/^[a-zA-Z]+$/, { message: "Display name can only contain letters" }),
-  image: z.string(),
-  birthdate: z
+  image: z.string().min(100, { message: "image is required" }),
+  birthDate: z
     .date()
     .refine(
       (date) => {
@@ -112,7 +112,7 @@ export const ProfileDetailsLargeSchema: ZodType<ProfileDetailsLarge> = z.object(
 export const ProfileDetailsImageAndBirthdateSchema: ZodType<ProfileDetailsImageAndBirthdate> =
   z.object({
     image: z.string(),
-    birthdate: z
+    birthDate: z
       .date()
       .refine(
         (date) => {
@@ -137,7 +137,7 @@ export const ProfileDetailsImageAndBirthdateSchema: ZodType<ProfileDetailsImageA
   });
 
 export const GenderSchema: ZodType<Gender> = z.object({
-  gender: z.enum(["Woman", "Man", "Other"], {
+  gender: z.enum(["female", "male", "other"], {
     message: "Please Choose your gender, if not listed, choose other",
   }),
 });
@@ -145,6 +145,5 @@ export const GenderSchema: ZodType<Gender> = z.object({
 export const InterestsSchema: ZodType<Interests> = z.object({
   interests: z
     .array(z.string())
-    .min(3, { message: "You need to pick at least three interests" })
     .max(5, { message: "You can't pick more than five interests" }),
 });

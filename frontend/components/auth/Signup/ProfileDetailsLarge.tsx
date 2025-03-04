@@ -63,7 +63,7 @@ const ProfileDetailsLarge = () => {
         </div>
       </div>
       <div className="w-full flex justify-center items-center py-10">
-        <DatePicker date={state.birthdate} setDate={handleDateChange} />
+        <DatePicker date={state.birthDate} setDate={handleDateChange} />
       </div>
     </div>
   );
