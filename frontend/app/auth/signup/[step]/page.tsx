@@ -23,6 +23,7 @@ import { SignupContext } from "@/context/SignupContext";
 const Page = () => {
   const pathname = usePathname();
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { state } = useContext(SignupContext);
 
@@ -109,6 +110,7 @@ const Page = () => {
     if (step === steps.length) {
       checkAllFields();
       if (errorMessage.length > 0) return;
+      setSubmitting(true);
       axios
         .post(
           process.env.NEXT_PUBLIC_API_URL + "/auth/register",
@@ -116,6 +118,7 @@ const Page = () => {
           { withCredentials: true }
         )
         .then((res) => {
+          setSubmitting(false);
           //TODO: get the user data and store it in the context
           console.table(res.data);
           toast.success("Account created successfully");
@@ -123,10 +126,12 @@ const Page = () => {
         })
         .catch((err) => {
           //TODO: better error messaging
+          setSubmitting(false);
           toast.error("An error occurred" + err.response.data.error, {
             duration: 5000,
           });
         });
+        setSubmitting(false);
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };
@@ -215,7 +220,7 @@ const Page = () => {
           >
             Go Back
           </Button>
-          <Button type={true} className="font-bold" onClick={nextStep}>
+          <Button type={true} className={`font-bold ${submitting? "opacity-50 cursor-wait" : ""}`} onClick={nextStep} disabled={submitting}>
             Continue
           </Button>
         </div>

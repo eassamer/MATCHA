@@ -1,15 +1,55 @@
 "use client";
 import Image from "next/image";
-import { FormFieldInput } from "../FormField";
-import { Form } from "../Form";
+import { FormField, FormFieldInput } from "../FormField";
 import { TermsAndPolicy } from "../TermsAndPolicy";
 import { SignInOptions } from "./SigninOptions";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/shared/Button";
 
 export const SignIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const SigninFormFields: FormFieldInput[] = [
-    { label: "Email", type: "email", required: true },
-    { label: "Password", type: "password", required: true },
+    {
+      label: "Email",
+      type: "email",
+      required: true,
+      onChange: (e) => {
+        setEmail(e.target.value);
+      },
+    },
+    {
+      label: "Password",
+      type: "password",
+      required: true,
+      onChange: (e) => {
+        setPassword(e.target.value);
+      },
+    },
   ];
+  const router = useRouter();
+
+  const handleSubmit = () => {
+    console.log(email, password);
+    axios
+      .post(
+        process.env.NEXT_PUBLIC_API_URL + "/auth/login",
+        { email: email, password: password },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        //todo: save user data to context
+        console.table(res.data);
+        toast.success("Logged in successfully");
+        router.push("/settings");
+      })
+      .catch((err) => {
+        toast.error("Failed to login" + err.response.data.error);
+      });
+  };
   return (
     <div
       className="
@@ -30,7 +70,18 @@ export const SignIn = () => {
       </div>
       <div className="flex flex-col gap-8 justify-around lg:w-full lg:justify-between lg:px-10">
         <h1 className="font-extrabold text-[20px] lg:text-[34px]">Sign In</h1>
-        <Form  className="gap-4" formFields={SigninFormFields} />
+        <form
+          className="gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          {SigninFormFields.map((field, index) => (
+            <FormField key={index} {...field} />
+          ))}
+          <button type="submit" className="hidden"></button>
+        </form>
       </div>
       <div
         className="
@@ -46,6 +97,11 @@ export const SignIn = () => {
                 lg:px-10
                 "
       >
+        <div className="w-full flex flex-col items-center justify-center gap-8 h-fit">
+          <Button type={true} className="font-bold" onClick={handleSubmit}>
+            Sign In
+          </Button>
+        </div>
         <SignInOptions />
         <TermsAndPolicy />
       </div>
