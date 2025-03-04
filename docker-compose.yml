@@ -17,6 +17,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    env_file:
+      - .env
+    networks:
+      - matcha
+    depends_on:
+      - db
   frontend:
     build:
       context: frontend
