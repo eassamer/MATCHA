@@ -162,7 +162,6 @@ async function create(user) {
       await oauthUserDao.remove(user.email);
     }
     if (user.interests == undefined) user.interests = 0;
-    console.log(user);
     const queryOutput = await userDao.create(user);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not created");
