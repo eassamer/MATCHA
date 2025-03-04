@@ -16,7 +16,7 @@ import {
   ProfileDetailsSchema,
   SignupSchema,
 } from "@/lib/SignupSchema";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 import { SignupContext } from "@/context/SignupContext";
 
 const Page = () => {
@@ -28,20 +28,19 @@ const Page = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const constructPayload = () => {
-      const img = { data: state.image.toString('base64url'), idx: 0 };
-      console.log(state.birthDate);
-      const payload = {
-        email: state.email,
-        password: state.password,
-        firstName: state.firstName,
-        lastName: state.lastName,
-        displayName: state.displayName,
-        birthDate: state.birthDate,
-        sex: state.gender,
-        img: img,
-      }
-      return payload;
-  }
+    const img = { data: state.image, idx: 0 };
+    const payload = {
+      email: state.email,
+      password: state.password,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      displayName: state.displayName,
+      birthDate: state.birthDate,
+      sex: state.gender,
+      img: img,
+    };
+    return payload;
+  };
   useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
@@ -77,9 +76,7 @@ const Page = () => {
     : [SignupSchema, ProfileDetailsSchema, GenderSchema, InterestsSchema];
 
   const param = parseInt(pathname.split("/")[3]);
-  const step = isNaN(param) || param < 1 || param > steps.length
-    ? 1
-    : param;
+  const step = isNaN(param) || param < 1 || param > steps.length ? 1 : param;
 
   useEffect(() => {
     if (!isLargeScreen && step === 3 && steps[step - 1] === "Profile details") {
@@ -88,8 +85,19 @@ const Page = () => {
     //eslint-disable-next-line
   }, [isLargeScreen]);
 
+  const checkAllFields = () => {
+    schemas.forEach((schema) => {
+      const res = schema.safeParse(state);
+      if (res.error)
+        res.error.errors.map((error) => {
+          toast.error(error.message);
+          setErrorMessage(" ");
+      });
+    })
+  }
+
   const nextStep = () => {
-    const result = schemas[(step - 1)].safeParse(state);
+    const result = schemas[step - 1].safeParse(state);
     if (result.error) {
       result.error.errors.map((error) => {
         setErrorMessage(error.message);
@@ -97,15 +105,27 @@ const Page = () => {
       return;
     }
     if (step === steps.length) {
-     axios.post(process.env.NEXT_PUBLIC_API_URL + "/auth/register", constructPayload()).then((res) => {
-        console.log(res);
-        toast.success("Account created successfully");
-        if (res.status === 200) {
-          router.push("/auth/login");
-        }
-      }).catch((err) => {
-        toast.error("An error occurred" + err.response.data.error , { duration: 5000 });
-      });
+      checkAllFields();
+      if (errorMessage.length > 0)
+        return ;
+      axios
+        .post(
+          process.env.NEXT_PUBLIC_API_URL + "/auth/register",
+          constructPayload(),
+          { withCredentials: true }
+        )
+        .then((res) => {
+          //TODO: get the user data and store it in the context
+          console.table(res.data);
+          toast.success("Account created successfully");
+          router.push("/settings");
+        })
+        .catch((err) => {
+          //TODO: better error messaging
+          toast.error("An error occurred" + err.response.data.error, {
+            duration: 5000,
+          });
+        });
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };
