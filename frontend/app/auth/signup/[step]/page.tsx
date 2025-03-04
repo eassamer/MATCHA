@@ -8,6 +8,7 @@ import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
+import { InterestsHandler } from "@/lib/InterestsHandler";
 import {
   GenderSchema,
   InterestsSchema,
@@ -38,6 +39,7 @@ const Page = () => {
       birthDate: state.birthDate,
       sex: state.gender,
       img: img,
+      interests: InterestsHandler.interestsToInt(state.interests),
     };
     return payload;
   };
@@ -92,9 +94,9 @@ const Page = () => {
         res.error.errors.map((error) => {
           toast.error(error.message);
           setErrorMessage(" ");
-      });
-    })
-  }
+        });
+    });
+  };
 
   const nextStep = () => {
     const result = schemas[step - 1].safeParse(state);
@@ -106,8 +108,7 @@ const Page = () => {
     }
     if (step === steps.length) {
       checkAllFields();
-      if (errorMessage.length > 0)
-        return ;
+      if (errorMessage.length > 0) return;
       axios
         .post(
           process.env.NEXT_PUBLIC_API_URL + "/auth/register",

@@ -111,7 +111,7 @@ export const ProfileDetailsLargeSchema: ZodType<ProfileDetailsLarge> = z.object(
 
 export const ProfileDetailsImageAndBirthdateSchema: ZodType<ProfileDetailsImageAndBirthdate> =
   z.object({
-    image: z.string(),
+    image: z.string().min(100, { message: "image is required" }),
     birthDate: z
       .date()
       .refine(
