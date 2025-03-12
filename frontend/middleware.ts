@@ -5,8 +5,8 @@ import axios from "axios";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (
+    pathname.startsWith("/icon.png") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/_next/image") ||
     pathname.startsWith("/static") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.startsWith("/auth/signin") ||
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     }
     return NextResponse.next();
   } catch (error) {
-    //@ts-expect-error
+    //@ts-expect-error error.response.data is not always defined
     console.error(error?.response?.data);
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
