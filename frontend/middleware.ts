@@ -5,10 +5,10 @@ import axios from "axios";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (
-    pathname.startsWith("/icon.png") ||
     pathname.startsWith("/_next") ||
+    pathname.includes("/public/") ||
+    pathname.match(/\.(jpg|jpeg|png|gif|svg|ico)$/) ||
     pathname.startsWith("/static") ||
-    pathname.startsWith("/favicon.ico") ||
     pathname.startsWith("/auth/signin") ||
     pathname.startsWith("/auth/signup")
   ) {
