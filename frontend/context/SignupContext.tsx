@@ -7,7 +7,7 @@ interface SignupState {
   firstName: string;
   lastName: string;
   displayName: string;
-  birthdate: Date;
+  birthDate: Date;
   image: string;
   gender: string;
   interests: string[];
@@ -32,7 +32,7 @@ const initialState: SignupState = {
   firstName: "",
   lastName: "",
   displayName: "",
-  birthdate: new Date("2000-01-01"),
+  birthDate: new Date("2000-01-01"),
   image: "",
   gender: "",
   interests: [],
@@ -56,7 +56,7 @@ const signupReducer = (
     case "SET_DISPLAY_NAME":
       return { ...state, displayName: action.payload };
 	case "SET_BIRTHDATE":
-		return { ...state, birthdate: action.payload };
+		return { ...state, birthDate: action.payload };
     case "SET_IMAGE":
       return { ...state, image: action.payload };
     case "SET_GENDER":

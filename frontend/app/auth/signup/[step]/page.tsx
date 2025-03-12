@@ -7,6 +7,8 @@ import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
+import { InterestsHandler } from "@/lib/InterestsHandler";
 import {
   GenderSchema,
   InterestsSchema,
@@ -15,16 +17,33 @@ import {
   ProfileDetailsSchema,
   SignupSchema,
 } from "@/lib/SignupSchema";
+import { toast } from "react-hot-toast";
 import { SignupContext } from "@/context/SignupContext";
 
 const Page = () => {
   const pathname = usePathname();
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { state } = useContext(SignupContext);
 
   const [errorMessage, setErrorMessage] = useState("");
 
+  const constructPayload = () => {
+    const img = { data: state.image, idx: 0 };
+    const payload = {
+      email: state.email,
+      password: state.password,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      displayName: state.displayName,
+      birthDate: state.birthDate,
+      sex: state.gender,
+      img: img,
+      interests: InterestsHandler.interestsToInt(state.interests),
+    };
+    return payload;
+  };
   useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
@@ -60,9 +79,7 @@ const Page = () => {
     : [SignupSchema, ProfileDetailsSchema, GenderSchema, InterestsSchema];
 
   const param = parseInt(pathname.split("/")[3]);
-  const step = isNaN(param) || param < 1 || param > steps.length
-    ? 1
-    : param;
+  const step = isNaN(param) || param < 1 || param > steps.length ? 1 : param;
 
   useEffect(() => {
     if (!isLargeScreen && step === 3 && steps[step - 1] === "Profile details") {
@@ -71,9 +88,19 @@ const Page = () => {
     //eslint-disable-next-line
   }, [isLargeScreen]);
 
+  const checkAllFields = () => {
+    schemas.forEach((schema) => {
+      const res = schema.safeParse(state);
+      if (res.error)
+        res.error.errors.map((error) => {
+          toast.error(error.message);
+          setErrorMessage(" ");
+        });
+    });
+  };
+
   const nextStep = () => {
-    console.log(step);
-    const result = schemas[(step - 1)].safeParse(state);
+    const result = schemas[step - 1].safeParse(state);
     if (result.error) {
       result.error.errors.map((error) => {
         setErrorMessage(error.message);
@@ -81,7 +108,29 @@ const Page = () => {
       return;
     }
     if (step === steps.length) {
-      console.log("Submit");
+      checkAllFields();
+      if (errorMessage.length > 0) return;
+      setSubmitting(true);
+      axios
+        .post(
+          process.env.NEXT_PUBLIC_API_URL + "/auth/register",
+          constructPayload(),
+          { withCredentials: true }
+        )
+        .then((res) => {
+          setSubmitting(false);
+          localStorage.setItem("user", JSON.stringify(res.data));
+          toast.success("Account created successfully");
+          router.push("/settings");
+        })
+        .catch((err) => {
+          //TODO: better error messaging
+          setSubmitting(false);
+          toast.error("An error occurred" + err.response.data.error, {
+            duration: 5000,
+          });
+        });
+        setSubmitting(false);
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };
@@ -170,7 +219,7 @@ const Page = () => {
           >
             Go Back
           </Button>
-          <Button type={true} className="font-bold" onClick={nextStep}>
+          <Button type={true} className={`font-bold ${submitting? "opacity-50 cursor-wait" : ""}`} onClick={nextStep} disabled={submitting}>
             Continue
           </Button>
         </div>

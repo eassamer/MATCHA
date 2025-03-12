@@ -115,5 +115,5 @@ module.exports = {
   generateToken,
   findOrCreateUser,
   verifyPassword,
-  FourtyTwoAuthenticate
+  FourtyTwoAuthenticate,
 };

@@ -8,8 +8,9 @@ var router = express.Router();
 
 router.get("/user", users.getUser);
 
-router.get("/users", users.getUsersByName);
+router.get("/user/me", users.getCurrentUser);
 
+router.get("/users", users.getUsersByName);
 
 /**
  ======POST Requests======

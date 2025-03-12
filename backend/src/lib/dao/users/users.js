@@ -16,7 +16,7 @@ async function create(user) {
 		user.firstName,
 		user.lastName,
 		user.displayName,
-		user.birthDate,
+		new Date(user.birthDate),
 		user.email,
 		user.password,
 		user.sex,

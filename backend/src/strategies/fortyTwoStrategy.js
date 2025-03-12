@@ -16,7 +16,6 @@ module.exports = new FortyTwoStrategy(
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      console.log(profile);
       let user = await userService.findOrCreate({
         providerId: profile.id,
         provider: '42',
