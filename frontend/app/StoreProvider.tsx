@@ -32,8 +32,8 @@ export default function StoreProvider({
             console.log(res.data);
             storeRef.current!.dispatch(setUser(res.data));
           })
-          .catch(() => {
-            window.location.href = "/auth/signin";
+          .catch((err) => {
+            console.error(err?.response?.data);
           });
       }
     };

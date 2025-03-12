@@ -24,14 +24,18 @@ module.exports = (req, res, next) => {
   if (authPaths.includes(req.path)) {
     return next();
   }
-  const token = req.cookies.jwt;
+  const token = req.cookies.jwt
+    ? req.cookies.jwt
+    : req.headers.authorization.split(" ")[1];
+  console.log(token);
   if (!token) {
     return res.status(401).json({ error: "Access denied, token missing!" });
   }
 
   try {
     const verified = jwt.verify(token, JWT_SECRET);
-    if (!verified || !verified.id || !verified.email) {
+    console.log(verified);
+    if (!verified || (!verified.id && !verified.email)) {
       return res.status(401).json({ error: "Access denied, invalid token!" });
     }
     req.user = verified;
