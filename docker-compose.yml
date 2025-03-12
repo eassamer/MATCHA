@@ -28,17 +28,17 @@ services:
       - matcha
     depends_on:
       - db
-  # frontend:
-  #   build:
-  #     context: frontend
-  #     dockerfile: ./Dockerfile
-  #   networks:
-  #     - matcha
-  #   ports:
-  #     - 3000:3000
-  #   volumes:
-  #     - ./frontend:/app:rw
-  #     - ./frontend/node_modules:/app/node_modules
+  frontend:
+    build:
+      context: frontend
+      dockerfile: ./Dockerfile
+    networks:
+      - matcha
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app:rw
+      - ./frontend/node_modules:/app/node_modules
   backend:
     build:
       context: backend

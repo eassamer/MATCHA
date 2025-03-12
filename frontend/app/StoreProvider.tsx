@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { makeStore, AppStore } from "../lib/store";
 import { setUser } from "../lib/features/user/userSlice";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function StoreProvider({
   children,
@@ -20,7 +21,6 @@ export default function StoreProvider({
     const handleLoad = () => {
       const user = localStorage.getItem("user");
       if (user) {
-        console.log("setting user...");
         localStorage.removeItem("user");
         storeRef.current!.dispatch(setUser(JSON.parse(user)));
       } else {
@@ -33,7 +33,7 @@ export default function StoreProvider({
             storeRef.current!.dispatch(setUser(res.data));
           })
           .catch((err) => {
-            console.error(err?.response?.data);
+            toast.error("An error occurred" + err.response.data.error);
           });
       }
     };

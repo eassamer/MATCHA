@@ -41,7 +41,6 @@ async function getUser(req, res) {
 
 async function getCurrentUser(req, res) {
   try {
-    console.log(req.user);
     const user = await userService.findByEmail(req.user.email);
     res.status(200).json(user);
   } catch (error) {
