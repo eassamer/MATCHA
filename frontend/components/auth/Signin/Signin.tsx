@@ -33,7 +33,6 @@ export const SignIn = () => {
   const router = useRouter();
 
   const handleSubmit = () => {
-    console.log(email, password);
     axios
       .post(
         process.env.NEXT_PUBLIC_API_URL + "/auth/login",
@@ -41,8 +40,7 @@ export const SignIn = () => {
         { withCredentials: true }
       )
       .then((res) => {
-        //todo: save user data to context
-        console.table(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
         toast.success("Logged in successfully");
         router.push("/settings");
       })

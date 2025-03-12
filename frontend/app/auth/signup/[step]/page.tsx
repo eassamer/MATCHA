@@ -119,8 +119,7 @@ const Page = () => {
         )
         .then((res) => {
           setSubmitting(false);
-          //TODO: get the user data and store it in the context
-          console.table(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data));
           toast.success("Account created successfully");
           router.push("/settings");
         })
