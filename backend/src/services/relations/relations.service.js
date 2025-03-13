@@ -45,6 +45,11 @@ async function addLike(senderEmail, receiverId) {
     }
     const senderId = user.userId;
     const result = await relationDao.addLike(senderId, receiverId);
+    const matche = await relationDao.checkMatch(senderId, receiverId);
+    if (matche.length > 0) {
+      await relationDao.addMatch(senderId, receiverId);
+    }
+
     return result;
   } catch (error) {
     throw new Error(`${errMessagePrefix}.addLike: ${error.message}`);
@@ -78,17 +83,17 @@ async function deleteMatch(senderEmail, receiverId) {
   }
 }
 
-async function addMatch(senderEmail, receiverId) {
+async function addDislike(senderEmail, receiverId) {
   try {
     const user = await UserService.findByEmail(senderEmail);
     if (!user) {
       throw new Error(`User with Id: ${senderEmail} not found`);
     }
     const senderId = user.userId;
-    const result = await relationDao.addMatch(senderId, receiverId);
+    const result = await relationDao.addDislike(senderId, receiverId);
     return result;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.addMatch: ${error.message}`);
+    throw new Error(`${errMessagePrefix}.add_dislike: ${error.message}`);
   }
 }
 
@@ -98,5 +103,5 @@ module.exports = {
   addLike,
   getMatches,
   deleteMatch,
-  addMatch,
+  addDislike,
 };

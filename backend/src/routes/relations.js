@@ -18,7 +18,7 @@ router.get("/matches", relations.getMatches);
 
 router.post("/like", relations.addLike);
 
-router.post("/match", relations.addMatch);
+router.post("/dislike", relations.addDislike);
 
 /**
 ======DELETE Requests======

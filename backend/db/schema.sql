@@ -46,6 +46,14 @@ CREATE TABLE likes (
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
+CREATE TABLE dislikes (
+    id varchar(36) PRIMARY KEY,
+    senderId varchar(36),
+    receiverId varchar(36),
+    FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+)
+
 CREATE TABLE matches (
     id varchar(36) PRIMARY KEY,
     user1Id varchar(36),

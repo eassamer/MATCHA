@@ -1,3 +1,4 @@
+const { addDislike } = require("@dao/relations/relations");
 var relationService = require("@services/relations/relations.service");
 
 /**
@@ -67,10 +68,10 @@ async function deleteMatch(req, res) {
   }
 }
 
-async function addMatch(req, res) {
+async function addDislike(req, res) {
   try {
-    const match = await relationService.addMatch(req.user.email, req.body.id);
-    res.status(200).json(match);
+    const dislike = await addDislike(req.user.email, req.body.id);
+    res.status(200).json(dislike);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -82,5 +83,5 @@ module.exports = {
   addLike,
   getMatches,
   deleteMatch,
-  addMatch,
+  addDislike,
 };

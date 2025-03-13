@@ -31,6 +31,7 @@ const queries = {
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   FIND_LIKES_BY_USER: `SELECT * FROM likes WHERE senderId = ?`,
+  CHECK_MATCH: `SELECT * FROM likes WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
   // match queries
   ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
   DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
@@ -41,20 +42,26 @@ const queries = {
   FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
   // relations
   GET_NEARBY_USERS: `
-  SELECT userId, firstName, lastName, displayName, email, latitude, longitude,
-    (6371 * ACOS(
-      COS(RADIANS(?)) * COS(RADIANS(latitude)) *
-      COS(RADIANS(longitude) - RADIANS(?)) +
-      SIN(RADIANS(?)) * SIN(RADIANS(latitude))
-    )) AS distance
-  FROM users
-  WHERE userId != ?
-  AND latitude IS NOT NULL AND longitude IS NOT NULL
-  HAVING distance <= 100
-  ORDER BY distance ASC;
+  SELECT u.userId, u.firstName, u.lastName, u.displayName, u.email, u.latitude, u.longitude, u.radiusInKm,
+      (6371 * ACOS(
+        COS(RADIANS(?)) * COS(RADIANS(u.latitude)) *
+        COS(RADIANS(u.longitude) - RADIANS(?)) +
+        SIN(RADIANS(?)) * SIN(RADIANS(u.latitude))
+      )) AS distance
+    FROM users u
+    LEFT JOIN dislikes d ON d.receiverId = u.userId AND d.senderId = ?
+    LEFT JOIN likes l ON l.receiverId = u.userId AND l.senderId = ?
+    LEFT JOIN matches m ON (m.user1Id = u.userId OR m.user2Id = u.userId) AND (m.user1Id = ? OR m.user2Id = ?)
+    WHERE u.userId != ?
+    AND u.latitude IS NOT NULL 
+    AND u.longitude IS NOT NULL
+    AND d.receiverId IS NULL  -- Exclude disliked users
+    HAVING distance <= ?
+    ORDER BY distance ASC;
 `,
   GET_LIKES: `SELECT * FROM likes WHERE receiverId = ?`,
   GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
+  ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
 };
 
 module.exports = queries;

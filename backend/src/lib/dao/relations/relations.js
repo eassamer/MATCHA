@@ -3,32 +3,41 @@ const client = require("@lib/db/dbconnect");
 const errMessagePrefix = "RelationDao: "; //for better debugging
 
 /**
- * @description Retrieves a list of users who are in close proximity to the user
- * @param {number} userId The id of the user whose nearby users are being retrieved
- * @param {number} userLat The latitude of the user's location
- * @param {number} userLon The longitude of the user's location
- * @returns A list of users who are in close proximity to the user
- * @throws If the user's location is not found
- * @throws If there is an error querying the database
+ * @description Retrieves a list of users within the given radius from the user's location
+ * @param {number} userId - The id of the user whose nearby users are being retrieved
+ * @param {number} userLat - The latitude of the user's current location
+ * @param {number} userLon - The longitude of the user's current location
+ * @param {number} radiusInKm - The radius in kilometers
+ * @returns {Promise<Array>} A promise that resolves to an array of user objects
+ * @throws Will throw an error if the database query fails or if the user location is not found
  */
-async function getNearbyUsers(userId, userLat, userLon) {
+async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
   try {
     if (!userLat || !userLon) {
       throw new Error("User location not found");
     }
-    const queryInput = [userLat, userLon, userLat, userId]; // Ensure parameter order matches the query
+
+    const queryInput = [
+      userLat,
+      userLon,
+      userLat,
+      userId,
+      userId,
+      userId,
+      userId,
+      userId,
+      radiusInKm,
+    ];
+
     return new Promise(async (resolve, reject) => {
-      (await client).execute(
-        queries.GET_NEARBY_USERS,
-        queryInput,
-        (err, result) => {
-          if (err) {
-            err.message = `${errMessagePrefix}.getNearbyUsers: ${err.message}`;
-            return reject(err);
-          }
-          resolve(result);
+      const db = await client;
+      db.execute(queries.GET_NEARBY_USERS, queryInput, (err, result) => {
+        if (err) {
+          err.message = `Error in getNearbyUsers DAO: ${err.message}`;
+          return reject(err);
         }
-      );
+        resolve(result);
+      });
     });
   } catch (err) {
     err.message = `Error in getNearbyUsers DAO: ${err.message}`;
@@ -125,6 +134,24 @@ async function deleteMatch(senderId, receiverId) {
   }
 }
 
+async function checkMatch(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId, receiverId, senderId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.CHECK_MATCH, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.checkMatch: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in checkMatch DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 async function addMatch(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];
@@ -143,6 +170,24 @@ async function addMatch(senderId, receiverId) {
   }
 }
 
+async function addDislike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.ADD_DISLIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.add_dislike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in add_dislike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 module.exports = {
   getNearbyUsers,
   getLikes,
@@ -150,4 +195,6 @@ module.exports = {
   getMatches,
   deleteMatch,
   addMatch,
+  checkMatch,
+  addDislike,
 };
