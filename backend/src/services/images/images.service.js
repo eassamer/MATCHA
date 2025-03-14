@@ -12,8 +12,9 @@ function validateImage(img) {
   if (!img || !img.data || !img.data.startsWith('data:image'))
     throw new Error('invalid image data');
   const idx = parseInt(img.idx);
-  if (idx < 0)
+  if (idx < 0 || idx > 4)
     throw new Error('invalid image index');
+  return true;
 }
 
 /**
@@ -87,6 +88,7 @@ async function deleteImage(body) {
 
 async function getImagesByUser(userId) {
   try {
+    if (!userId || userId === "") throw new Error('User ID is required');
     const images = await imageDao.findByOwner(userId);
     images.forEach((image) => { image.locationUrl = cloudinary.url(image.locationUrl); });
     return images;
@@ -97,6 +99,7 @@ async function getImagesByUser(userId) {
 
 module.exports = {
   create,
+  validateImage,
   deleteImage,
   getImagesByUser,
 };

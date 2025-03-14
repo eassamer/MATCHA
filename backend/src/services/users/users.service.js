@@ -4,6 +4,7 @@ const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
+const imagesService = require("@services/images/images.service");
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -41,14 +42,33 @@ function isNameValid(name) {
 }
 
 /**
- * Validates if the given sex is either 'male' or 'female'.
+ * Validates if the given sex is either 'male' or 'female' or 'other'.
  *
  * @param {string} sex - The sex to validate.
  * @returns {boolean} - Returns true if the sex is valid, otherwise false.
  */
 function isValidSex(sex) {
-  const sexRegex = /^(male|female)$/;
+  const sexRegex = /^(male|female|other)$/;
   return sexRegex.test(sex);
+}
+
+/**
+ * validates interest should be an integer representing all interest
+ * each interest is represented by a bit
+ * shift 1 by the interest code to get the interest value
+ * shift to the left to set the interest
+ * shift to the right to get the interest
+ * the number of bits that should be shifted is the interest order
+ * starting from the top left and going right on the UI
+ *
+ *
+ *
+ * @param {*} interest
+ * @return {*}
+ */
+function isValidInterest(interest) {
+  const interestRegex = new RegExp("^\\d+$");
+  return interest === undefined || interestRegex.test(interest);
 }
 
 /**
@@ -66,6 +86,7 @@ function validateUser(user) {
     "birthDate",
     "email",
     "password",
+    "img",
     "sex",
   ];
 
@@ -103,6 +124,13 @@ function validateUser(user) {
   if (!isValidSex(user.sex)) {
     throw new Error(`Invalid sex`);
   }
+
+  if (!isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
+  }
+  if (!imagesService.validateImage(user.img)) {
+    throw new Error("Invalid image data");
+  }
 }
 
 function validateOauthUser(user) {
@@ -125,20 +153,36 @@ function validateOauthUser(user) {
  * @throws if the user object is invalid
  */
 async function create(user) {
+  let newUser = null,
+    newImage = null;
   try {
     validateUser(user);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
     }
+    if (user.interests == undefined) user.interests = 0;
     const queryOutput = await userDao.create(user);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not created");
     }
-    const newUser = await findByEmail(user.email);
+    newUser = await findByEmail(user.email);
+    user.img.idx = 0; // force it to be a profile picture
+    const image = await imagesService.create({
+      user: { id: newUser.userId },
+      img: user.img,
+    });
+    if (image.affectedRows === 0) {
+      throw new Error("Image not created");
+    }
+    newImage = await imagesService.getImagesByUser(newUser.userId);
     delete newUser.password;
-    return newUser;
+    return { newUser, newImage };
   } catch (error) {
+    // cleanup on error
+    if (newUser) remove(newUser.userId);
+    if (newImage)
+      imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
     throw new Error(`${errMessagePrefix}.create: ${error.message}`);
   }
 }

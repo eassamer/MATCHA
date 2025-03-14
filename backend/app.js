@@ -16,7 +16,9 @@ var indexRouter = require("@routes/index");
 var usersRouter = require("@routes/users");
 var authRoutes = require("@routes/auth");
 var imagesRouter = require("@routes/images");
+var cors = require("cors");
 var relationsRouter = require("@routes/relations");
+
 var app = express();
 
 const locations = [
@@ -117,6 +119,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
+app.use(cors({ origin: process.env.FRONTEND_PUBLIC_URL, credentials: true }));
 //limiting the size of the request body
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));

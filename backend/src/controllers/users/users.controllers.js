@@ -32,6 +32,23 @@ async function getUser(req, res) {
 }
 
 /**
+ * Get the current user.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the current user.
+ */
+
+async function getCurrentUser(req, res) {
+  try {
+    const user = await userService.findByEmail(req.user.email);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+/**
  * @description finds a users by their name
  * @param {*} req the request object
  * @param {*} res the response object
@@ -83,6 +100,7 @@ async function update(req, res) {
 module.exports = {
   deleteUser,
   getUser,
+  getCurrentUser,
   getUsersByName,
   getLocationByIP,
   getAllUsers,

@@ -1,0 +1,17 @@
+export const interestsShifter: { name: string, value: number }[] = [
+  { name: "Photography", value: 0 },
+  { name: "Shopping", value: 1 },
+  { name: "Run", value: 2 },
+  { name: "Swimming", value: 3 },
+  { name: "Karaoke", value: 4 },
+  { name: "Yoga", value: 5 },
+  { name: "Art", value: 6 },
+  { name: "Traveling", value: 7 },
+  { name: "Cooking", value: 8 },
+  { name: "Tennis", value: 9 },
+  { name: "Extreme", value: 10 },
+  { name: "Music", value: 11 },
+  { name: "Drink", value: 12 },
+  { name: "Video games", value: 13 },
+  { name: "Smoking", value: 14 },
+];

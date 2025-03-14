@@ -24,6 +24,11 @@ login = async (req, res) => {
   }
 };
 
+FourtyTwoAuthenticate = (req, res) => {
+  const authUrl = authService.FourtyTwoAuthenticate();
+  res.status(200).json({ authUrl });
+};
+
 oauthCallback = (req, res) => {
   // Set JWT token on successful OAuth authentication
   const token = authService.generateToken(req.user);
@@ -35,4 +40,5 @@ module.exports = {
   register,
   login,
   oauthCallback,
+  FourtyTwoAuthenticate,
 };

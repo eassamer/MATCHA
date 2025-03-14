@@ -8,6 +8,8 @@ var router = express.Router();
 
 router.get("/user", users.getUser);
 
+router.get("/user/me", users.getCurrentUser);
+
 router.get("/all", users.getAllUsers);
 
 router.get("/", users.getUsersByName);
