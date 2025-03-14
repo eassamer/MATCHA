@@ -1,4 +1,3 @@
-const { addDislike } = require("@dao/relations/relations");
 var relationService = require("@services/relations/relations.service");
 
 /**
@@ -56,6 +55,12 @@ async function getMatches(req, res) {
   }
 }
 
+/**
+ * @description Deletes a match between the authenticated user and another user.
+ * @param {Object} req - The request object containing the user's email and the ID of the user to be un-matched.
+ * @param {Object} res - The response object to send back the result of the delete operation.
+ * @throws Responds with a 400 status code and an error message if deleting the match fails.
+ */
 async function deleteMatch(req, res) {
   try {
     const match = await relationService.deleteMatch(
@@ -68,9 +73,18 @@ async function deleteMatch(req, res) {
   }
 }
 
+/**
+ * @description Adds a dislike from the authenticated user to another user.
+ * @param {Object} req - The request object containing the user's email and the ID of the user to be disliked.
+ * @param {Object} res - The response object to send back the result of the dislike operation.
+ * @throws Responds with a 400 status code and an error message if adding the dislike fails.
+ */
 async function addDislike(req, res) {
   try {
-    const dislike = await addDislike(req.user.email, req.body.id);
+    const dislike = await relationService.addDislike(
+      req.user.email,
+      req.body.id
+    );
     res.status(200).json(dislike);
   } catch (error) {
     res.status(400).json({ error: error.message });

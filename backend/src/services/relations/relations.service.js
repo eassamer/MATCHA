@@ -16,7 +16,8 @@ async function getNearbyUsers(userEmail) {
     const matches = await relationDao.getNearbyUsers(
       user.userId,
       user.latitude,
-      user.longitude
+      user.longitude,
+      user.radiusInKm
     );
     return matches;
   } catch (error) {
@@ -69,6 +70,13 @@ async function getMatches(userEmail) {
   }
 }
 
+/**
+ * @description Deletes a match between the authenticated user and another user.
+ * @param {string} senderEmail - The email of the user who is deleting the match.
+ * @param {number} receiverId - The id of the user to be un-matched.
+ * @returns A promise that resolves to the result of the database query.
+ * @throws Responds with a 400 status code and an error message if deleting the match fails.
+ */
 async function deleteMatch(senderEmail, receiverId) {
   try {
     const user = await UserService.findByEmail(senderEmail);
@@ -83,6 +91,13 @@ async function deleteMatch(senderEmail, receiverId) {
   }
 }
 
+/**
+ * @description Adds a dislike from the authenticated user to another user.
+ * @param {string} senderEmail - The email of the user who is giving the dislike.
+ * @param {number} receiverId - The id of the user who is receiving the dislike.
+ * @returns A promise that resolves to the result of the database query.
+ * @throws Responds with a 400 status code and an error message if adding the dislike fails.
+ */
 async function addDislike(senderEmail, receiverId) {
   try {
     const user = await UserService.findByEmail(senderEmail);

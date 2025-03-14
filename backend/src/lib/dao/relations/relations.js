@@ -28,7 +28,7 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
       userId,
       radiusInKm,
     ];
-
+    console.log(queryInput);
     return new Promise(async (resolve, reject) => {
       const db = await client;
       db.execute(queries.GET_NEARBY_USERS, queryInput, (err, result) => {

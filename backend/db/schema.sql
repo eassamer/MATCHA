@@ -11,7 +11,7 @@ CREATE TABLE users (
     latitude float,
     birthdate DATETIME NOT NULL,
     includingRange INT, -- range 1, 2, 3, 4, 5
-    radiusInKm INT,
+    radiusInKm INT default 100,
     sex VARCHAR(10) NOT NULL,
     bio TEXT,
     emailVerified BOOLEAN default false,
@@ -52,7 +52,7 @@ CREATE TABLE dislikes (
     receiverId varchar(36),
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
-)
+);
 
 CREATE TABLE matches (
     id varchar(36) PRIMARY KEY,
