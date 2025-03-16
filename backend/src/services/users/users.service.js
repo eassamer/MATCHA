@@ -145,6 +145,33 @@ function validateOauthUser(user) {
   }
 }
 
+function validateUserUpdate(user) {
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "displayName",
+    "email",
+    "latitude",
+    "longitude",
+    "userId",
+  ];
+
+  for (const field of requiredFields) {
+    if (!user[field]) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+  if (!isValidEmail(user.email)) {
+    throw new Error(`Invalid email`);
+  }
+  if (
+    !isNameValid(user.firstName) ||
+    !isNameValid(user.lastName) ||
+    !isNameValid(user.displayName)
+  ) {
+    throw new Error(`Invalid first name`);
+  }
+}
 /**
  * @description creates a new user
  * @param {*} user the user object to create
@@ -217,7 +244,6 @@ async function findOrCreate(user) {
     throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
   }
 }
-
 
 /**
  * @description finds all users
@@ -362,16 +388,8 @@ async function findAll() {
 
 async function update(user) {
   try {
-    validateUser(user);
-    const {
-      userId,
-      firstName,
-      lastName,
-      email,
-      password,
-      latitude,
-      longitude,
-    } = user;
+    validateUserUpdate(user);
+    const { userId, firstName, lastName, email, latitude, longitude } = user;
     if (!userId) {
       throw new Error("User ID is required");
     }
@@ -381,12 +399,38 @@ async function update(user) {
       firstName,
       lastName,
       email,
-      password,
       latitude,
       longitude
     );
   } catch (error) {
     throw new Error(`${errMessagePrefix}.update: ${error.message}`);
+  }
+}
+
+/**
+ * @description updates the user's password
+ * @param {*} userId the id of the user to update
+ * @param {*} password the new password
+ * @returns the updated user object
+ * @throws if the user does not exist
+ * @throws if the new password is invalid
+ * @throws if database query fails
+ */
+async function updatePassword(userId, password) {
+  try {
+    if (!isPasswordStrong(password)) {
+      throw new Error(
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+      );
+    }
+    const user = await findById(userId);
+    const queryOutput = await userDao.updatePassword(userId, password);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return user;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
   }
 }
 
@@ -400,4 +444,5 @@ module.exports = {
   getLocationByIP,
   findAll,
   update,
+  updatePassword,
 };

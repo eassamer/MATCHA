@@ -1,5 +1,7 @@
 var UserService = require("@services/users/users.service");
 var relationDao = require("@dao/relations/relations");
+
+const errMessagePrefix = "RelationService: ";
 /**
  * @description Finds potential matches for a given user based on geographical proximity.
  * @param {string} userEmail - The email of the user to find matches for.
@@ -9,7 +11,6 @@ var relationDao = require("@dao/relations/relations");
 async function getNearbyUsers(userEmail) {
   try {
     const user = await UserService.findByEmail(userEmail);
-    console.log(user);
     if (!user) {
       throw new Error(`User with Id: ${userEmail} not found`);
     }
@@ -38,6 +39,18 @@ async function getLikes(userEmail) {
   }
 }
 
+async function checkLike(senderId) {
+  try {
+    const result = await relationDao.getLikesBySenderId(senderId);
+    if (result.length === 0) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.checkLike: ${error.message}`);
+  }
+}
+
 async function addLike(senderEmail, receiverId) {
   try {
     const user = await UserService.findByEmail(senderEmail);
@@ -45,10 +58,23 @@ async function addLike(senderEmail, receiverId) {
       throw new Error(`User with Id: ${senderEmail} not found`);
     }
     const senderId = user.userId;
+    if (senderId === receiverId) {
+      throw new Error("You cannot like yourself");
+    }
+    if (await checkLike(senderId)) {
+      throw new Error("You have already liked this user");
+    }
     const result = await relationDao.addLike(senderId, receiverId);
-    const matche = await relationDao.checkMatch(senderId, receiverId);
-    if (matche.length > 0) {
-      await relationDao.addMatch(senderId, receiverId);
+    const match = await relationDao.checkMatch(senderId, receiverId);
+    if (match.length > 1) {
+      try {
+        await relationDao.addMatch(senderId, receiverId);
+        await relationDao.deleteLike(senderId, receiverId);
+        await relationDao.deleteLike(receiverId, senderId);
+      } catch (error) {
+        await relationDao.deleteLike(senderId, receiverId);
+        throw new Error(`${errMessagePrefix}.addMatch: ${error.message}`);
+      }
     }
 
     return result;
@@ -105,6 +131,9 @@ async function addDislike(senderEmail, receiverId) {
       throw new Error(`User with Id: ${senderEmail} not found`);
     }
     const senderId = user.userId;
+    if (await checkLike(senderId)) {
+      await relationDao.deleteLike(senderId, receiverId);
+    }
     const result = await relationDao.addDislike(senderId, receiverId);
     return result;
   } catch (error) {

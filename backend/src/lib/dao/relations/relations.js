@@ -28,7 +28,6 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
       userId,
       radiusInKm,
     ];
-    console.log(queryInput);
     return new Promise(async (resolve, reject) => {
       const db = await client;
       db.execute(queries.GET_NEARBY_USERS, queryInput, (err, result) => {
@@ -94,6 +93,31 @@ async function addLike(senderId, receiverId) {
   }
 }
 
+
+async function deleteLike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.DELETE_LIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.removeLike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in removeLike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
+/**
+ * @description Retrieves all matches for a given user
+ * @param {number} userId The id of the user whose matches are being retrieved
+ * @returns {Promise<Array>} A promise that resolves to an array of match objects
+ * @throws If there is an error querying the database
+ */
 async function getMatches(userId) {
   try {
     const queryInput = [userId];
@@ -112,6 +136,13 @@ async function getMatches(userId) {
   }
 }
 
+/**
+ * @description Deletes a match between two users.
+ * @param {number} senderId The id of one of the users in the match.
+ * @param {number} receiverId The id of the other user in the match.
+ * @returns A promise that resolves with the result of the database query.
+ * @throws If there is an error executing the query
+ */
 async function deleteMatch(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];
@@ -134,6 +165,14 @@ async function deleteMatch(senderId, receiverId) {
   }
 }
 
+/**
+ * @description Checks if there is a match between two users.
+ * @param {number} senderId - The id of one of the users.
+ * @param {number} receiverId - The id of the other user.
+ * @returns {Promise<Array>} A promise that resolves to the result of the match check query.
+ * @throws If there is an error executing the query.
+ */
+
 async function checkMatch(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId, receiverId, senderId];
@@ -151,6 +190,14 @@ async function checkMatch(senderId, receiverId) {
     throw err;
   }
 }
+
+/**
+ * @description Adds a match between two users.
+ * @param {number} senderId - The id of one of the users in the match.
+ * @param {number} receiverId - The id of the other user in the match.
+ * @returns {Promise<Object>} A promise that resolves with the result of the database query.
+ * @throws If there is an error executing the query.
+ */
 
 async function addMatch(senderId, receiverId) {
   try {
@@ -170,6 +217,13 @@ async function addMatch(senderId, receiverId) {
   }
 }
 
+/**
+ * @description Records a dislike from the user with the given senderId to the user with the given receiverId
+ * @param {number} senderId The id of the user who is giving the dislike
+ * @param {number} receiverId The id of the user who is receiving the dislike
+ * @returns The result of the database query
+ * @throws If there is an error querying the database
+ */
 async function addDislike(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];
@@ -188,13 +242,37 @@ async function addDislike(senderId, receiverId) {
   }
 }
 
+async function getLikesBySenderId(senderId) {
+  try {
+    const queryInput = [senderId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.GET_LIKES_BY_SENDER_ID,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.getLikesBySenderId: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in getLikesBySenderId DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 module.exports = {
   getNearbyUsers,
   getLikes,
   addLike,
+  deleteLike,
   getMatches,
   deleteMatch,
   addMatch,
   checkMatch,
   addDislike,
+  getLikesBySenderId,
 };

@@ -10,11 +10,6 @@ const queries = {
   FIND_ALL_USERS: "SELECT * FROM users",
   FIND_USERS_BY_NAME:
     "SELECT * FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?",
-  UPDATE_USER_FIRSTNAME: "UPDATE users SET firstName = ? WHERE userId = ?",
-  UPDATE_USER_LASTNAME: "UPDATE users SET lastName = ? WHERE userId = ?",
-  UPDATE_USER_EMAIL: "UPDATE users SET email = ? WHERE userId = ?",
-  UPDATE_USER_LASTLOCATION:
-    "UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?",
   UPDATE_USER_PASSWORD: "UPDATE users SET password = ? WHERE userId = ?",
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
@@ -30,7 +25,7 @@ const queries = {
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1`,
 
-  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?,password = ?, latitude = ?, longitude = ? WHERE userId = ?`,
+  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?, latitude = ?, longitude = ? WHERE userId = ?`,
   // oauth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,
@@ -43,12 +38,10 @@ const queries = {
   // like queries
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
-  FIND_LIKES_BY_USER: `SELECT * FROM likes WHERE senderId = ?`,
   CHECK_MATCH: `SELECT * FROM likes WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
   // match queries
   ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
   DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
-  FIND_MATCHES_BY_USER: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
   // message queries
   ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
@@ -75,6 +68,7 @@ const queries = {
   GET_LIKES: `SELECT * FROM likes WHERE receiverId = ?`,
   GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
+  GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
 };
 
 module.exports = queries;

@@ -62,8 +62,6 @@ async function getUsersByName(req, res) {
   }
 }
 
-
-
 /**
  * @description Retrieves the geographical location of a user based on their IP address and updates their last location in the database.
  * @param {Object} req - The request object containing the user's id and IP address.
@@ -97,6 +95,23 @@ async function update(req, res) {
   }
 }
 
+/**
+ * @description updates a user's password
+ * @param {*} req the request object
+ * @param {*} res the response object
+ */
+async function updatePassword(req, res) {
+  try {
+    const user = await userService.updatePassword(
+      req.body.id,
+      req.body.password
+    );
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
 module.exports = {
   deleteUser,
   getUser,
@@ -105,4 +120,5 @@ module.exports = {
   getLocationByIP,
   getAllUsers,
   update,
+  updatePassword,
 };

@@ -20,6 +20,8 @@ router.get("/", users.getUsersByName);
 
 router.post("/update", users.update);
 
+router.post("/update/password", users.updatePassword);
+
 router.post("/delete", users.deleteUser);
 
 router.post("/location/ip", users.getLocationByIP);
