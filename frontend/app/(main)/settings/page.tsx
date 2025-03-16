@@ -1,10 +1,9 @@
-'use client';
 const Settings = () => {
   return (
-    <div>
-      <h1>Settings</h1>
+    <div className="bg-white size-full flex items-center justify-center">
+      <h1 className="text-black text-3xl font-bold">Settings</h1>
     </div>
   );
-}
+};
 
 export default Settings;

@@ -44,13 +44,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <Link
-          href="/login"
+          href="/auth/signin"
           className=" flex items-center justify-center py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full hover:bg-primary hover:text-white bg-white text-primary transition-all ease-in-out duration-300 border-2 hover:border-transparent border-primary"
         >
           Login
         </Link>
         <Link
-          href="/signup"
+          href="/auth/signup"
           className="mb-4 flex items-center justify-center py-3 text-lg xl:px-8 xl:py-3 tracking-[1.7px]  xl:text-lg font-bold font-montserrat rounded-full bg-primary text-white hover:bg-white hover:text-primary transition-all ease-in-out duration-300 hover:border hover:border-primary"
         >
           Sign Up
