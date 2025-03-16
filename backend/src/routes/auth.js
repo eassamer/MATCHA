@@ -25,7 +25,7 @@ router.get(
 router.get("/42", authController.FourtyTwoAuthenticate);
 router.get(
   "/42/callback",
-  passport.authenticate("42", {session: false}),
+  passport.authenticate("42", { session: false }),
   authController.oauthCallback
 );
 

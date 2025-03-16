@@ -10,23 +10,20 @@ router.get("/user", users.getUser);
 
 router.get("/user/me", users.getCurrentUser);
 
-router.get("/users", users.getUsersByName);
+router.get("/all", users.getAllUsers);
+
+router.get("/", users.getUsersByName);
 
 /**
  ======POST Requests======
  */
 
-router.post("/delete", users.deleteUser);
-
-router.post("/update/firstname", users.updateFirstName);
-
-router.post("/update/lastname", users.updateLastName);
-
-router.post("/update/email", users.updateEmail);
+router.post("/update", users.update);
 
 router.post("/update/password", users.updatePassword);
 
-router.post("/update/lastlocation", users.updateLastLocation);
+router.post("/delete", users.deleteUser);
 
 router.post("/location/ip", users.getLocationByIP);
+
 module.exports = router;
