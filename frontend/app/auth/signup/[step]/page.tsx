@@ -126,11 +126,14 @@ const Page = () => {
         .catch((err) => {
           //TODO: better error messaging
           setSubmitting(false);
-          toast.error("An error occurred" + err.response.data.error, {
-            duration: 5000,
-          });
+          toast.error(
+            "An error occurred" + err?.response?.data?.error || "ERROR",
+            {
+              duration: 5000,
+            }
+          );
         });
-        setSubmitting(false);
+      setSubmitting(false);
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };
@@ -219,7 +222,14 @@ const Page = () => {
           >
             Go Back
           </Button>
-          <Button type={true} className={`font-bold ${submitting? "opacity-50 cursor-wait" : ""}`} onClick={nextStep} disabled={submitting}>
+          <Button
+            type={true}
+            className={`font-bold ${
+              submitting ? "opacity-50 cursor-wait" : ""
+            }`}
+            onClick={nextStep}
+            disabled={submitting}
+          >
             Continue
           </Button>
         </div>
