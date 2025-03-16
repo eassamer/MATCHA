@@ -18,7 +18,7 @@ export const SignInOptions = () => {
           </h1>
           <div className="bg-[#000000] opacity-[40%] h-[0.5px] w-[35%]"></div>
         </div>
-        <div className="flex flex-row items-center justify-center gap-5 w-full">
+        <div className="flex flex-row items-center justify-center gap-7 w-full">
           {icons.map((item, index) => (
             <Card key={index} href="#" Icon={item} />
           ))}

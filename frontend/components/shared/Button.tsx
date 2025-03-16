@@ -28,8 +28,7 @@ export const Button = ({
       justify-center
       font-montserrat
       text-[16px]
-      sm:h-[50px]
-      h-[45px]
+      h-[50px]
       w-full
       lg:rounded-[15px]
       rounded-[12px]
