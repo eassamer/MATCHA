@@ -85,21 +85,19 @@ export const SignIn = () => {
         className="
                 flex
                 flex-col
-                justify-around
+                lg:justify-around
                 items-center
-                lg:justify-center
+                justify-arround
                 h-full
-                w-full
+                sm:w-fit
                 gap-5
                 lg:h-fit
                 lg:px-10
-                "
+                md:gap-0"
       >
-        <div className="w-full flex flex-col items-center justify-center gap-8 h-fit">
-          <Button type={true} className="font-bold" onClick={handleSubmit}>
-            Sign In
-          </Button>
-        </div>
+        <Button type={true} className="font-bold" onClick={handleSubmit}>
+          Sign In
+        </Button>
         <SignInOptions />
         <TermsAndPolicy />
       </div>

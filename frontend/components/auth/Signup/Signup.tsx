@@ -21,7 +21,7 @@ export const SignUp = () => {
             w-full
             lg:overflow-auto"
     >
-      <div className={`lg:w-1/2 pt-10 ${isLoading ? "hidden" : ""}`}>
+      <div className={`lg:w-1/2 pt-10 lg:pt-0 ${isLoading ? "hidden" : ""}`}>
         <Media />
       </div>
       <div

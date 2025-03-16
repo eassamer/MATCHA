@@ -7,7 +7,7 @@ import { Si42 } from "react-icons/si";
 export const SignInOptions = () => {
   const icons = [FaFacebookSquare, FaGoogle, Si42];
   return (
-    <div className="w-full lg:w-fit h-fit flex items-center justify-center flex-col lg:pt-[27px]">
+    <div className="w-full lg:w-fit h-fit flex items-center justify-center flex-col">
       <div className="flex flex-col items-center justify-around w-full gap-3 lg:py-0 py-4 static h-full">
         <div className="flex flex-row items-center justify-around gap-2 w-full">
           <div className="bg-[#000000] opacity-[40%] h-[0.5px] w-[35%]"></div>

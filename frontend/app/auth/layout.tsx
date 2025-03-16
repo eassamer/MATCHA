@@ -34,7 +34,7 @@ export default function AuthLayout({
           bg-white
           lg:rounded-[15px]"
         >
-          <AuthLoader />
+          {/* <AuthLoader /> */}
           {children}
         </div>
       </div>
