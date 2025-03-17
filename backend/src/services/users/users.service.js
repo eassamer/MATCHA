@@ -3,6 +3,8 @@
 const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
+const fetch = require("node-fetch");
+const imagesService = require("@services/images/images.service");
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -40,14 +42,33 @@ function isNameValid(name) {
 }
 
 /**
- * Validates if the given sex is either 'male' or 'female'.
+ * Validates if the given sex is either 'male' or 'female' or 'other'.
  *
  * @param {string} sex - The sex to validate.
  * @returns {boolean} - Returns true if the sex is valid, otherwise false.
  */
 function isValidSex(sex) {
-  const sexRegex = /^(male|female)$/;
+  const sexRegex = /^(male|female|other)$/;
   return sexRegex.test(sex);
+}
+
+/**
+ * validates interest should be an integer representing all interest
+ * each interest is represented by a bit
+ * shift 1 by the interest code to get the interest value
+ * shift to the left to set the interest
+ * shift to the right to get the interest
+ * the number of bits that should be shifted is the interest order
+ * starting from the top left and going right on the UI
+ *
+ *
+ *
+ * @param {*} interest
+ * @return {*}
+ */
+function isValidInterest(interest) {
+  const interestRegex = new RegExp("^\\d+$");
+  return interest === undefined || interestRegex.test(interest);
 }
 
 /**
@@ -62,9 +83,10 @@ function validateUser(user) {
     "firstName",
     "lastName",
     "displayName",
-		"birthDate",
+    "birthDate",
     "email",
     "password",
+    "img",
     "sex",
   ];
 
@@ -84,16 +106,30 @@ function validateUser(user) {
     );
   }
 
-  if (!isNameValid(user.firstName) || !isNameValid(user.lastName) || !isNameValid(user.displayName)) {
+  if (
+    !isNameValid(user.firstName) ||
+    !isNameValid(user.lastName) ||
+    !isNameValid(user.displayName)
+  ) {
     throw new Error(`Invalid first name`);
   }
 
-	if (!isValidDate(user.birthDate) || new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18) {
-		throw new Error(`User must be at least 18 years old`);
-	}
+  if (
+    !isValidDate(user.birthDate) ||
+    new Date().getFullYear() - new Date(user.birthDate).getFullYear() < 18
+  ) {
+    throw new Error(`User must be at least 18 years old`);
+  }
 
   if (!isValidSex(user.sex)) {
     throw new Error(`Invalid sex`);
+  }
+
+  if (!isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
+  }
+  if (!imagesService.validateImage(user.img)) {
+    throw new Error("Invalid image data");
   }
 }
 
@@ -109,6 +145,33 @@ function validateOauthUser(user) {
   }
 }
 
+function validateUserUpdate(user) {
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "displayName",
+    "email",
+    "latitude",
+    "longitude",
+    "userId",
+  ];
+
+  for (const field of requiredFields) {
+    if (!user[field]) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+  if (!isValidEmail(user.email)) {
+    throw new Error(`Invalid email`);
+  }
+  if (
+    !isNameValid(user.firstName) ||
+    !isNameValid(user.lastName) ||
+    !isNameValid(user.displayName)
+  ) {
+    throw new Error(`Invalid first name`);
+  }
+}
 /**
  * @description creates a new user
  * @param {*} user the user object to create
@@ -117,20 +180,36 @@ function validateOauthUser(user) {
  * @throws if the user object is invalid
  */
 async function create(user) {
+  let newUser = null,
+    newImage = null;
   try {
     validateUser(user);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
     }
+    if (user.interests == undefined) user.interests = 0;
     const queryOutput = await userDao.create(user);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not created");
     }
-    const newUser = await findByEmail(user.email);
+    newUser = await findByEmail(user.email);
+    user.img.idx = 0; // force it to be a profile picture
+    const image = await imagesService.create({
+      user: { id: newUser.userId },
+      img: user.img,
+    });
+    if (image.affectedRows === 0) {
+      throw new Error("Image not created");
+    }
+    newImage = await imagesService.getImagesByUser(newUser.userId);
     delete newUser.password;
-    return newUser;
+    return { newUser, newImage };
   } catch (error) {
+    // cleanup on error
+    if (newUser) remove(newUser.userId);
+    if (newImage)
+      imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
     throw new Error(`${errMessagePrefix}.create: ${error.message}`);
   }
 }
@@ -167,136 +246,6 @@ async function findOrCreate(user) {
 }
 
 /**
- * @description updates the user's first name
- * @param {*} userId the id of the user to update
- * @param {*} firstName the new first name
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new first name is invalid
- * @throws if database query fails
- */
-async function updateFirstName(userId, firstName) {
-  try {
-    if (!isNameValid(firstName)) {
-      throw new Error("Invalid first name");
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateFirstName(userId, firstName);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.firstName = firstName;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateFirstName: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's last name
- * @param {*} userId the id of the user to update
- * @param {*} lastName the new last name
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new last name is invalid
- * @throws if database query fails
- */
-async function updateLastName(userId, lastName) {
-  try {
-    if (!isNameValid(lastName)) {
-      throw new Error("Invalid last name");
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateLastName(userId, lastName);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.lastName = lastName;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateLastName: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's email
- * @param {*} userId the id of the user to update
- * @param {*} email the new email
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new email is invalid
- * @throws if the email already exists in the database
- * @throws if database query fails
- */
-async function updateEmail(userId, email) {
-  try {
-    if (!isValidEmail(email)) {
-      throw new Error("Invalid email");
-    }
-    const user = await findById(userId);
-    await findByEmail(email);
-    const queryOutput = await userDao.updateEmail(userId, email);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.email = email;
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updateEmail: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's last location
- * @param {*} userId the id of the user to update
- * @param {*} lastLocation the new last location
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if database query fails
- */
-async function updateLastLocation(userId, longitude, latitude) {
-  try {
-    const user = await findById(userId);
-    const queryOutput = await userDao.updateLastLocation(userId, longitude, latitude);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    user.longitude = longitude;
-		user.latitude = latitude;
-    return user;
-  } catch (e) {
-    throw new Error(`${errMessagePrefix}.updateLastLocation: ${error.message}`);
-  }
-}
-
-/**
- * @description updates the user's password
- * @param {*} userId the id of the user to update
- * @param {*} password the new password
- * @returns the updated user object
- * @throws if the user does not exist
- * @throws if the new password is invalid
- * @throws if database query fails
- */
-async function updatePassword(userId, password) {
-  try {
-    if (!isPasswordStrong(password)) {
-      throw new Error(
-        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
-      );
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updatePassword(userId, password);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    return user;
-  } catch (error) {
-    throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
-  }
-}
-
-/**
  * @description finds all users
  * @returns an array of all users
  * @throws if database query fails
@@ -304,9 +253,9 @@ async function updatePassword(userId, password) {
 async function remove(userId) {
   try {
     const user = await findById(userId);
-		if (!user) {
-			throw new Error(`User with Id: ${userId} not found`);
-		}
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
     const queryOutput = await userDao.remove(userId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not removed");
@@ -387,16 +336,113 @@ async function findUsersByName({ name, limit, offset }) {
   }
 }
 
+/**
+ * @description Retrieves the geographical location of a user based on their IP address and updates their last location in the database.
+ * @param {number} id - The ID of the user whose location is being retrieved.
+ * @param {string} ip - The IP address used to determine the user's location.
+ * @returns {Object|null} An object containing the location data (latitude, longitude, city, country, region), or null if the location could not be retrieved.
+ * @throws Will log an error message if the HTTP request fails or if the location data retrieval fails.
+ */
+
+async function getLocationByIP(id, ip) {
+  try {
+    const response = await fetch("http://ip-api.com/json/" + ip);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    if (data.status === "fail") {
+      throw new Error(data.message);
+    }
+
+    // Build and return the location object
+    const location = {
+      latitude: data.lat,
+      longitude: data.lon,
+      city: data.city,
+      country: data.country,
+      region: data.regionName,
+    };
+    userDao.updateLastLocation(id, location.longitude, location.latitude);
+    return location;
+  } catch (error) {
+    console.error(`Failed to get location: ${error.message}`);
+    return null; // Or throw the error based on your needs
+  }
+}
+
+/**
+ * @description Retrieves all users from the database.
+ * @returns {Array} An array of user objects.
+ * @throws Will throw an error if the database query fails.
+ */
+async function findAll() {
+  try {
+    const users = await userDao.findAll();
+    return users;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.findAll: ${error.message}`);
+  }
+}
+
+async function update(user) {
+  try {
+    validateUserUpdate(user);
+    const { userId, firstName, lastName, email, latitude, longitude } = user;
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    return await userDao.update(
+      userId,
+      firstName,
+      lastName,
+      email,
+      latitude,
+      longitude
+    );
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.update: ${error.message}`);
+  }
+}
+
+/**
+ * @description updates the user's password
+ * @param {*} userId the id of the user to update
+ * @param {*} password the new password
+ * @returns the updated user object
+ * @throws if the user does not exist
+ * @throws if the new password is invalid
+ * @throws if database query fails
+ */
+async function updatePassword(userId, password) {
+  try {
+    if (!isPasswordStrong(password)) {
+      throw new Error(
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+      );
+    }
+    const user = await findById(userId);
+    const queryOutput = await userDao.updatePassword(userId, password);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return user;
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
+  }
+}
+
 module.exports = {
   create,
-  updateFirstName,
-  updateLastName,
-  updateEmail,
-  updateLastLocation,
-  updatePassword,
   remove,
   findById,
   findByEmail,
   findUsersByName,
   findOrCreate,
+  getLocationByIP,
+  findAll,
+  update,
+  updatePassword,
 };

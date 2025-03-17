@@ -12,22 +12,33 @@ services:
     networks:
       - matcha
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "db"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
-  frontend:
-    build:
-      context: frontend
-      dockerfile: ./Dockerfile
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    env_file:
+      - .env
     networks:
       - matcha
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend/:/app:rw
-      - vol_frontend:/opt/app/node_modules
+    depends_on:
+      - db
+  # frontend:
+  #   build:
+  #     context: frontend
+  #     dockerfile: ./Dockerfile
+  #   networks:
+  #     - matcha
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./frontend:/app:rw
+  #     - ./frontend/node_modules:/app/node_modules
   backend:
     build:
       context: backend
@@ -38,7 +49,7 @@ services:
       - 3001:3001
     volumes:
       - ./backend:/app:rw
-      - vol_backend:/app/node_modules
+      - ./backend/node_modules:/app/node_modules
     env_file:
       - .env
     depends_on:
@@ -47,7 +58,3 @@ services:
 
 networks:
   matcha:
-
-volumes:
-  vol_backend:
-  vol_frontend:
