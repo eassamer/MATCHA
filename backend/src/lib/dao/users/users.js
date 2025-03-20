@@ -137,6 +137,30 @@ async function findByEmail(email) {
   });
 }
 
+
+/**
+ * Finds an authenticated user by email.
+ *
+ * @param {string} email - The email of the user to find.
+ * @returns {Promise} A promise that resolves with the result of the query.
+ */
+async function findAuthUserByEmail(email) {
+  const queryInput = [email];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.FIND_AUTH_USER_BY_EMAIL,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.findAuthUserByEmail: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 /**
  * @description finds users by their name
  * @param {*} name the name of the user to find
@@ -208,6 +232,7 @@ module.exports = {
   remove,
   findById,
   findByEmail,
+  findAuthUserByEmail,
   findUsersByName,
   findAll,
   update,

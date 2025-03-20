@@ -63,7 +63,7 @@ async function registerUser(user) {
  */
 async function authenticateUser(email, password) {
   try {
-    const users = await userService.findByEmail(email);
+    const users = await userService.findAuthUserByEmail(email);
     let user;
     if (typeof users === "object") {
       user = users;

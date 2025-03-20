@@ -13,7 +13,7 @@ module.exports = new LocalStrategy(
   { usernameField: "email", passwordField: "password" },
   async (email, password, done) => {
     try {
-      const user = await userService.findByEmail(email);
+      const user = await userService.findAuthUserByEmail(email);
       if (
         !user ||
         !(await authService.verifyPassword(password, user.password))

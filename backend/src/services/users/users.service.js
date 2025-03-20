@@ -292,7 +292,7 @@ async function findById(userId) {
  */
 async function findByEmail(email) {
   try {
-    if (!isValidEmail(email)) return await userDao.findByEmail(email);
+    if (!isValidEmail(email)) throw new Error("Invalid email");
     const user = await userDao.findByEmail(email);
     if (!user || user.length === 0) {
       throw new Error(`User with email ${email} not found`);
@@ -300,6 +300,20 @@ async function findByEmail(email) {
     return user[0];
   } catch (error) {
     throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+  }
+}
+
+
+async function findAuthUserByEmail(email) {
+  try {
+    if (!isValidEmail(email)) return await userDao.findAuthUserByEmail(email);
+    const user = await userDao.findAuthUserByEmail(email);
+    if (!user || user.length === 0) {
+      throw new Error(`User with email ${email} not found`);
+    }
+    return user[0];
+  } catch (error) {
+    throw new Error(`${errMessagePrefix}.findAuthUserByEmail: ${error.message}`);
   }
 }
 
@@ -439,6 +453,7 @@ module.exports = {
   remove,
   findById,
   findByEmail,
+  findAuthUserByEmail,
   findUsersByName,
   findOrCreate,
   getLocationByIP,

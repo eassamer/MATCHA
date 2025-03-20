@@ -1,24 +1,30 @@
+
+const userFields = "users.userId, users.firstName, users.lastName, users.displayName,\
+users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
+users.interests, users.sex, users.bio, users.emailVerified";
+
 const queries = {
   USE_DB: "USE ?",
   // user queries
   ADD_NEW_USER:
     "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, interests, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  FIND_USERS_BY_FIRSTNAME: "SELECT * FROM users WHERE firstName = ?",
-  FIND_USERS_BY_LASTNAME: "SELECT * FROM users WHERE lastName = ?",
-  FIND_USER_BY_ID: "SELECT * FROM users WHERE userId = ?",
-  FIND_USER_BY_EMAIL: "SELECT * FROM users WHERE email = ?",
-  FIND_ALL_USERS: "SELECT * FROM users",
+  FIND_USERS_BY_FIRSTNAME: `SELECT ${userFields} FROM users WHERE firstName = ?`,
+  FIND_USERS_BY_LASTNAME: `SELECT ${userFields} FROM users WHERE lastName = ?`,
+  FIND_USER_BY_ID: `SELECT ${userFields} FROM users WHERE userId = ?`,
+  FIND_USER_BY_EMAIL: `SELECT ${userFields} FROM users WHERE email = ?`,
+  FIND_AUTH_USER_BY_EMAIL : `SELECT * FROM users WHERE email = ?`,
+  FIND_ALL_USERS: `SELECT ${userFields} FROM users`,
   FIND_USERS_BY_NAME:
-    "SELECT * FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?",
-  UPDATE_USER_PASSWORD: "UPDATE users SET password = ? WHERE userId = ?",
+    `SELECT ${userFields} FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?`,
+  UPDATE_USER_PASSWORD: `UPDATE users SET password = ? WHERE userId = ?`,
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
-  FIND_USERS_BY_INTERESTS: `SELECT * FROM users WHERE interests = ?`,
-  FIND_USERS_BY_ONE_INTEREST: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_TWO_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_THREE_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_FOUR_INTERESTS: `SELECT * FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_FIVE_INTERESTS: `SELECT * FROM users WHERE
+  FIND_USERS_BY_INTERESTS: `SELECT ${userFields} FROM users WHERE interests = ?`,
+  FIND_USERS_BY_ONE_INTEREST: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_TWO_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_THREE_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_FOUR_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
+  FIND_USERS_BY_FIVE_INTERESTS: `SELECT ${userFields} FROM users WHERE
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1 AND
