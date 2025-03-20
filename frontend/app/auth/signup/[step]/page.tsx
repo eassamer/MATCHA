@@ -121,7 +121,7 @@ const Page = () => {
           setSubmitting(false);
           localStorage.setItem("user", JSON.stringify(res.data));
           toast.success("Account created successfully");
-          router.push("/settings");
+          router.push("/home");
         })
         .catch((err) => {
           //TODO: better error messaging
