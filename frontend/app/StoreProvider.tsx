@@ -29,7 +29,6 @@ export default function StoreProvider({
             withCredentials: true,
           })
           .then((res) => {
-            console.log(res.data);
             storeRef.current!.dispatch(setUser(res.data));
           })
           .catch((err) => {
