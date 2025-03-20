@@ -5,7 +5,6 @@ import * as jose from "jose";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  console.log(pathname);
   if (
     pathname.startsWith("/_next") ||
     pathname.includes("/public/") ||
@@ -30,6 +29,7 @@ export async function middleware(request: NextRequest) {
           return NextResponse.next();
         }
       } catch (error) {
+        //@ts-expect-error error.response.data is not always defined
         console.error(error?.response?.data);
         return NextResponse.next();
       }

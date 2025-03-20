@@ -33,7 +33,6 @@ module.exports = (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, JWT_SECRET);
-    console.log("verified", verified);
     if (!verified || (!verified.id && !verified.email)) {
       return res.status(401).json({ error: "Access denied, invalid token!" });
     }
