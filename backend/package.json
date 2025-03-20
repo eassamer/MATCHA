@@ -20,7 +20,7 @@
     "express": "^4.21.1",
     "generate-password": "^1.7.1",
     "http-errors": "^2.0.0",
-    "jade": "~1.11.0",
+    "jade": "^0.31.2",
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",

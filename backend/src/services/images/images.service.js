@@ -30,10 +30,10 @@ function validateImage(img) {
  * @returns {Promise<string>} - The URL of the uploaded image.
  * @throws {Error} - Throws an error if the image upload or database operation fails.
  */
-async function create(body) {
+async function create(user, img) {
   try {
-    validateImage(body.img);
-    imageDao.findByOwnerAndIdx(body.user.id, body.img.idx)
+    validateImage(img);
+    imageDao.findByOwnerAndIdx(user.id, img.idx)
       .then(async (imageAtIdx) => {
         if (imageAtIdx.length > 0) {
           await cloudinary.uploader.destroy(imageAtIdx.ownerId + imageAtIdx[0].idx, {
@@ -42,17 +42,17 @@ async function create(body) {
         }
       });
     const result = await cloudinary.uploader.upload(
-      body.img.data,
+      img.data,
       {
-        folder: body.user.id,
+        folder: user.id,
         type: 'authenticated',
-        public_id: body.img.idx,
+        public_id: img.idx,
       }
     );
     await imageDao.create({
       locationUrl: result.url,
-      ownerId: body.user.id,
-      idx: body.img.idx,
+      ownerId: user.id,
+      idx: img.idx,
     });
     return result.url;
   } catch (error) {
@@ -71,10 +71,11 @@ async function create(body) {
  * @returns {Promise<void>} - A promise that resolves when the image is deleted.
  * @throws {Error} - Throws an error if the image deletion fails.
  */
-async function deleteImage(body) {
+async function deleteImage(user, idx) {
   try {
-    const idx = parseInt(body.idx);
-    const image = await imageDao.findByOwnerAndIdx(body.user.id, idx);
+    const index = parseInt(idx);
+    if (isNaN(index) || index < 0 || index > 4) throw new Error('Invalid image index');
+    const image = await imageDao.findByOwnerAndIdx(user.id, index);
     if (image.length > 0) {
       await cloudinary.uploader.destroy(image[0].ownerId + image[0].idx, {
         invalidate: true,

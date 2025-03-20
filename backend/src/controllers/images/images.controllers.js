@@ -3,8 +3,7 @@ const ImageService = require('@services/images/images.service');
 
 async function create(req, res) {
   try {
-    //TODO: check the user ID using a JWT middleware to inject the user object into the request body
-    const image = await ImageService.create(req.body);
+    const image = await ImageService.create(req.user, req.body?.img);
     res.status(201).json(image);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -13,7 +12,7 @@ async function create(req, res) {
 
 async function deleteImage(req, res) {
   try {
-    const image = await ImageService.deleteImage(req.body);
+    const image = await ImageService.deleteImage(req.user, req.query?.idx);
     res.status(200).json(image);
   } catch (error) {
     res.status(400).json({ error: error.message });
