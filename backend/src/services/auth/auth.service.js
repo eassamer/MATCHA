@@ -50,7 +50,7 @@ function generateToken(user) {
 async function registerUser(user) {
   user.password = await hashPassword(user.password);
   const newUser = await userService.create(user);
-  const token = generateToken(newUser);
+  const token = generateToken(newUser.newUser);
   return { newUser, token };
 }
 
