@@ -2,14 +2,12 @@
 import DetailsCard from "@/components/profile/details-card";
 import { SwipeButtons } from "@/components/home/SwipeButtons";
 import { cardData, SwipeCard } from "@/components/home/SwipeCard";
-import { Setting5 } from "iconsax-react";
 import { useState } from "react";
 import FilterButton from "@/components/home/FilterButton";
 
 export default function Home() {
   const [cards, setCards] = useState(cardData);
   const [direction, setDirection] = useState("");
-  const [sizeButton, setSizeButton] = useState(0);
   const [showDetailsCard, setShowDetailsCard] = useState(false);
 
   return (

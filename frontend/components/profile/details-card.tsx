@@ -7,7 +7,6 @@ import ProfileLocation from "@/components/profile/profile-location";
 import ProfileAbout from "@/components/profile/profile-about";
 import ProfileInterests from "@/components/profile/profile-interests";
 import ProfileGallery from "@/components/profile/profile-gallery";
-import ProfileActions from "@/components/profile/profile-actions";
 import { SwipeButtons } from "../home/SwipeButtons";
 
 interface DetailsCardProps {
