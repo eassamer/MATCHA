@@ -9,8 +9,9 @@ cloudinary.config({
 });
 
 function validateImage(img) {
-  if (!img || !img.data || !img.data.startsWith('data:image'))
+  if (!img || !img.data || !img.data.startsWith('data:image')) {
     throw new Error('invalid image data');
+  }
   const idx = parseInt(img.idx);
   if (idx < 0 || idx > 4)
     throw new Error('invalid image index');
@@ -32,6 +33,7 @@ function validateImage(img) {
  */
 async function create(user, img) {
   try {
+    console.log('user', user);
     validateImage(img);
     imageDao.findByOwnerAndIdx(user.id, img.idx)
       .then(async (imageAtIdx) => {

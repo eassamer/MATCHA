@@ -195,10 +195,10 @@ async function create(user) {
     }
     newUser = await findByEmail(user.email);
     user.img.idx = 0; // force it to be a profile picture
-    const image = await imagesService.create({
-      user: { id: newUser.userId },
-      img: user.img,
-    });
+    const image = await imagesService.create(
+      { id: newUser.userId },
+      user.img,
+    );
     if (image.affectedRows === 0) {
       throw new Error("Image not created");
     }
