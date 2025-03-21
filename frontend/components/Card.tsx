@@ -79,9 +79,6 @@ export const Card = ({
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       className="w-fit h-fit relative flex items-center justify-end hover:cursor-grab active:cursor-grabbing"
     >
-      <div className="absolute right-0 w-[16px] h-[68px] rounded-tl-lg rounded-bl-lg  bg-[#FFFFFF26] flex flex-col items-center justify-center">
-        <div className="size-[6px] bg-white rounded-full"></div>
-      </div>
       <div className="z-99 absolute flex items-center gap-1 justify-center top-3 left-3 w-fit px-2 h-[35px] bg-[#000000CF] rounded-[7px]">
         <Location size="16" color="#FFFFFF" />
         <h1 className="text-[12px] font-bold font-poppins text-white">

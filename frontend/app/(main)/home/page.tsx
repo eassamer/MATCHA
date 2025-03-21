@@ -4,6 +4,7 @@ import { SwipeButtons } from "@/components/home/SwipeButtons";
 import { cardData, SwipeCard } from "@/components/home/SwipeCard";
 import { Setting5 } from "iconsax-react";
 import { useState } from "react";
+import FilterButton from "@/components/home/FilterButton";
 
 export default function Home() {
   const [cards, setCards] = useState(cardData);
@@ -28,21 +29,16 @@ export default function Home() {
         >
           {!showDetailsCard && (
             <div className="w-full h-fit py-4 relative top-0 lg:hidden flex items-center justify-center px-6">
-              <button className="absolute right-8 lg:hidden bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3">
-                <Setting5
-                  className=" self-end"
-                  size="24"
-                  color="#C13D88"
-                  variant="Bold"
-                />
-              </button>
+              <div className="size-fit absolute right-8 lg:hidden">
+                <FilterButton />
+              </div>
               <h1 className="font-poppins text-[24px] font-bold">Discover</h1>
             </div>
           )}
           {!showDetailsCard && (
-            <button className="hidden lg:block lg:absolute top-7 right-7 bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3">
-              <Setting5 size="24" color="#C13D88" variant="Bold" />
-            </button>
+            <div className="absolute top-4 right-4 hidden lg:block">
+              <FilterButton />
+            </div>
           )}
           {showDetailsCard && (
             <DetailsCard
