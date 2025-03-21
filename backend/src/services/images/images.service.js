@@ -33,7 +33,6 @@ function validateImage(img) {
  */
 async function create(user, img) {
   try {
-    console.log('user', user);
     validateImage(img);
     imageDao.findByOwnerAndIdx(user.id, img.idx)
       .then(async (imageAtIdx) => {
