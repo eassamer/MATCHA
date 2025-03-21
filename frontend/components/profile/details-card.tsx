@@ -21,7 +21,6 @@ export default function DetailsCard({
 }: DetailsCardProps) {
   return (
     <div className="flex flex-col w-full h-full lg:flex-grow overflow-y-auto bg-white p-6 md:p-8 lg:p-10">
-      {/* Back Button */}
       <div className="mb-8">
         <button
           onClick={() => setShowDetailsCard(false)}
@@ -31,7 +30,6 @@ export default function DetailsCard({
         </button>
       </div>
 
-      {/* Profile Header and Location */}
       <div className="flex flex-col md:flex-wrap md:flex-row md:justify-between md:items-start gap-4 mb-8">
         <ProfileHeader
           name="Jessica Parker"
@@ -42,12 +40,10 @@ export default function DetailsCard({
         <ProfileLocation location="Chicago, IL United States" distance="1 km" />
       </div>
 
-      {/* Profile About */}
       <div className="mb-8">
         <ProfileAbout description="My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.." />
       </div>
 
-      {/* Gallery and Interests - Two Column Layout for Desktop */}
       <div className="flex flex-col lg:flex-row gap-8 mb-8">
         <div className="lg:w-1/2">
           <ProfileGallery />
@@ -66,7 +62,6 @@ export default function DetailsCard({
         </div>
       </div>
 
-      {/* Profile Actions */}
       <div className="mt-auto w-full flex items-center justify-center">
         <SwipeButtons
           setDirection={setDirection}

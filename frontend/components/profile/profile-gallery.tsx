@@ -20,13 +20,11 @@ export default function ProfileGallery() {
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
-    // Prevent body scrolling when lightbox is open
     document.body.style.overflow = "hidden";
   };
 
   const closeLightbox = () => {
     setLightboxOpen(false);
-    // Re-enable body scrolling
     document.body.style.overflow = "auto";
   };
 
@@ -69,7 +67,6 @@ export default function ProfileGallery() {
       <h2 className="font-bold text-lg mb-3 font-sans">Gallery</h2>
 
       <div className="grid grid-cols-2 gap-2">
-        {/* First row - 2 larger images */}
         <div
           className="relative rounded-lg overflow-hidden cursor-pointer"
           onClick={() => openLightbox(0)}
@@ -95,7 +92,6 @@ export default function ProfileGallery() {
           />
         </div>
 
-        {/* Second row - 3 smaller images */}
         <div
           className="relative rounded-lg overflow-hidden cursor-pointer"
           onClick={() => openLightbox(2)}
@@ -134,7 +130,6 @@ export default function ProfileGallery() {
         </div>
       </div>
 
-      {/* Lightbox */}
       {lightboxOpen && (
         <ImageLightbox
           images={images}
