@@ -59,7 +59,7 @@ async function create(user, img) {
     });
     return result.url;
   } catch (error) {
-    console.error(errMessagePrefix + error.message);
+    console.error(errMessagePrefix , error);
     throw new UnsupportedMediaTypeException(errMessagePrefix + error.message);
   }
 }

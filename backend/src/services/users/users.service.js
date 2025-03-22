@@ -4,8 +4,20 @@ const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
+const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
 const { NotFoundException } = require("@lib/utils/exceptions");
+
+/**
+ * Hashes a given password using Argon2.
+ *
+ * @param {string} password - The password to hash.
+ *
+ * @returns {Promise<string>} The hashed password.
+ */
+async function hashPassword(password) {
+  return await argon2.hash(password);
+}
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -92,16 +104,21 @@ function validateUser(user) {
   ];
 
   for (const field of requiredFields) {
-    if (!user[field]) {
+    if (
+      !user[field] ||
+      user[field] === "" ||
+      user[field] === null ||
+      user[field] === undefined
+    ) {
       throw new Error(`Missing required field: ${field}`);
     }
   }
 
-  if (!isValidEmail(user.email)) {
+  if (!user.email || !isValidEmail(user.email)) {
     throw new Error(`Invalid email`);
   }
 
-  if (!isPasswordStrong(user.password)) {
+  if (!user.password || !isPasswordStrong(user.password)) {
     throw new Error(
       `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one special character, one number`
     );
@@ -185,6 +202,7 @@ async function create(user) {
     newImage = null;
   try {
     validateUser(user);
+    user.password = await hashPassword(user.password);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
@@ -196,10 +214,7 @@ async function create(user) {
     }
     newUser = await findByEmail(user.email);
     user.img.idx = 0; // force it to be a profile picture
-    const image = await imagesService.create(
-      { id: newUser.userId },
-      user.img,
-    );
+    const image = await imagesService.create({ id: newUser.userId }, user.img);
     if (image.affectedRows === 0) {
       throw new Error("Image not created");
     }
@@ -211,7 +226,8 @@ async function create(user) {
     if (newUser) remove(newUser.userId);
     if (newImage)
       imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
-    throw new Error(`${errMessagePrefix}.create: ${error.message}`);
+    console.error(`${errMessagePrefix}.create: ${error.message}`);
+    throw new Error(error.message);
   }
 }
 
@@ -303,7 +319,6 @@ async function findByEmail(email) {
     throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
   }
 }
-
 
 async function findAuthUserByEmail(email) {
   try {
