@@ -7,7 +7,7 @@ async function create(req, res) {
     const image = await ImageService.create(req.user, req.body?.img);
     res.status(201).json(image);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status).json({ error: error.message });
   }
 }
 
@@ -16,7 +16,7 @@ async function deleteImage(req, res) {
     const image = await ImageService.deleteImage(req.user, req.query?.idx);
     res.status(200).json(image);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status).json({ error: error.message });
   }
 }
 

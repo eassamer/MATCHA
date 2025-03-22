@@ -1,3 +1,5 @@
+const { UnsupportedMediaTypeException, BadRequestException, NotFoundException } = require('@lib/utils/exceptions');
+
 cloudinary = require('cloudinary').v2;
 imageDao = require('@lib/dao/images/images');
 errMessagePrefix = 'imagesService: ';
@@ -57,8 +59,8 @@ async function create(user, img) {
     });
     return result.url;
   } catch (error) {
-    console.error(error);
-    throw new Error(errMessagePrefix + error.message);
+    console.error(errMessagePrefix + error.message);
+    throw new UnsupportedMediaTypeException(errMessagePrefix + error.message);
   }
 }
 
@@ -85,7 +87,9 @@ async function deleteImage(user, idx) {
       return await imageDao.deleteImage(image[0].imageId);
     }
   } catch (error) {
-    throw new Error(errMessagePrefix + error.message);
+    console.error(errMessagePrefix + error.message);
+    if (error.message === 'Invalid image index') throw new BadRequestException(error.message);
+    throw new NotFoundException(errMessagePrefix + error.message);
   }
 }
 
@@ -96,7 +100,9 @@ async function getImagesByUser(userId) {
     images.forEach((image) => { image.locationUrl = cloudinary.url(image.locationUrl); });
     return images;
   } catch (error) {
-    throw new Error(error.message);
+    console.error(errMessagePrefix + error.message);
+    if (error.message === 'User ID is required') throw new BadRequestException(error.message);
+    throw new NotFoundException(errMessagePrefix + error.message);
   }
 }
 
