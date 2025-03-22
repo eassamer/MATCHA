@@ -72,8 +72,8 @@ const ProfileDetails = () => {
           <Image
             src={state.image || "/avatar.jpg"}
             alt="avatar"
-            width={70}
-            height={70}
+            width={60}
+            height={60}
             className="rounded-[25px]"
           />
           <button
