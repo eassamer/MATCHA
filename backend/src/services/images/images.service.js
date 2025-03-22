@@ -50,7 +50,6 @@ async function create(user, img) {
         public_id: img.idx,
       }
     );
-    console.log("result ", result);
     await imageDao.create({
       locationUrl: result.url,
       ownerId: user.id,
@@ -58,6 +57,7 @@ async function create(user, img) {
     });
     return result.url;
   } catch (error) {
+    console.error(error);
     throw new Error(errMessagePrefix + error.message);
   }
 }
