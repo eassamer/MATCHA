@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "framer-motion": "^12.5.0",
     "iconsax-react": "^0.0.8",
     "jose": "^6.0.10",
     "lucide-react": "^0.469.0",
