@@ -8,5 +8,4 @@ COPY ./package*.json .
 
 RUN npm install
 
-
 CMD ["node", "--watch", "app.js"]

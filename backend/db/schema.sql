@@ -11,7 +11,8 @@ CREATE TABLE users (
     latitude float,
     birthdate DATETIME NOT NULL,
     includingRange INT, -- range 1, 2, 3, 4, 5
-    radiusInKm INT,
+    radiusInKm INT default 100,
+    interests INT, -- each interest is 1 shifted by a corresponding interest
     sex VARCHAR(10) NOT NULL,
     bio TEXT,
     emailVerified BOOLEAN default false,
@@ -46,6 +47,14 @@ CREATE TABLE likes (
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
+CREATE TABLE dislikes (
+    id varchar(36) PRIMARY KEY,
+    senderId varchar(36),
+    receiverId varchar(36),
+    FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
 CREATE TABLE matches (
     id varchar(36) PRIMARY KEY,
     user1Id varchar(36),
@@ -62,6 +71,3 @@ CREATE TABLE messages (
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
-
-
--- TODO: add interests, tags, etc

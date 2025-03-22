@@ -2,7 +2,7 @@
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const userService = require("@services/users/users.service");
-const generator = require('generate-password');
+const generator = require("generate-password");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
@@ -41,7 +41,6 @@ function generateToken(user) {
   });
 }
 
-
 /**
  * Registers a new user by hashing the given password and creating a new entry in the database
  * @param {object} user - An object with the following fields: firstName, lastName, email, password
@@ -51,7 +50,7 @@ function generateToken(user) {
 async function registerUser(user) {
   user.password = await hashPassword(user.password);
   const newUser = await userService.create(user);
-  const token = generateToken(newUser);
+  const token = generateToken(newUser.newUser);
   return { newUser, token };
 }
 
@@ -65,7 +64,10 @@ async function registerUser(user) {
 async function authenticateUser(email, password) {
   try {
     const users = await userService.findByEmail(email);
-    const user = users[0];
+    let user;
+    if (typeof users === "object") {
+      user = users;
+    } else user = users[0];
     if (user && (await verifyPassword(password, user.password))) {
       const token = await generateToken(user);
       return { user, token };
@@ -75,7 +77,6 @@ async function authenticateUser(email, password) {
     throw new Error(error.message);
   }
 }
-
 /**
  * Finds or creates a user by their GoogleId, email, firstName, and lastName.
  * If the user already exists, return the existing user.
@@ -104,10 +105,15 @@ async function findOrCreateUser({ email, firstName, lastName }) {
   }
 }
 
+function FourtyTwoAuthenticate() {
+  return `${process.env.FORTY_API_LINK}/authorize?client_id=${process.env.FORTY_CLIENT_ID}&redirect_uri=${process.env.FORTY_TWO_REDIRECT_URI}&response_type=code`;
+}
+
 module.exports = {
   registerUser,
   authenticateUser,
   generateToken,
   findOrCreateUser,
   verifyPassword,
+  FourtyTwoAuthenticate,
 };
