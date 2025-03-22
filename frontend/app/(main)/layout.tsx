@@ -16,6 +16,7 @@ import { NavItemD } from "@/components/home/NavItemD";
 import { SectionNav } from "@/components/home/SectionNav";
 import StoreProvider from "../StoreProvider";
 import { NavigationProvider } from "@/context/NavigationContext";
+import NotificationButton from "@/components/notification-button";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -84,6 +85,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <StoreProvider>
       <NavigationProvider>
         <div className="w-screen h-screen bg-black lg:flex items-center justify-center">
+          <NotificationButton />
           <div className="w-[250px] h-full bg-[#F9F9F9] hidden lg:flex flex-col items-center justify-start gap-2">
             <div className="w-full py-8 flex items-center justify-center">
               <Image
