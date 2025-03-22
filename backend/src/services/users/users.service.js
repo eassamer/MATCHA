@@ -5,6 +5,7 @@ const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
 const imagesService = require("@services/images/images.service");
+const { NotFoundException } = require("@lib/utils/exceptions");
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -309,11 +310,12 @@ async function findAuthUserByEmail(email) {
     if (!isValidEmail(email)) return await userDao.findAuthUserByEmail(email);
     const user = await userDao.findAuthUserByEmail(email);
     if (!user || user.length === 0) {
-      throw new Error(`User with email ${email} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
     return user[0];
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.findAuthUserByEmail: ${error.message}`);
+    console.error(error.message);
+    throw error;
   }
 }
 

@@ -1,3 +1,4 @@
+const { BadRequestException } = require('@lib/utils/exceptions');
 const ImageService = require('@services/images/images.service');
 
 
@@ -23,12 +24,12 @@ async function getImagesByUser(req, res) {
   try {
     const userId = req.params.userId;
     if (!userId) {
-      throw new Error('User ID is required');
+      throw new BadRequestException('User ID is required');
     }
     const images = await ImageService.getImagesByUser(userId);
     res.status(200).json(images);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status).json({ error: error.message });
   }
 }
 

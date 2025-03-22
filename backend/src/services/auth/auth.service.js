@@ -3,6 +3,11 @@ const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const userService = require("@services/users/users.service");
 const generator = require("generate-password");
+const {
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} = require("@lib/utils/exceptions");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
 
@@ -48,10 +53,18 @@ function generateToken(user) {
  * @throws if the user object is invalid
  */
 async function registerUser(user) {
-  user.password = await hashPassword(user.password);
-  const newUser = await userService.create(user);
-  const token = generateToken(newUser.newUser);
-  return { newUser, token };
+  try {
+    user.password = await hashPassword(user.password);
+    const newUser = await userService.create(user);
+    const token = generateToken(newUser.newUser);
+    return { newUser, token };
+  } catch (error) {
+    console.error(error);
+    if (error.message.includes("exists"))
+      throw new ForbiddenException(" email already exists ");
+    else throw new BadRequestException("Invalid user object: " + error.message);
+    
+  }
 }
 
 /**
@@ -72,9 +85,10 @@ async function authenticateUser(email, password) {
       const token = await generateToken(user);
       return { user, token };
     }
-    throw new Error("Invalid email or password");
+    throw new BadRequestException("Invalid email or password");
   } catch (error) {
-    throw new Error(error.message);
+    console.error(error.message);
+    throw error;
   }
 }
 /**
