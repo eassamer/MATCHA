@@ -36,7 +36,7 @@ async function create(user, img) {
     validateImage(img);
     imageDao.findByOwnerAndIdx(user.id, img.idx)
       .then(async (imageAtIdx) => {
-        if (imageAtIdx.length > 0) {
+        if (imageAtIdx && imageAtIdx.length > 0) {
           await cloudinary.uploader.destroy(imageAtIdx.ownerId + imageAtIdx[0].idx, {
             invalidate: true,
           });
@@ -50,6 +50,7 @@ async function create(user, img) {
         public_id: img.idx,
       }
     );
+    console.log("result ", result);
     await imageDao.create({
       locationUrl: result.url,
       ownerId: user.id,
