@@ -87,7 +87,7 @@ const messages: Message[] = [
     id: "7",
     sender: {
       name: "Edward Franz",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/User6.svg",
       initials: "EF",
     },
     content: "Cool I will book now!",
@@ -98,7 +98,7 @@ const messages: Message[] = [
     id: "8",
     sender: {
       name: "Alec Whitten",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/User7.svg",
       initials: "AW",
     },
     content: "I just have a shower with a cur",
@@ -153,7 +153,7 @@ const messages: Message[] = [
     id: "13",
     sender: {
       name: "Noah Pierre",
-      avatar: "/User1.svg",
+      avatar: "/User8.svg",
       initials: "NP",
     },
     content: "Yes",
@@ -175,7 +175,7 @@ const messages: Message[] = [
     id: "15",
     sender: {
       name: "Edward Franz",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/User9.svg",
       initials: "EF",
     },
     content: "Cool I will book now!",
@@ -186,7 +186,7 @@ const messages: Message[] = [
     id: "16",
     sender: {
       name: "Alec Whitten",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/User10.svg",
       initials: "AW",
     },
     content: "I just have a shower with a cur",
@@ -205,14 +205,14 @@ export default function RecentMessages() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="divide-y">
+        <div className="divide-y divide-gray-100">
           {messages.map((message) => (
             <div
               key={message.id}
               onClick={() => {
                 router.push("/messages/" + message.id);
               }}
-              className="flex items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex items-center px-4 py-6 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <div className="relative mr-3">
                 {message.unread && (
@@ -220,6 +220,7 @@ export default function RecentMessages() {
                 )}
                 <Avatar className="h-10 w-10">
                   <AvatarImage
+                    className="object-cover"
                     src={message.sender.avatar}
                     alt={message.sender.name}
                   />

@@ -66,7 +66,11 @@ export const Chat = ({
             <ArrowLeft size="24" className="text-primary" />
           </button>
           <Avatar className="h-12 w-12">
-            <AvatarImage src="/grace.jpg" alt="Grace" />
+            <AvatarImage
+              className="object-cover"
+              src="/User2.svg"
+              alt="Grace"
+            />
             <AvatarFallback>GR</AvatarFallback>
           </Avatar>
           <div>

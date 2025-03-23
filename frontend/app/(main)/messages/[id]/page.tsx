@@ -9,7 +9,6 @@ export default function MessagePage({
     id: string;
   };
 }) {
-  console.log(params.id);
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: "Hi Jake, how are you?", sender: "other", time: "2:55 PM" },
     {
