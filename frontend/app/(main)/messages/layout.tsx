@@ -14,7 +14,7 @@ export default function MessageLayout({
         <div className="custom:hidden lg:max-h-[86vh] lg:flex hidden w-[300px] h-[90%] bg-white rounded-[12.6px]">
           <RecentMessages />
         </div>
-        <div className="custom:w-full w-full lg:relative overflow-hidden lg:w-[calc(100%-330px)] lg:max-h-[86vh] h-[calc(100vh-60px)] lg:h-[90%] flex flex-col items-center justify-between lg:justify-center lg:py-0  lg:gap-6 bg-white  rounded-0 lg:rounded-[12.6px]">
+        <div className="custom:w-full w-full lg:relative overflow-hidden lg:w-[calc(100%-330px)] lg:max-h-[86vh] h-[calc(100vh-60px)] lg:h-[90%] flex flex-col items-center justify-start lg:justify-center lg:py-0  lg:gap-6 bg-white  rounded-0 lg:rounded-[12.6px]">
           {children}
         </div>
       </div>

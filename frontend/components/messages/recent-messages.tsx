@@ -198,8 +198,8 @@ const messages: Message[] = [
 export default function RecentMessages() {
   const router = useRouter();
   return (
-    <Card className="w-full  mx-auto  rounded-xl overflow-y-scroll">
-      <CardHeader className="pb-2">
+    <Card className="w-full  mx-auto shadow-none border-none lg:border-2  rounded-xl overflow-y-scroll">
+      <CardHeader className="pb-2 hidden lg:block">
         <CardTitle className="font-poppins text-[14.4px] font-semibold">
           Messages
         </CardTitle>

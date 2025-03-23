@@ -6,8 +6,11 @@ export default function Message() {
       <h1 className="text-black text-3xl font-bold hidden lg:block">
         Click on a conversation
       </h1>
-      <div className="size-full lg:hidden block">
-        <RecentMessages />
+      <div className="size-full lg:hidden flex flex-col  items-start justify-start gap-4  pt-4">
+        <h1 className="font-poppins text-[34px] font-bold px-4">Messages</h1>
+        <div className="w-full flex flex-grow  overflow-y-scroll">
+          <RecentMessages />
+        </div>
       </div>
     </div>
   );
