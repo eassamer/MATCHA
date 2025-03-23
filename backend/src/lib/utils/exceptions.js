@@ -54,6 +54,17 @@ function BadRequestException(message) {
 }
 
 
+ServiceUnavailableException.prototype = Object.create(Error.prototype);
+ServiceUnavailableException.prototype.constructor = ServiceUnavailableException;
+ServiceUnavailableException.prototype.name = 'ServiceUnavailableException';
+ServiceUnavailableException.prototype.message = 'Service Unavailable';
+ServiceUnavailableException.prototype.status = 503;
+
+function ServiceUnavailableException(message) {
+    this.message = message || ServiceUnavailableException.prototype.message;
+    this.status = ServiceUnavailableException.prototype.status;
+}
+
 
 
 module.exports = {
@@ -61,5 +72,6 @@ module.exports = {
     UnauthorizedException,
     ForbiddenException,
     UnsupportedMediaTypeException,
-    BadRequestException
+    BadRequestException,
+    ServiceUnavailableException
 };

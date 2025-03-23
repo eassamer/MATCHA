@@ -9,6 +9,7 @@ const {
 } = require("@lib/utils/exceptions");
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecretKey";
+const argon2 = require("argon2");
 
 
 /**
@@ -103,7 +104,12 @@ async function findOrCreateUser({ email, firstName, lastName }) {
     });
     return newUser;
   } catch (error) {
-    return await userService.findByEmail(email);
+    if (error.message.includes("exists")) {
+      return await userService.findByEmail(email);
+    } else {
+      console.error(error);
+      throw new BadRequestException("Invalid user object: " + error.message);
+    }
   }
 }
 

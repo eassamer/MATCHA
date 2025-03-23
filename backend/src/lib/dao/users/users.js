@@ -39,7 +39,6 @@ async function create(user) {
   });
 }
 
-
 /**
  * @description updates the user's first name
  * @param {*} userId the id of the user to update
@@ -137,7 +136,6 @@ async function findByEmail(email) {
   });
 }
 
-
 /**
  * Finds an authenticated user by email.
  *
@@ -214,8 +212,32 @@ async function findAll() {
  * @returns {Promise} a promise that resolves to an object containing the affected rows
  * @throws {Error} if the database query fails
  */
-async function update(userId, firstName, lastName, email, latitude, longitude) {
-  const queryInput = [firstName, lastName, email, latitude, longitude, userId];
+async function update(
+  userId,
+  firstName,
+  lastName,
+  displayName,
+  email,
+  latitude,
+  longitude,
+  radiusInKm,
+  interests,
+  sex,
+  bio
+) {
+  const queryInput = [
+    firstName,
+    lastName,
+    displayName,
+    email,
+    latitude,
+    longitude,
+    radiusInKm || 100,
+    interests || 0,
+    sex,
+    bio || "",
+    userId,
+  ];
   return new Promise(async (resolve, reject) => {
     (await client).execute(queries.UPDATE_USER, queryInput, (err, result) => {
       if (err) {

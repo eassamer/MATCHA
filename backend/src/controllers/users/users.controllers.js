@@ -13,7 +13,7 @@ async function deleteUser(req, res) {
     const user = await userService.remove(req.user.id);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -27,7 +27,7 @@ async function getUser(req, res) {
     const user = await userService.findById(req.query.id);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -44,7 +44,7 @@ async function getCurrentUser(req, res) {
     const user = await userService.findByEmail(req.user.email);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -58,7 +58,7 @@ async function getUsersByName(req, res) {
     const users = await userService.findUsersByName(req.query);
     res.status(200).json(users);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -73,7 +73,7 @@ async function getLocationByIP(req, res) {
     const user = await userService.getLocationByIP(req.user.id, req.body.ip);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -82,16 +82,16 @@ async function getAllUsers(req, res) {
     const users = await userService.findAll();
     res.status(200).json(users);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
 async function update(req, res) {
   try {
-    const user = await userService.update(req.body);
+    const user = await userService.update(req.user.id, req.body);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -108,7 +108,7 @@ async function updatePassword(req, res) {
     );
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 

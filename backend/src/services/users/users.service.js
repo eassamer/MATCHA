@@ -6,7 +6,12 @@ const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
 const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
-const { NotFoundException } = require("@lib/utils/exceptions");
+const {
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  ServiceUnavailableException,
+} = require("@lib/utils/exceptions");
 
 /**
  * Hashes a given password using Argon2.
@@ -84,6 +89,17 @@ function isValidInterest(interest) {
   return interest === undefined || interestRegex.test(interest);
 }
 
+function isValidLocation(latitude, longitude) {
+  const latitudeRegex = /^-?([1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
+  const longitudeRegex =
+    /^-?((1[0-7]\d|0?\d?\d)(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
+  return latitudeRegex.test(latitude) && longitudeRegex.test(longitude);
+}
+
+function isValidRadius(radius) {
+  return radius > 0 && radius <= 100;
+}
+
 /**
  * @description validates a user object
  * @param {*} user the user object to validate
@@ -114,11 +130,11 @@ function validateUser(user) {
     }
   }
 
-  if (!user.email || !isValidEmail(user.email)) {
+  if (!isValidEmail(user.email)) {
     throw new Error(`Invalid email`);
   }
 
-  if (!user.password || !isPasswordStrong(user.password)) {
+  if (!isPasswordStrong(user.password)) {
     throw new Error(
       `Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one special character, one number`
     );
@@ -143,9 +159,10 @@ function validateUser(user) {
     throw new Error(`Invalid sex`);
   }
 
-  if (!isValidInterest(user.interests)) {
+  if (user.interests && !isValidInterest(user.interests)) {
     throw new Error(`Invalid interests`);
   }
+
   if (!imagesService.validateImage(user.img)) {
     throw new Error("Invalid image data");
   }
@@ -171,7 +188,7 @@ function validateUserUpdate(user) {
     "email",
     "latitude",
     "longitude",
-    "userId",
+    "sex",
   ];
 
   for (const field of requiredFields) {
@@ -188,6 +205,26 @@ function validateUserUpdate(user) {
     !isNameValid(user.displayName)
   ) {
     throw new Error(`Invalid first name`);
+  }
+
+  if (!isValidSex(user.sex)) {
+    throw new Error(`Invalid sex`);
+  }
+
+  if (!isValidLocation(user.latitude, user.longitude)) {
+    throw new Error(`Invalid location`);
+  }
+
+  if (user.radiusInKm && !isValidRadius(user.radiusInKm)) {
+    throw new Error(`Invalid radius`);
+  }
+
+  if (user.interests && !isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
+  }
+
+  if (user.interests && !isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
   }
 }
 /**
@@ -258,10 +295,10 @@ async function findOrCreate(user) {
     }
     return await oauthUserDao.findByEmail(user.email);
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
+    console.error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
+    throw new Error(error.message);
   }
 }
-
 /**
  * @description finds all users
  * @returns an array of all users
@@ -297,6 +334,10 @@ async function findById(userId) {
     }
     return user[0];
   } catch (error) {
+    console.error(`${errMessagePrefix}.findById: ${error.message}`);
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
     throw new Error(`${errMessagePrefix}.findById: ${error.message}`);
   }
 }
@@ -316,21 +357,34 @@ async function findByEmail(email) {
     }
     return user[0];
   } catch (error) {
+    console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
     throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
   }
 }
 
 async function findAuthUserByEmail(email) {
   try {
-    if (!isValidEmail(email)) return await userDao.findAuthUserByEmail(email);
+    if (!isValidEmail(email)) throw new Error("Invalid email");
     const user = await userDao.findAuthUserByEmail(email);
     if (!user || user.length === 0) {
-      throw new NotFoundException(`User with email ${email} not found`);
+      throw new Error(`User with email ${email} not found`);
     }
     return user[0];
   } catch (error) {
-    console.error(error.message);
-    throw error;
+    console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
+    throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
   }
 }
 
@@ -363,6 +417,13 @@ async function findUsersByName({ name, limit, offset }) {
     const users = await userDao.findUsersByName(name, limit, offset);
     return users;
   } catch (error) {
+    if (
+      error.message.includes("Invalid") ||
+      error.message.includes("Limit too large")
+    ) {
+      throw new BadRequestException(error.message);
+    }
+    console.error(`${errMessagePrefix}.findUsersByName: ${error.message}`);
     throw new Error(`${errMessagePrefix}.findUsersByName: ${error.message}`);
   }
 }
@@ -387,7 +448,6 @@ async function getLocationByIP(id, ip) {
       throw new Error(data.message);
     }
 
-    // Build and return the location object
     const location = {
       latitude: data.lat,
       longitude: data.lon,
@@ -417,24 +477,52 @@ async function findAll() {
   }
 }
 
-async function update(user) {
+async function update(userId, user) {
   try {
     validateUserUpdate(user);
-    const { userId, firstName, lastName, email, latitude, longitude } = user;
-    if (!userId) {
-      throw new Error("User ID is required");
+    const {
+      firstName,
+      lastName,
+      displayName,
+      email,
+      latitude,
+      longitude,
+      radiusInKm,
+      interests,
+      sex,
+      bio,
+    } = user;
+    const emailExists = await userDao.findByEmail(email);
+    if (emailExists && emailExists.length && emailExists[0].userId !== userId) {
+      throw new Error("Email already exists");
     }
 
-    return await userDao.update(
+    const result =  userDao.update(
       userId,
       firstName,
       lastName,
+      displayName,
       email,
       latitude,
-      longitude
+      longitude,
+      radiusInKm,
+      interests,
+      sex,
+      bio
     );
+    if (result.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return await findById(userId);
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.update: ${error.message}`);
+    console.error(`${errMessagePrefix}.update: ${error.message}`);
+    if (error.message.includes("exists")) {
+      throw new ForbiddenException("Email already exists");
+    }
+    if (error.message.includes("updated")) {
+      throw new ServiceUnavailableException(error.message);
+    }
+    throw new BadRequestException("Invalid user object: " + error.message);
   }
 }
 
@@ -449,7 +537,7 @@ async function update(user) {
  */
 async function updatePassword(userId, password) {
   try {
-    if (!isPasswordStrong(password)) {
+    if (!password || !isPasswordStrong(password)) {
       throw new Error(
         "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
       );
@@ -461,6 +549,10 @@ async function updatePassword(userId, password) {
     }
     return user;
   } catch (error) {
+    if (error.message.includes("Password must be at least 8 characters long")) {
+      throw new BadRequestException(error.message);
+    }
+    console.error(`${errMessagePrefix}.updatePassword: ${error.message}`);
     throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
   }
 }

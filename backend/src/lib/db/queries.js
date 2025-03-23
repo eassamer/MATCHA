@@ -1,5 +1,5 @@
-
-const userFields = "users.userId, users.firstName, users.lastName, users.displayName,\
+const userFields =
+  "users.userId, users.firstName, users.lastName, users.displayName,\
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
 users.interests, users.sex, users.bio, users.emailVerified";
 
@@ -12,10 +12,9 @@ const queries = {
   FIND_USERS_BY_LASTNAME: `SELECT ${userFields} FROM users WHERE lastName = ?`,
   FIND_USER_BY_ID: `SELECT ${userFields} FROM users WHERE userId = ?`,
   FIND_USER_BY_EMAIL: `SELECT ${userFields} FROM users WHERE email = ?`,
-  FIND_AUTH_USER_BY_EMAIL : `SELECT * FROM users WHERE email = ?`,
+  FIND_AUTH_USER_BY_EMAIL: `SELECT * FROM users WHERE email = ?`,
   FIND_ALL_USERS: `SELECT ${userFields} FROM users`,
-  FIND_USERS_BY_NAME:
-    `SELECT ${userFields} FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?`,
+  FIND_USERS_BY_NAME: `SELECT ${userFields} FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?`,
   UPDATE_USER_PASSWORD: `UPDATE users SET password = ? WHERE userId = ?`,
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
@@ -31,8 +30,8 @@ const queries = {
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1`,
 
-  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, email = ?, latitude = ?, longitude = ? WHERE userId = ?`,
-  // oauth user queries
+  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, latitude = ?, longitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
+  // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,
   DELETE_OAUTH_USER: `DELETE FROM oauthUsers WHERE email = ?`,
