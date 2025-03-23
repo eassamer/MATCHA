@@ -39,7 +39,7 @@ const AuthLoader = () => {
         setHideBackground(true);
       }, 1000);
     }, 11000);
-    
+
     const timer5 = setTimeout(() => {
       setFadeOut(true);
       setTimeout(() => {
