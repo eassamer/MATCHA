@@ -89,6 +89,31 @@ async function remove(userId) {
 }
 
 /**
+ * @description Updates the last location of a user in the database.
+ * @param {number} userId the id of the user to update
+ * @param {number} longitude the new longitude
+ * @param {number} latitude the new latitude
+ * @returns {Promise} a promise that resolves to an object containing the affected rows
+ * @throws {Error} if the database query fails
+ */
+async function updateLastLocation(userId, longitude, latitude) {
+  const queryInput = [longitude, latitude, userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.UPDATE_LAST_LOCATION,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.updateLastLocation: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
+/**
  * @description finds a user by their id
  * @param {*} userId the id of the user to find
  * @returns an array containing the user object
@@ -259,4 +284,5 @@ module.exports = {
   findAll,
   update,
   updatePassword,
+  updateLastLocation,
 };

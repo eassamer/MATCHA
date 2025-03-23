@@ -388,6 +388,26 @@ async function findAuthUserByEmail(email) {
   }
 }
 
+async function updateLocation(email, longitude, latitude) {
+  try {
+    const user = await findByEmail(email);
+    const queryOutput = await userDao.updateLastLocation(
+      user.userId,
+      longitude,
+      latitude
+    );
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    user.longitude = longitude;
+    user.latitude = latitude;
+    return user;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
+  }
+}
+
 /**
  * @description finds users by name
  * @param {*} name the name to search for
@@ -497,7 +517,7 @@ async function update(userId, user) {
       throw new Error("Email already exists");
     }
 
-    const result =  userDao.update(
+    const result = userDao.update(
       userId,
       firstName,
       lastName,
@@ -569,4 +589,5 @@ module.exports = {
   findAll,
   update,
   updatePassword,
+  updateLocation,
 };

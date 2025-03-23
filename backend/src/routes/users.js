@@ -24,6 +24,5 @@ router.post("/update/password", users.updatePassword);
 
 router.post("/delete", users.deleteUser);
 
-router.post("/location/ip", users.getLocationByIP);
 
 module.exports = router;

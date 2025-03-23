@@ -62,21 +62,6 @@ async function getUsersByName(req, res) {
   }
 }
 
-/**
- * @description Retrieves the geographical location of a user based on their IP address and updates their last location in the database.
- * @param {Object} req - The request object containing the user's id and IP address.
- * @param {Object} res - The response object to send back the updated user.
- * @throws Responds with a 400 status code and an error message if retrieving the location fails.
- */
-async function getLocationByIP(req, res) {
-  try {
-    const user = await userService.getLocationByIP(req.user.id, req.body.ip);
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(error.status || 400).json({ error: error.message });
-  }
-}
-
 async function getAllUsers(req, res) {
   try {
     const users = await userService.findAll();
@@ -117,7 +102,6 @@ module.exports = {
   getUser,
   getCurrentUser,
   getUsersByName,
-  getLocationByIP,
   getAllUsers,
   update,
   updatePassword,
