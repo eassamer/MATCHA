@@ -30,7 +30,7 @@ const queries = {
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1`,
 
-  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, latitude = ?, longitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
+  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
   UPDATE_LAST_LOCATION: `UPDATE users SET latitude = ?, longitude = ? WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,

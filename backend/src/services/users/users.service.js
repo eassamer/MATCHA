@@ -204,7 +204,7 @@ function validateUserUpdate(user) {
     !isNameValid(user.lastName) ||
     !isNameValid(user.displayName)
   ) {
-    throw new Error(`Invalid first name`);
+    throw new Error(`Invalid first name,last name or display name`);
   }
 
   if (!isValidSex(user.sex)) {
@@ -393,8 +393,8 @@ async function updateLocation(email, longitude, latitude) {
     const user = await findByEmail(email);
     const queryOutput = await userDao.updateLastLocation(
       user.userId,
-      longitude,
-      latitude
+      latitude,
+      longitude
     );
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not updated");
@@ -505,8 +505,8 @@ async function update(userId, user) {
       lastName,
       displayName,
       email,
-      latitude,
       longitude,
+      latitude,
       radiusInKm,
       interests,
       sex,
@@ -523,8 +523,8 @@ async function update(userId, user) {
       lastName,
       displayName,
       email,
-      latitude,
       longitude,
+      latitude,
       radiusInKm,
       interests,
       sex,

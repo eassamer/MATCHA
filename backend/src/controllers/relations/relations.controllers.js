@@ -23,7 +23,7 @@ async function getNearbyUsers(req, res) {
  */
 async function getLikes(req, res) {
   try {
-    const likes = await relationService.getLikes(req.user.email);
+    const likes = await relationService.getLikes(req.user.id);
     res.status(200).json(likes);
   } catch (error) {
     res.status(400).json({ error: error.message });

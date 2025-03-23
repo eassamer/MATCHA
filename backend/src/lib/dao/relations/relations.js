@@ -93,7 +93,6 @@ async function addLike(senderId, receiverId) {
   }
 }
 
-
 async function deleteLike(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];

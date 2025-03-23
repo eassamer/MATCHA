@@ -11,28 +11,22 @@ const errMessagePrefix = "RelationService: ";
 async function getNearbyUsers(userEmail) {
   try {
     const user = await UserService.findByEmail(userEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${userEmail} not found`);
-    }
-    const matches = await relationDao.getNearbyUsers(
+
+    const nearby = await relationDao.getNearbyUsers(
       user.userId,
       user.latitude,
       user.longitude,
       user.radiusInKm
     );
-    return matches;
+    return nearby;
   } catch (error) {
     throw new Error(`${errMessagePrefix}.getNearbyUsers: ${error.message}`);
   }
 }
 
-async function getLikes(userEmail) {
+async function getLikes(userId) {
   try {
-    const user = await UserService.findByEmail(userEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${userEmail} not found`);
-    }
-    const likes = await relationDao.getLikes(user.userId);
+    const likes = await relationDao.getLikes(userId);
     return likes;
   } catch (error) {
     throw new Error(`${errMessagePrefix}.getLikes: ${error.message}`);
