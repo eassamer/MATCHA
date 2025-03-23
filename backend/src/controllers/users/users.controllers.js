@@ -97,6 +97,16 @@ async function updatePassword(req, res) {
   }
 }
 
+async function updateLocation(req, res) {
+  try {
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress.split(":")[3];
+    const user = await userService.updateLocation(req.user.id, req.body.longitude, req.body.latitude, ip);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(error.status || 400).json({ error: error.message });
+  }
+}
+
 module.exports = {
   deleteUser,
   getUser,
@@ -105,4 +115,5 @@ module.exports = {
   getAllUsers,
   update,
   updatePassword,
+  updateLocation,
 };

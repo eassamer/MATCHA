@@ -16,7 +16,12 @@ function getDistanceInKm(lat1, lon1, lat2, lon2) {
     return deg * (Math.PI/180)
   }
 
+  const asyncHandler = (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+
 
   module.exports = {
     getDistanceInKm,
+    asyncHandler,
   }

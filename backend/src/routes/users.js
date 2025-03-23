@@ -22,6 +22,8 @@ router.post("/update", users.update);
 
 router.post("/update/password", users.updatePassword);
 
+router.post("/update/location", users.updateLocation);
+
 router.post("/delete", users.deleteUser);
 
 module.exports = router;

@@ -10,7 +10,6 @@ var logger = require("morgan");
 var sanitizer = require("perfect-express-sanitizer");
 const db = require("@lib/db/dbconnect");
 var authMiddleware = require("@middlewares/auth/auth.middleware");
-var locationMiddleware = require("@middlewares/user/location.middleware");
 var passport = require("@middlewares/auth/passport.middleware");
 
 var indexRouter = require("@routes/index");
@@ -127,7 +126,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(passport.initialize());
-app.all("/*", authMiddleware, locationMiddleware);
+app.all("/*", authMiddleware);
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);

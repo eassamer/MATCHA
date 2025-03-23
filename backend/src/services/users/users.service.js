@@ -379,8 +379,8 @@ async function findAuthUserByEmail(email) {
   } catch (error) {
     console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
     if (error.message.includes("Invalid")) {
-      throw new BadRequestException(error.message);
-    }
+    throw new BadRequestException(error.message);
+  }
     if (error.message.includes("not found")) {
       throw new NotFoundException(error.message);
     }
@@ -388,11 +388,39 @@ async function findAuthUserByEmail(email) {
   }
 }
 
-async function updateLocation(email, longitude, latitude) {
+async function updateLocation(id, longitude, latitude, ip) {
   try {
-    const user = await findByEmail(email);
+    if (!isValidLocation(latitude, longitude)) {
+      throw new Error("Invalid location");
+    }
+    const response = await fetch("http://ip-api.com/json/" + ip);
+    const data = await response.json();
+    if (data.status === "fail") {
+      const queryOutput = await userDao.updateLastLocation(
+        id,
+        longitude,
+        latitude
+      );
+      if (queryOutput.affectedRows === 0) {
+        throw new Error("User not updated");
+      }
+      return await findById(id);
+    }
+    const distance = getDistanceInKm(latitude, longitude, data.lat, data.lon);
+    if (distance > 100) {
+      const queryOutput = await userDao.updateLastLocation(
+        id,
+        data.lat,
+        data.lon
+      );
+      if (queryOutput.affectedRows === 0) {
+        throw new Error("User not updated");
+      }
+      return await findById(id);
+    }
+
     const queryOutput = await userDao.updateLastLocation(
-      user.userId,
+      id,
       latitude,
       longitude
     );
