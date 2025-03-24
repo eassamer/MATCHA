@@ -1,5 +1,6 @@
 "use client";
 import { Chat, Message } from "@/components/messages/Chat";
+import { messages } from "@/components/messages/recent-messages";
 import { useState } from "react";
 
 export default function MessagePage({
@@ -9,7 +10,7 @@ export default function MessagePage({
     id: string;
   };
 }) {
-  const [messages, setMessages] = useState<Message[]>([
+  const [msgs, setMsgs] = useState<Message[]>([
     { id: 1, text: "Hi Jake, how are you?", sender: "other", time: "2:55 PM" },
     {
       id: 2,
@@ -51,10 +52,11 @@ export default function MessagePage({
   const [newMessage, setNewMessage] = useState("");
   return (
     <Chat
-      messages={messages}
-      setMessages={setMessages}
+      messages={msgs}
+      setMessages={setMsgs}
       newMessage={newMessage}
       setNewMessage={setNewMessage}
+      user={messages[Number(params.id)].sender}
     />
   );
 }

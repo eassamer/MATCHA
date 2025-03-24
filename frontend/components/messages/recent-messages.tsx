@@ -16,7 +16,7 @@ interface Message {
   unread: boolean;
 }
 
-const messages: Message[] = [
+export const messages: Message[] = [
   {
     id: "1",
     sender: {

@@ -16,11 +16,17 @@ export interface Message {
 }
 
 export const Chat = ({
+  user,
   messages,
   setMessages,
   newMessage,
   setNewMessage,
 }: {
+  user: {
+    name: string,
+    avatar: string,
+    initials: string,
+  };
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   newMessage: string;
@@ -68,13 +74,13 @@ export const Chat = ({
           <Avatar className="h-12 w-12">
             <AvatarImage
               className="object-cover"
-              src="/User2.svg"
+              src={user.avatar}
               alt="Grace"
             />
-            <AvatarFallback>GR</AvatarFallback>
+            <AvatarFallback>{user.initials}</AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="font-semibold text-lg font-poppins">Grace</h2>
+            <h2 className="font-semibold text-lg font-poppins">{user.name}</h2>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span className="text-sm text-muted-foreground font-poppins">
