@@ -56,7 +56,7 @@ export default function MessagePage({
       setMessages={setMsgs}
       newMessage={newMessage}
       setNewMessage={setNewMessage}
-      user={messages[Number(params.id)].sender}
+      user={messages[Number(params.id) - 1].sender}
     />
   );
 }

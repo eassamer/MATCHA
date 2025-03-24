@@ -18,7 +18,7 @@ const customColors = {
   radius: "11px",
 };
 
-type NotificationType = "view" | "like";
+type NotificationType = "view" | "like" | "dislike";
 
 interface Notification {
   id: string;
@@ -40,7 +40,7 @@ export default function NotificationButton() {
     },
     {
       id: "2",
-      type: "like",
+      type: "dislike",
       username: "alex_design",
       time: "1 hour ago",
       read: false,
@@ -69,6 +69,13 @@ export default function NotificationButton() {
     {
       id: "6",
       type: "like",
+      username: "emma_dev",
+      time: "Yesterday",
+      read: true,
+    },
+    {
+      id: "7",
+      type: "dislike",
       username: "emma_dev",
       time: "Yesterday",
       read: true,
@@ -165,6 +172,8 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
         return "👁️";
       case "like":
         return "❤️";
+      case "dislike":
+        return "👎";
       default:
         return "📣";
     }
@@ -176,6 +185,8 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
         return `${username} has viewed your profile`;
       case "like":
         return `${username} has liked you`;
+      case "dislike":
+        return `${username} has disliked you`;
       default:
         return "New notification";
     }
