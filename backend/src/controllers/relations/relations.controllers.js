@@ -8,10 +8,10 @@ var relationService = require("@services/relations/relations.service");
  */
 async function getNearbyUsers(req, res) {
   try {
-    const matches = await relationService.getNearbyUsers(req.user.email);
+    const matches = await relationService.getNearbyUsers(req.user.id);
     res.status(200).json(matches);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -26,7 +26,7 @@ async function getLikes(req, res) {
     const likes = await relationService.getLikes(req.user.id);
     res.status(200).json(likes);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -39,19 +39,19 @@ async function getLikes(req, res) {
 
 async function addLike(req, res) {
   try {
-    const like = await relationService.addLike(req.user.email, req.body.id);
+    const like = await relationService.addLike(req.user.id, req.body.id);
     res.status(200).json(like);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
 async function getMatches(req, res) {
   try {
-    const matches = await relationService.getMatches(req.user.email);
+    const matches = await relationService.getMatches(req.user.id);
     res.status(200).json(matches);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -64,12 +64,12 @@ async function getMatches(req, res) {
 async function deleteMatch(req, res) {
   try {
     const match = await relationService.deleteMatch(
-      req.user.email,
+      req.user.id,
       req.body.id
     );
     res.status(200).json(match);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 
@@ -82,12 +82,12 @@ async function deleteMatch(req, res) {
 async function addDislike(req, res) {
   try {
     const dislike = await relationService.addDislike(
-      req.user.email,
+      req.user.id,
       req.body.id
     );
     res.status(200).json(dislike);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status || 400).json({ error: error.message });
   }
 }
 

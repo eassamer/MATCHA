@@ -44,7 +44,7 @@ const queries = {
   // like queries
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
-  CHECK_MATCH: `SELECT * FROM likes WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
+  CHECK_MATCH: `SELECT * FROM likes WHERE (senderId = ? AND receiverId = ?)`,
   // match queries
   ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
   DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
@@ -73,6 +73,8 @@ const queries = {
 `,
   GET_LIKES: `SELECT * FROM likes WHERE receiverId = ?`,
   GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
+  FIND_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
+  CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
 };

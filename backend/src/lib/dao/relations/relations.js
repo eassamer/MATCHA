@@ -44,6 +44,25 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
   }
 }
 
+
+async function checkLike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.CHECK_LIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.checkLike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in checkLike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 /**
  * @description Retrieves a list of users who have liked the user with the given userId
  * @param {number} userId The id of the user whose likes are being retrieved
@@ -174,7 +193,7 @@ async function deleteMatch(senderId, receiverId) {
 
 async function checkMatch(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId, receiverId, senderId];
+    const queryInput = [senderId, receiverId];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.CHECK_MATCH, queryInput, (err, result) => {
         if (err) {
@@ -186,6 +205,24 @@ async function checkMatch(senderId, receiverId) {
     });
   } catch (err) {
     err.message = `Error in checkMatch DAO: ${err.message}`;
+    throw err;
+  }
+}
+
+async function getMatch(user1Id, user2Id) {
+  try {
+    const queryInput = [user1Id, user2Id, user2Id, user1Id];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.FIND_MATCH, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.getMatch: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in getMatch DAO: ${err.message}`;
     throw err;
   }
 }
@@ -266,12 +303,14 @@ async function getLikesBySenderId(senderId) {
 module.exports = {
   getNearbyUsers,
   getLikes,
+  checkLike,
   addLike,
   deleteLike,
   getMatches,
   deleteMatch,
   addMatch,
   checkMatch,
+  getMatch,
   addDislike,
   getLikesBySenderId,
 };

@@ -1,5 +1,10 @@
-var UserService = require("@services/users/users.service");
+var userService = require("@services/users/users.service");
 var relationDao = require("@dao/relations/relations");
+const {
+  ServiceUnavailableException,
+  NotFoundException,
+  ForbiddenException,
+} = require("@lib/utils/exceptions");
 
 const errMessagePrefix = "RelationService: ";
 /**
@@ -8,9 +13,9 @@ const errMessagePrefix = "RelationService: ";
  * @returns {Promise<Array>} A promise that resolves to an array of match objects.
  * @throws Will throw an error if the user does not exist or if the database query fails.
  */
-async function getNearbyUsers(userEmail) {
+async function getNearbyUsers(userId) {
   try {
-    const user = await UserService.findByEmail(userEmail);
+    const user = await userService.findById(userId);
 
     const nearby = await relationDao.getNearbyUsers(
       user.userId,
@@ -20,7 +25,8 @@ async function getNearbyUsers(userEmail) {
     );
     return nearby;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.getNearbyUsers: ${error.message}`);
+    console.error(`${errMessagePrefix}.getNearbyUsers: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -29,64 +35,56 @@ async function getLikes(userId) {
     const likes = await relationDao.getLikes(userId);
     return likes;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.getLikes: ${error.message}`);
+    console.error(`${errMessagePrefix}.getLikes: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
-async function checkLike(senderId) {
+async function checkLike(senderId, receiverId) {
   try {
-    const result = await relationDao.getLikesBySenderId(senderId);
-    if (result.length === 0) {
-      return false;
-    }
-    return true;
+    const result = await relationDao.checkLike(senderId, receiverId);
+    if (result.length > 0) return true;
+    return false;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.checkLike: ${error.message}`);
+    console.error(`${errMessagePrefix}.checkLike: ${error.message}`);
+    throw new ServiceUnavailableException(`${error.message}`);
   }
 }
 
-async function addLike(senderEmail, receiverId) {
+async function addLike(userId, receiverId) {
   try {
-    const user = await UserService.findByEmail(senderEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${senderEmail} not found`);
-    }
-    const senderId = user.userId;
+    const senderId = userId;
     if (senderId === receiverId) {
-      throw new Error("You cannot like yourself");
+      throw new ForbiddenException("You cannot like yourself");
     }
-    if (await checkLike(senderId)) {
-      throw new Error("You have already liked this user");
+    const receiver = await userService.findById(receiverId);
+    if (!receiver) {
+      throw new NotFoundException(`User with Id: ${receiverId} not found`);
     }
-    const result = await relationDao.addLike(senderId, receiverId);
-    const match = await relationDao.checkMatch(senderId, receiverId);
-    if (match.length > 1) {
-      try {
-        await relationDao.addMatch(senderId, receiverId);
-        await relationDao.deleteLike(senderId, receiverId);
-        await relationDao.deleteLike(receiverId, senderId);
-      } catch (error) {
-        await relationDao.deleteLike(senderId, receiverId);
-        throw new Error(`${errMessagePrefix}.addMatch: ${error.message}`);
-      }
+    if (await checkLike(senderId, receiverId)) {
+      throw new ForbiddenException("You have already liked this user");
     }
-
-    return result;
+    if (checkLike(receiverId, senderId)) {
+      await relationDao.addMatch(senderId, receiverId);
+      await relationDao.deleteLike(receiverId, senderId);
+      return await relationDao.getMatch(senderId, receiverId);
+    } else {
+      await relationDao.addLike(senderId, receiverId);
+      return receiver;
+    }
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.addLike: ${error.message}`);
+    console.error(`${errMessagePrefix}.addLike: ${error.message}`);
+    throw error;
   }
 }
 
-async function getMatches(userEmail) {
+async function getMatches(userId) {
   try {
-    const user = await UserService.findByEmail(userEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${userEmail} not found`);
-    }
-    const matches = await relationDao.getMatches(user.userId);
+    const matches = await relationDao.getMatches(userId);
     return matches;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.getMatches: ${error.message}`);
+    console.error(`${errMessagePrefix}.getMatches: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -97,17 +95,27 @@ async function getMatches(userEmail) {
  * @returns A promise that resolves to the result of the database query.
  * @throws Responds with a 400 status code and an error message if deleting the match fails.
  */
-async function deleteMatch(senderEmail, receiverId) {
+async function deleteMatch(senderId, receiverId) {
   try {
-    const user = await UserService.findByEmail(senderEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${senderEmail} not found`);
+    if (senderId === receiverId) {
+      throw new ForbiddenException("You cannot delete a match with yourself");
     }
-    const senderId = user.userId;
+    const receiver = await userService.findById(receiverId);
+    if (!receiver) {
+      throw new NotFoundException(`User with Id: ${receiverId} not found`);
+    }
+    const match = await relationDao.getMatch(senderId, receiverId);
+    if (!match) {
+      throw new NotFoundException("Match not found");
+    }
     const result = await relationDao.deleteMatch(senderId, receiverId);
-    return result;
+    if (result.affectedRows === 0) {
+      throw new ServiceUnavailableException("could not delete match");
+    }
+    return receiver;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
+    console.error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
+    throw error
   }
 }
 
@@ -118,20 +126,26 @@ async function deleteMatch(senderEmail, receiverId) {
  * @returns A promise that resolves to the result of the database query.
  * @throws Responds with a 400 status code and an error message if adding the dislike fails.
  */
-async function addDislike(senderEmail, receiverId) {
+async function addDislike(senderId, receiverId) {
   try {
-    const user = await UserService.findByEmail(senderEmail);
-    if (!user) {
-      throw new Error(`User with Id: ${senderEmail} not found`);
+    if (senderId === receiverId) {
+      throw new ForbiddenException("You cannot dislike yourself");
     }
-    const senderId = user.userId;
-    if (await checkLike(senderId)) {
+    const receiver = await userService.findById(receiverId);
+    if (!receiver) {
+      throw new NotFoundException(`User with Id: ${receiverId} not found`);
+    }
+    if (await checkLike(senderId, receiverId)) {
       await relationDao.deleteLike(senderId, receiverId);
     }
     const result = await relationDao.addDislike(senderId, receiverId);
-    return result;
+    if (result.affectedRows === 0) {
+      throw new ServiceUnavailableException("could not add dislike");
+    }
+    return receiver;
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.add_dislike: ${error.message}`);
+    console.error(`${errMessagePrefix}.add_dislike: ${error.message}`);
+    throw error;
   }
 }
 
