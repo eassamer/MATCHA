@@ -4,6 +4,7 @@ import { SwipeButtons } from "@/components/home/SwipeButtons";
 import { cardData, SwipeCard } from "@/components/home/SwipeCard";
 import { useState } from "react";
 import FilterButton from "@/components/home/FilterButton";
+import RecentMessages from "@/components/messages/recent-messages";
 
 export default function Home() {
   const [cards, setCards] = useState(cardData);
@@ -16,8 +17,8 @@ export default function Home() {
         Discover
       </h1>
       <div className="w-full lg:h-fit flex-grow lg:flex-grow  flex items-center justify-between">
-        <div className="custom:hidden lg:flex hidden w-[300px] h-[90%] bg-white rounded-[12.6px] py-6 px-4">
-          <h1 className="font-poppins text-[14.4px] font-semibold">Messages</h1>
+        <div className="custom:hidden lg:max-h-[86vh] lg:flex hidden w-[300px] h-[90%] bg-white rounded-[12.6px]">
+          <RecentMessages />
         </div>
         <div
           style={{
