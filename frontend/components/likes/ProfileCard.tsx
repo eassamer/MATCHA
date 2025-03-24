@@ -6,11 +6,21 @@ interface ProfileCardProps {
   name: string;
   age: number;
   image: string;
+  isSuperLiker: boolean;
 }
 
-export default function ProfileCard({ name, age, image }: ProfileCardProps) {
+export default function ProfileCard({
+  name,
+  age,
+  image,
+  isSuperLiker,
+}: ProfileCardProps) {
   return (
-    <div className={`rounded-2xl overflow-hidden ring-2 ring-blue-400`}>
+    <div
+      className={`rounded-2xl overflow-hidden  ${
+        isSuperLiker && "ring-[3.1px] ring-blue-400"
+      }`}
+    >
       <div className="relative">
         <Image
           src={image || "/placeholder.svg"}

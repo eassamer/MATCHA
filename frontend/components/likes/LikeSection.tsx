@@ -6,41 +6,49 @@ const profiles = [
     name: "Li Sa",
     age: 21,
     image: "/User1.svg",
+    isSuperLiker: true,
   },
   {
     name: "Yahya",
     age: 20,
     image: "/User2.svg",
+    isSuperLiker: false,
   },
   {
     name: "Hamid",
     age: 24,
     image: "/User3.svg",
+    isSuperLiker: false,
   },
   {
     name: "Ren Ny",
     age: 25,
     image: "/User4.svg",
+    isSuperLiker: false,
   },
   {
     name: "Li Sa",
     age: 21,
     image: "/User5.svg",
+    isSuperLiker: true,
   },
   {
     name: "Chi mok",
     age: 20,
     image: "/User6.svg",
+    isSuperLiker: false,
   },
   {
     name: "Hoa Hoa",
     age: 24,
     image: "/User7.svg",
+    isSuperLiker: false,
   },
   {
     name: "Ren Ny",
     age: 25,
     image: "/User8.svg",
+    isSuperLiker: false,
   },
 ];
 
@@ -68,6 +76,7 @@ export default function LikesSection() {
             name={profile.name}
             age={profile.age}
             image={profile.image}
+            isSuperLiker={profile.isSuperLiker}
           />
         ))}
       </div>
