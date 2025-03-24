@@ -62,6 +62,7 @@ async function addLike(userId, receiverId) {
       throw new NotFoundException(`User with Id: ${receiverId} not found`);
     }
     if (await checkLike(senderId, receiverId)) {
+      console.log("You have already liked this user");
       throw new ForbiddenException("You have already liked this user");
     }
     if (checkLike(receiverId, senderId)) {
@@ -115,7 +116,7 @@ async function deleteMatch(senderId, receiverId) {
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
-    throw error
+    throw error;
   }
 }
 

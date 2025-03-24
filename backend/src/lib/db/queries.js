@@ -3,6 +3,83 @@ const userFields =
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
 users.interests, users.sex, users.bio, users.emailVerified";
 
+const userFieldsWithImages = `${userFields}, GROUP_CONCAT(i.locationUrl ORDER BY i.idx) AS userImages`;
+
+const joinLikes = `(
+  SELECT JSON_ARRAYAGG(
+    JSON_OBJECT(
+      'userId', lu.userId,
+      'firstName', lu.firstName,
+      'lastName', lu.lastName,
+      'displayName', lu.displayName,
+      'bio', lu.bio,
+      'interests', lu.interests,
+      'birthdate', lu.birthDate,
+      'longitude', lu.longitude,
+      'latitude', lu.latitude,
+      'likeId', l.id,
+      'userImages', (
+        SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
+        FROM images lui
+        WHERE lui.ownerId = lu.userId
+      )
+    )
+  )
+  FROM likes l
+  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = u.userId THEN l.receiverId ELSE l.senderId END)
+  WHERE l.senderId = u.userId
+) AS likes`;
+
+const joinLikedBy = `(
+  SELECT JSON_ARRAYAGG(
+    JSON_OBJECT(
+      'userId', lu.userId,
+      'firstName', lu.firstName,
+      'lastName', lu.lastName,
+      'displayName', lu.displayName,
+      'bio', lu.bio,
+      'interests', lu.interests,
+      'birthdate', lu.birthDate,
+      'longitude', lu.longitude,
+      'latitude', lu.latitude,
+      'likeId', l.id,
+      'userImages', (
+        SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
+        FROM images lui
+        WHERE lui.ownerId = lu.userId
+      )
+    )
+  )
+  FROM likes l
+  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = u.userId THEN l.receiverId ELSE l.senderId END)
+  WHERE l.receiverId = u.userId
+) AS likedBy`;
+
+const joinMatches = `(
+  SELECT JSON_ARRAYAGG(
+    JSON_OBJECT(
+      'userId', mu.userId,
+      'firstName', mu.firstName,
+      'lastName', mu.lastName,
+      'displayName', mu.displayName,
+      'bio', mu.bio,
+      'interests', mu.interests,
+      'birthdate', mu.birthDate,
+      'longitude', mu.longitude,
+      'latitude', mu.latitude,
+      'matchId', m.id,
+      'userImages', (
+        SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
+        FROM images mui
+        WHERE mui.ownerId = mu.userId
+      )
+    )
+  )
+  FROM matches m
+  JOIN users mu ON (mu.userId = CASE WHEN m.user1Id = u.userId THEN m.user2Id ELSE m.user1Id END)
+  WHERE m.user1Id = u.userId OR m.user2Id = u.userId
+) AS matches`
+
 const queries = {
   USE_DB: "USE ?",
   // user queries
@@ -11,8 +88,28 @@ const queries = {
   FIND_USERS_BY_FIRSTNAME: `SELECT ${userFields} FROM users WHERE firstName = ?`,
   FIND_USERS_BY_LASTNAME: `SELECT ${userFields} FROM users WHERE lastName = ?`,
   FIND_USER_BY_ID: `SELECT ${userFields} FROM users WHERE userId = ?`,
-  FIND_USER_BY_EMAIL: `SELECT ${userFields} FROM users WHERE email = ?`,
-  FIND_AUTH_USER_BY_EMAIL: `SELECT * FROM users WHERE email = ?`,
+  FIND_USER_BY_EMAIL: `
+  SELECT ${userFieldsWithImages}, ${joinLikes}, ${joinLikedBy}, ${joinMatches}
+  FROM users
+  LEFT JOIN images i ON i.ownerId = users.userId
+  WHERE users.email = ?
+  GROUP BY users.userId
+`,
+  FIND_AUTH_USER_BY_EMAIL: `
+SELECT 
+  u.*, 
+  GROUP_CONCAT(DISTINCT i.locationUrl ORDER BY i.idx) AS userImages,
+  ${joinLikes},
+  ${joinLikedBy},
+  ${joinMatches}
+FROM users u
+LEFT JOIN images i ON i.ownerId = u.userId
+LEFT JOIN dislikes d ON (d.receiverId = u.userId)
+WHERE u.email = ?
+  AND d.id IS NULL
+GROUP BY u.userId
+`,
+
   FIND_ALL_USERS: `SELECT ${userFields} FROM users`,
   FIND_USERS_BY_NAME: `SELECT ${userFields} FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?`,
   UPDATE_USER_PASSWORD: `UPDATE users SET password = ? WHERE userId = ?`,
@@ -71,7 +168,16 @@ const queries = {
     HAVING distance <= ?
     ORDER BY distance ASC;
 `,
-  GET_LIKES: `SELECT * FROM likes WHERE receiverId = ?`,
+  GET_LIKES: `
+SELECT l.*, 
+       u.userId, u.firstName, u.lastName, u.displayName, u.latitude, u.longitude, u.radiusInKm, u.interests, u.sex, u.bio,
+       GROUP_CONCAT(i.locationUrl ORDER BY i.idx) AS userImages
+FROM likes l
+JOIN users u ON l.senderId = u.userId
+LEFT JOIN images i ON i.ownerId = u.userId
+WHERE l.receiverId = ?
+GROUP BY l.id, u.userId
+`,
   GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
   FIND_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
   CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
