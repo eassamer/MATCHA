@@ -19,8 +19,8 @@ export default function DetailsCard({
   setDirection,
 }: DetailsCardProps) {
   return (
-    <div className="flex flex-col w-full h-full lg:flex-grow overflow-y-auto bg-white p-6 md:p-8 lg:p-10">
-      <div className="mb-8">
+    <div className="flex flex-col w-full h-full lg:flex-grow overflow-y-auto bg-white px-6 py-4 md:p-8 lg:p-10">
+      <div className="mb-6">
         <button
           onClick={() => setShowDetailsCard(false)}
           className="bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3"

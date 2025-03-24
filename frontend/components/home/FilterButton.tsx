@@ -49,7 +49,7 @@ export default function FilterDialog() {
           />
         </button>
       </DialogTrigger>
-      <DialogContent className="w-full h-full lg:h-[700px] lg:max-w-md p-0 border-none bg-white rounded-0 lg:rounded-xl">
+      <DialogContent className="w-full  h-full lg:h-[700px] lg:max-w-md p-0 border-none bg-white rounded-0 lg:rounded-xl">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b">
             <button

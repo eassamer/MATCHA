@@ -47,14 +47,11 @@ export async function middleware(request: NextRequest) {
     // Check if token is expired
     const currentTime = Math.floor(Date.now() / 1000);
     if (decodedToken.exp && decodedToken.exp > currentTime) {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/`,
-        {
-          headers: {
-            Authorization: `bearer ${jwt.value}`,
-          },
-        }
-      );
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/`, {
+        headers: {
+          Authorization: `bearer ${jwt.value}`,
+        },
+      });
       if (response.status !== 200) {
         return NextResponse.redirect(new URL("/auth/signup", request.url));
       }

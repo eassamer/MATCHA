@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 // Custom theme colors
 const customColors = {
@@ -30,6 +31,8 @@ interface Notification {
 
 export default function NotificationButton() {
   // Sample notifications data
+  const pathname = usePathname();
+
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
@@ -99,7 +102,13 @@ export default function NotificationButton() {
   };
 
   return (
-    <div className="fixed z-10 top-6 right-6">
+    <div
+      className={`${
+        pathname === "/likes" || pathname.startsWith("/messages/")
+          ? "hidden lg:block"
+          : ""
+      } fixed z-10 top-6 right-6`}
+    >
       <Popover>
         <PopoverTrigger asChild>
           <Button

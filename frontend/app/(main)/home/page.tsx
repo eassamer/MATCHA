@@ -28,7 +28,7 @@ export default function Home() {
         >
           {!showDetailsCard && (
             <div className="w-full h-fit py-4 relative top-0 lg:hidden flex items-center justify-center px-6">
-              <div className="size-fit absolute left-8 lg:hidden">
+              <div className="size-fit absolute left-6 lg:hidden">
                 <FilterButton />
               </div>
               <h1 className="font-poppins text-[24px] font-bold">Discover</h1>
