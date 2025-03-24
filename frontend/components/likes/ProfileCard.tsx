@@ -1,25 +1,16 @@
-import { X, Heart } from "lucide-react";
+import { Heart } from "iconsax-react";
 import Image from "next/image";
+import { IoClose } from "react-icons/io5";
 
 interface ProfileCardProps {
   name: string;
   age: number;
   image: string;
-  isMatch?: boolean;
 }
 
-export default function ProfileCard({
-  name,
-  age,
-  image,
-  isMatch = false,
-}: ProfileCardProps) {
+export default function ProfileCard({ name, age, image }: ProfileCardProps) {
   return (
-    <div
-      className={`rounded-2xl overflow-hidden ${
-        isMatch ? "ring-2 ring-blue-400" : ""
-      }`}
-    >
+    <div className={`rounded-2xl overflow-hidden ring-2 ring-blue-400`}>
       <div className="relative">
         <Image
           src={image || "/placeholder.svg"}
@@ -36,10 +27,10 @@ export default function ProfileCard({
       </div>
       <div className="grid grid-cols-2 bg-gray-800">
         <button className="p-3 flex justify-center items-center hover:bg-gray-700 transition">
-          <X className="w-5 h-5 text-white" />
+          <IoClose size={24} className=" text-white" />
         </button>
         <button className="p-3 flex justify-center items-center hover:bg-gray-700 transition">
-          <Heart className="w-5 h-5 text-white" />
+          <Heart variant="Bold" size={24} className="  text-white" />
         </button>
       </div>
     </div>

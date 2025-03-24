@@ -43,7 +43,6 @@ export const SignIn = () => {
         localStorage.setItem("user", JSON.stringify(res.data));
         toast.success("Logged in successfully");
         router.push("/home");
-        console.log(res.data);
       })
       .catch((err) => {
         toast.error("Failed to login" + err.response.data.error);

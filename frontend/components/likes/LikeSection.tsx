@@ -1,60 +1,52 @@
-import { Activity } from "lucide-react";
+import { TbArrowsSort } from "react-icons/tb";
 import ProfileCard from "./ProfileCard";
 
 const profiles = [
   {
     name: "Li Sa",
     age: 21,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User1.svg",
   },
   {
     name: "Yahya",
     age: 20,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User2.svg",
   },
   {
     name: "Hamid",
     age: 24,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: true,
+    image: "/User3.svg",
   },
   {
     name: "Ren Ny",
     age: 25,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User4.svg",
   },
   {
     name: "Li Sa",
     age: 21,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User5.svg",
   },
   {
     name: "Chi mok",
     age: 20,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User6.svg",
   },
   {
     name: "Hoa Hoa",
     age: 24,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: true,
+    image: "/User7.svg",
   },
   {
     name: "Ren Ny",
     age: 25,
-    image: "/placeholder.svg?height=400&width=300",
-    isMatch: false,
+    image: "/User8.svg",
   },
 ];
 
 export default function LikesSection() {
   return (
-    <section className="bg-white w-full h-full lg:h-[90%] rounded-3xl p-6 md:p-10 shadow-sm">
+    <section className="bg-white w-full h-full lg:h-[90%] overflow-y-scroll rounded-none lg:rounded-3xl p-6 md:p-10 shadow-sm">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h1 className="text-3xl md:text-4xl text-poppins font-bold text-gray-900">
@@ -65,18 +57,17 @@ export default function LikesSection() {
           </p>
         </div>
         <div className="bg-gray-50 p-3 rounded-2xl">
-          <Activity className="w-6 h-6 text-pink-500" />
+          <TbArrowsSort className="w-6 h-6 text-primary" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 custom:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-8">
         {profiles.map((profile) => (
           <ProfileCard
             key={`${profile.name}-${profile.age}`}
             name={profile.name}
             age={profile.age}
             image={profile.image}
-            isMatch={profile.isMatch}
           />
         ))}
       </div>
