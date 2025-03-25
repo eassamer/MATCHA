@@ -16,10 +16,10 @@ import { NavItemD } from "@/components/home/NavItemD";
 import { SectionNav } from "@/components/home/SectionNav";
 import StoreProvider from "../StoreProvider";
 import { NavigationProvider } from "@/context/NavigationContext";
+import NotificationButton from "@/components/notification-button";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
   // Define navigation data with paths
   const routes = {
     mobileNav: [
@@ -78,14 +78,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Function to determine if an item is active based on path
   const isPathActive = (itemPath: string) => {
-    return pathname === itemPath;
+    return pathname.startsWith(itemPath);
   };
-
   return (
     <StoreProvider>
       <NavigationProvider>
         <div className="w-screen h-screen bg-black lg:flex items-center justify-center">
-          <div className="w-[250px] h-full bg-[#F3F3F3] hidden lg:flex flex-col items-center justify-start gap-2">
+          <NotificationButton />
+          <div className="w-[250px] h-full bg-[#F9F9F9] hidden lg:flex flex-col items-center justify-start gap-2">
             <div className="w-full py-8 flex items-center justify-center">
               <Image
                 src="/logo.png"
