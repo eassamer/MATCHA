@@ -21,7 +21,7 @@ async function getNearbyUsers(userId) {
       user.userId,
       user.latitude,
       user.longitude,
-      user.radiusInKm
+      user.radiusInKm || 100
     );
     return nearby;
   } catch (error) {

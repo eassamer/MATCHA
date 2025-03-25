@@ -17,6 +17,7 @@ const joinLikes = `(
       'birthdate', lu.birthDate,
       'longitude', lu.longitude,
       'latitude', lu.latitude,
+      'sex', lu.sex,
       'likeId', l.id,
       'userImages', (
         SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
@@ -26,8 +27,8 @@ const joinLikes = `(
     )
   )
   FROM likes l
-  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = u.userId THEN l.receiverId ELSE l.senderId END)
-  WHERE l.senderId = u.userId
+  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = users.userId THEN l.receiverId ELSE l.senderId END)
+  WHERE l.senderId = users.userId
 ) AS likes`;
 
 const joinLikedBy = `(
@@ -42,6 +43,7 @@ const joinLikedBy = `(
       'birthdate', lu.birthDate,
       'longitude', lu.longitude,
       'latitude', lu.latitude,
+      'sex', lu.sex,
       'likeId', l.id,
       'userImages', (
         SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
@@ -51,8 +53,8 @@ const joinLikedBy = `(
     )
   )
   FROM likes l
-  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = u.userId THEN l.receiverId ELSE l.senderId END)
-  WHERE l.receiverId = u.userId
+  JOIN users lu ON (lu.userId = CASE WHEN l.senderId = users.userId THEN l.receiverId ELSE l.senderId END)
+  WHERE l.receiverId = users.userId
 ) AS likedBy`;
 
 const joinMatches = `(
@@ -67,6 +69,7 @@ const joinMatches = `(
       'birthdate', mu.birthDate,
       'longitude', mu.longitude,
       'latitude', mu.latitude,
+      'sex', mu.sex,
       'matchId', m.id,
       'userImages', (
         SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
@@ -76,18 +79,18 @@ const joinMatches = `(
     )
   )
   FROM matches m
-  JOIN users mu ON (mu.userId = CASE WHEN m.user1Id = u.userId THEN m.user2Id ELSE m.user1Id END)
-  WHERE m.user1Id = u.userId OR m.user2Id = u.userId
-) AS matches`
+  JOIN users mu ON (mu.userId = CASE WHEN m.user1Id = users.userId THEN m.user2Id ELSE m.user1Id END)
+  WHERE m.user1Id = users.userId OR m.user2Id = users.userId
+) AS matches`;
 
 const queries = {
   USE_DB: "USE ?",
   // user queries
   ADD_NEW_USER:
     "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, interests, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  FIND_USERS_BY_FIRSTNAME: `SELECT ${userFields} FROM users WHERE firstName = ?`,
-  FIND_USERS_BY_LASTNAME: `SELECT ${userFields} FROM users WHERE lastName = ?`,
-  FIND_USER_BY_ID: `SELECT ${userFields} FROM users WHERE userId = ?`,
+  FIND_USERS_BY_FIRSTNAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE firstName = ? GROUP BY users.userId`,
+  FIND_USERS_BY_LASTNAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE lastName = ? GROUP BY users.userId`,
+  FIND_USER_BY_ID: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE userId = ? GROUP BY users.userId`,
   FIND_USER_BY_EMAIL: `
   SELECT ${userFieldsWithImages}, ${joinLikes}, ${joinLikedBy}, ${joinMatches}
   FROM users
@@ -110,22 +113,23 @@ WHERE u.email = ?
 GROUP BY u.userId
 `,
 
-  FIND_ALL_USERS: `SELECT ${userFields} FROM users`,
-  FIND_USERS_BY_NAME: `SELECT ${userFields} FROM users WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ?`,
+  FIND_ALL_USERS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId GROUP BY users.userId`,
+  FIND_USERS_BY_NAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ? GROUP BY users.userId`,
   UPDATE_USER_PASSWORD: `UPDATE users SET password = ? WHERE userId = ?`,
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
-  FIND_USERS_BY_INTERESTS: `SELECT ${userFields} FROM users WHERE interests = ?`,
-  FIND_USERS_BY_ONE_INTEREST: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_TWO_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_THREE_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_FOUR_INTERESTS: `SELECT ${userFields} FROM users WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1`,
-  FIND_USERS_BY_FIVE_INTERESTS: `SELECT ${userFields} FROM users WHERE
+  FIND_USERS_BY_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE interests = ? GROUP BY users.userId`,
+  FIND_USERS_BY_ONE_INTEREST: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i on i.ownerId = users.userId WHERE MOD(interests >> ?, 2) = 1 GROUP BY users.userId`,
+  FIND_USERS_BY_TWO_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i on i.ownerId = users.userId WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 GROUP BY users.userId`,
+  FIND_USERS_BY_THREE_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i on i.ownerId = users.userId WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 GROUP BY users.userId`,
+  FIND_USERS_BY_FOUR_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i on i.ownerId = users.userId WHERE MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 AND MOD(interests >> ?, 2) = 1 GROUP BY users.userId`,
+  FIND_USERS_BY_FIVE_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i on i.ownerId = users.userId WHERE
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1 AND
-  MOD(interests >> ?, 2) = 1`,
+  MOD(interests >> ?, 2) = 1
+  GROUP BY users.userId`,
 
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
   UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ? WHERE userId = ?`,
@@ -151,34 +155,35 @@ GROUP BY u.userId
   FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
   // relations
   GET_NEARBY_USERS: `
-  SELECT u.userId, u.firstName, u.lastName, u.displayName, u.email, u.latitude, u.longitude, u.radiusInKm,
+  SELECT ${userFieldsWithImages},
       (6371 * ACOS(
-        COS(RADIANS(?)) * COS(RADIANS(u.latitude)) *
-        COS(RADIANS(u.longitude) - RADIANS(?)) +
-        SIN(RADIANS(?)) * SIN(RADIANS(u.latitude))
+        COS(RADIANS(?)) * COS(RADIANS(users.latitude)) *
+        COS(RADIANS(users.longitude) - RADIANS(?)) +
+        SIN(RADIANS(?)) * SIN(RADIANS(users.latitude))
       )) AS distance
-    FROM users u
-    LEFT JOIN dislikes d ON d.receiverId = u.userId AND d.senderId = ?
-    LEFT JOIN likes l ON l.receiverId = u.userId AND l.senderId = ?
-    LEFT JOIN matches m ON (m.user1Id = u.userId OR m.user2Id = u.userId) AND (m.user1Id = ? OR m.user2Id = ?)
-    WHERE u.userId != ?
-    AND u.latitude IS NOT NULL 
-    AND u.longitude IS NOT NULL
+    FROM users
+    LEFT JOIN images i ON i.ownerId = users.userId
+    LEFT JOIN dislikes d ON d.receiverId = users.userId AND d.senderId = ?
+    LEFT JOIN likes l ON l.receiverId = users.userId AND l.senderId = ?
+    LEFT JOIN matches m ON (m.user1Id = users.userId OR m.user2Id = users.userId) AND (m.user1Id = ? OR m.user2Id = ?)
+    WHERE users.userId != ?
+    AND users.latitude IS NOT NULL 
+    AND users.longitude IS NOT NULL
     AND d.receiverId IS NULL  -- Exclude disliked users
+    GROUP BY users.userId
     HAVING distance <= ?
     ORDER BY distance ASC;
 `,
-  GET_LIKES: `
+  GET_LIKED_BY: `
 SELECT l.*, 
-       u.userId, u.firstName, u.lastName, u.displayName, u.latitude, u.longitude, u.radiusInKm, u.interests, u.sex, u.bio,
-       GROUP_CONCAT(i.locationUrl ORDER BY i.idx) AS userImages
+       ${userFieldsWithImages}
 FROM likes l
 JOIN users u ON l.senderId = u.userId
-LEFT JOIN images i ON i.ownerId = u.userId
+LEFT JOIN images i ON i.ownerId = l.receiverId
 WHERE l.receiverId = ?
 GROUP BY l.id, u.userId
 `,
-  GET_MATCHES: `SELECT * FROM matches WHERE user1Id = ? OR user2Id = ?`,
+  GET_MATCHES: `SELECT m.*, ${userFieldsWithImages} FROM matches m JOIN users u ON (m.user1Id = u.userId OR m.user2Id = u.userId) WHERE user1Id = ? OR user2Id = ?`,
   FIND_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
   CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,

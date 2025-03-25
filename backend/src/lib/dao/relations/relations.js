@@ -44,7 +44,6 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
   }
 }
 
-
 async function checkLike(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];
@@ -73,13 +72,17 @@ async function getLikes(userId) {
   try {
     const queryInput = [userId];
     return new Promise(async (resolve, reject) => {
-      (await client).execute(queries.GET_LIKES, queryInput, (err, result) => {
-        if (err) {
-          err.message = `${errMessagePrefix}.getLikes: ${err.message}`;
-          return reject(err);
+      (await client).execute(
+        queries.GET_LIKED_BY,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.getLikes: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
         }
-        resolve(result);
-      });
+      );
     });
   } catch (err) {
     err.message = `Error in getLikes DAO: ${err.message}`;
