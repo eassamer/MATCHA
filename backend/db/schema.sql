@@ -35,6 +35,7 @@ CREATE TABLE images (
     imageId INT AUTO_INCREMENT PRIMARY KEY,
     locationUrl varchar(255) NOT NULL,
     ownerId varchar(36),
+    publicId varchar(255),
     idx INT, -- 0 is profile picture
     FOREIGN KEY (ownerId) REFERENCES users(userId) ON DELETE CASCADE
 );

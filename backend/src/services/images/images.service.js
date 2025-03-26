@@ -1,8 +1,13 @@
-const { UnsupportedMediaTypeException, BadRequestException, NotFoundException } = require('@lib/utils/exceptions');
+const {
+  UnsupportedMediaTypeException,
+  BadRequestException,
+  NotFoundException,
+} = require("@lib/utils/exceptions");
 
-cloudinary = require('cloudinary').v2;
-imageDao = require('@lib/dao/images/images');
-errMessagePrefix = 'imagesService: ';
+cloudinary = require("cloudinary").v2;
+imageDao = require("@lib/dao/images/images");
+const { v4: uuidv4 } = require("uuid");
+errMessagePrefix = "imagesService: ";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,12 +16,11 @@ cloudinary.config({
 });
 
 function validateImage(img) {
-  if (!img || !img.data || !img.data.startsWith('data:image')) {
-    throw new Error('invalid image data');
+  if (!img || !img.data || !img.data.startsWith("data:image")) {
+    throw new Error("invalid image data");
   }
   const idx = parseInt(img.idx);
-  if (idx < 0 || idx > 4)
-    throw new Error('invalid image index');
+  if (idx < 0 || idx > 4) throw new Error("invalid image index");
   return true;
 }
 
@@ -36,30 +40,38 @@ function validateImage(img) {
 async function create(user, img) {
   try {
     validateImage(img);
-    imageDao.findByOwnerAndIdx(user.id, img.idx)
-      .then(async (imageAtIdx) => {
-        if (imageAtIdx && imageAtIdx.length > 0) {
-          await cloudinary.uploader.destroy(imageAtIdx.ownerId + imageAtIdx[0].idx, {
-            invalidate: true,
-          });
+    imageDao.findByOwnerAndIdx(user.id, img.idx).then(async (imageAtIdx) => {
+      try {
+        if (imageAtIdx.length > 0) {
+          console.log(imageAtIdx[0].public_id);
+          const result = await cloudinary.api.delete_resources(
+            [imageAtIdx[0].ownerId + '/' + imageAtIdx[0].public_id],
+            {
+              type: "authenticated",
+              resource_type: "image",
+            }
+          );
+          console.log(result);
         }
-      });
-    const result = await cloudinary.uploader.upload(
-      img.data,
-      {
-        folder: user.id,
-        type: 'authenticated',
-        public_id: img.idx,
+      } catch (error) {
+        console.error(errMessagePrefix + error.message);
       }
-    );
+    });
+    const public_id = uuidv4();
+    const result = await cloudinary.uploader.upload(img.data, {
+      folder: user.id,
+      type: "authenticated",
+      public_id: public_id,
+    });
     await imageDao.create({
       locationUrl: result.url,
       ownerId: user.id,
       idx: img.idx,
+      public_id: public_id,
     });
     return result.url;
   } catch (error) {
-    console.error(errMessagePrefix , error);
+    console.error(errMessagePrefix, error);
     throw new UnsupportedMediaTypeException(errMessagePrefix + error.message);
   }
 }
@@ -78,30 +90,40 @@ async function create(user, img) {
 async function deleteImage(user, idx) {
   try {
     const index = parseInt(idx);
-    if (isNaN(index) || index < 0 || index > 4) throw new Error('Invalid image index');
+    if (isNaN(index) || index < 0 || index > 4)
+      throw new Error("Invalid image index");
     const image = await imageDao.findByOwnerAndIdx(user.id, index);
+    console.log(image);
     if (image.length > 0) {
-      await cloudinary.uploader.destroy(image[0].ownerId + image[0].idx, {
-        invalidate: true,
-      });
+      console.log(image[0].public_id);
+      console.log(
+        await cloudinary.api.delete_resources([image[0].ownerId + '/' + image[0].public_id], {
+          type: "authenticated",
+          resource_type: "image",
+        })
+      );
       return await imageDao.deleteImage(image[0].imageId);
     }
   } catch (error) {
     console.error(errMessagePrefix + error.message);
-    if (error.message === 'Invalid image index') throw new BadRequestException(error.message);
+    if (error.message === "Invalid image index")
+      throw new BadRequestException(error.message);
     throw new NotFoundException(errMessagePrefix + error.message);
   }
 }
 
 async function getImagesByUser(userId) {
   try {
-    if (!userId || userId === "") throw new Error('User ID is required');
+    if (!userId || userId === "") throw new Error("User ID is required");
     const images = await imageDao.findByOwner(userId);
-    images.forEach((image) => { image.locationUrl = cloudinary.url(image.locationUrl); });
+    images.forEach((image) => {
+      image.locationUrl = cloudinary.url(image.locationUrl);
+    });
     return images;
   } catch (error) {
     console.error(errMessagePrefix + error.message);
-    if (error.message === 'User ID is required') throw new BadRequestException(error.message);
+    if (error.message === "User ID is required")
+      throw new BadRequestException(error.message);
     throw new NotFoundException(errMessagePrefix + error.message);
   }
 }

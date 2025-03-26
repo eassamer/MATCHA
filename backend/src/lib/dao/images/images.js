@@ -26,6 +26,7 @@ async function create(image) {
       locationUrl = image.locationUrl,
       ownerId = image.ownerId,
       idx = image.idx,
+      public_id = image.public_id,
     ];
     return new Promise(
       async (resolve, reject) => {
