@@ -212,6 +212,24 @@ async function checkMatch(senderId, receiverId) {
   }
 }
 
+async function checkDislike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.CHECK_DISLIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.checkDislike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in checkDislike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 async function getMatch(user1Id, user2Id) {
   try {
     const queryInput = [user1Id, user2Id, user2Id, user1Id];
@@ -313,6 +331,7 @@ module.exports = {
   deleteMatch,
   addMatch,
   checkMatch,
+  checkDislike,
   getMatch,
   addDislike,
   getLikesBySenderId,

@@ -187,6 +187,7 @@ GROUP BY l.id, u.userId
   FIND_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
   CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
+  CHECK_DISLIKE: `SELECT * FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
 };
 

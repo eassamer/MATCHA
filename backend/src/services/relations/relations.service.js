@@ -51,6 +51,17 @@ async function checkLike(senderId, receiverId) {
   }
 }
 
+async function checkDislike(senderId, receiverId) {
+  try {
+    const result = await relationDao.checkDislike(senderId, receiverId);
+    if (result.length > 0) return true;
+    return false;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.checkDislike: ${error.message}`);
+    throw new ServiceUnavailableException(`${error.message}`);
+  }
+}
+
 async function checkMatch(senderId, receiverId) {
   try {
     const result = await relationDao.checkMatch(senderId, receiverId);
@@ -153,6 +164,10 @@ async function addDislike(senderId, receiverId) {
     if (await checkLike(senderId, receiverId)) {
       await relationDao.deleteLike(senderId, receiverId);
     }
+    if (await checkDislike(senderId, receiverId)) {
+      console.log("You have already disliked this user");
+      throw new ForbiddenException("You have already disliked this user");
+    }
     const result = await relationDao.addDislike(senderId, receiverId);
     if (result.affectedRows === 0) {
       throw new ServiceUnavailableException("could not add dislike");
@@ -163,6 +178,8 @@ async function addDislike(senderId, receiverId) {
     throw error;
   }
 }
+
+
 
 module.exports = {
   getNearbyUsers,
