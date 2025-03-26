@@ -29,14 +29,34 @@ const locations = [
   { latitude: 30.4278, longitude: -9.5981 }, // Agadir
 ];
 
+function getRandomOffset(cityLat) {
+  // Convert 1-10 km to degrees (1 km ≈ 0.009 degrees latitude)
+  const maxOffsetKm = 10;
+  const minOffsetKm = 1;
+  const offsetKm = Math.random() * (maxOffsetKm - minOffsetKm) + minOffsetKm;
+
+  const offsetLat = offsetKm / 111; // Convert km to latitude degrees
+  const offsetLon = offsetKm / (111 * Math.cos((cityLat * Math.PI) / 180)); // Adjust for longitude
+
+  // Randomly add or subtract the offset
+  return {
+    latOffset: (Math.random() < 0.5 ? -1 : 1) * offsetLat,
+    lonOffset: (Math.random() < 0.5 ? -1 : 1) * offsetLon,
+  };
+}
+
 async function generateDummyUsers() {
   try {
     const connection = await db;
     console.log("Inserting dummy users...");
 
     for (let i = 0; i < 100; i++) {
-      const { latitude, longitude } =
-        locations[Math.floor(Math.random() * locations.length)];
+      const city = locations[Math.floor(i / 20)]; // Assign 20 users per city
+      const { latOffset, lonOffset } = getRandomOffset(city.latitude);
+
+      const latitude = city.latitude + latOffset;
+      const longitude = city.longitude + lonOffset;
+
       const hashedPassword = await argon2.hash("password123");
       const userId = uuidv4();
       const createdAt = new Date().toISOString().slice(0, 19).replace("T", " ");

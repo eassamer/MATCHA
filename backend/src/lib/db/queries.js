@@ -145,8 +145,8 @@ GROUP BY users.userId
   // like queries
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
-  CHECK_MATCH: `SELECT * FROM likes WHERE (senderId = ? AND receiverId = ?)`,
   // match queries
+  CHECK_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
   ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
   DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
   // message queries

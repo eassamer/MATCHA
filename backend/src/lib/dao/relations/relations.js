@@ -196,7 +196,7 @@ async function deleteMatch(senderId, receiverId) {
 
 async function checkMatch(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, receiverId, senderId];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.CHECK_MATCH, queryInput, (err, result) => {
         if (err) {

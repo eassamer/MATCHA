@@ -51,6 +51,17 @@ async function checkLike(senderId, receiverId) {
   }
 }
 
+async function checkMatch(senderId, receiverId) {
+  try {
+    const result = await relationDao.checkMatch(senderId, receiverId);
+    if (result.length > 0) return true;
+    return false;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.checkLike: ${error.message}`);
+    throw new ServiceUnavailableException(`${error.message}`);
+  }
+}
+
 async function addLike(userId, receiverId) {
   try {
     const senderId = userId;
@@ -65,7 +76,7 @@ async function addLike(userId, receiverId) {
       console.log("You have already liked this user");
       throw new ForbiddenException("You have already liked this user");
     }
-    if (await relationDao.checkMatch(senderId, receiverId)) {
+    if (await checkMatch(senderId, receiverId)) {
       throw new ForbiddenException("You have already matched with this user");
     }
     if (await checkLike(receiverId, senderId)) {
