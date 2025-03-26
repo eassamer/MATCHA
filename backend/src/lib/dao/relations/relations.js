@@ -232,7 +232,7 @@ async function checkDislike(senderId, receiverId) {
 
 async function getMatch(user1Id, user2Id) {
   try {
-    const queryInput = [user1Id, user2Id, user2Id, user1Id];
+    const queryInput = [user1Id, user1Id, user2Id, user2Id];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.FIND_MATCH, queryInput, (err, result) => {
         if (err) {

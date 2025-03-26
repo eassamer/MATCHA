@@ -185,7 +185,37 @@ WHERE l.receiverId = ?
 GROUP BY l.id, u.userId
 `,
   GET_MATCHES: `SELECT m.*, ${userFieldsWithImages} FROM matches m JOIN users u ON (m.user1Id = u.userId OR m.user2Id = u.userId) WHERE user1Id = ? OR user2Id = ?`,
-  FIND_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
+  FIND_MATCH: `SELECT 
+  CASE 
+    WHEN m.user1Id = ? THEN m.user2Id 
+    ELSE m.user1Id 
+  END AS matchedUserId,
+  (
+    SELECT JSON_OBJECT(
+      'userId', mu.userId,
+      'firstName', mu.firstName,
+      'lastName', mu.lastName,
+      'displayName', mu.displayName,
+      'bio', mu.bio,
+      'interests', mu.interests,
+      'birthDate', mu.birthDate,
+      'longitude', mu.longitude,
+      'latitude', mu.latitude,
+      'sex', mu.sex,
+      'userImages', (
+        SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
+        FROM images mui
+        WHERE mui.ownerId = mu.userId
+      )
+    )
+    FROM users mu
+    WHERE mu.userId = CASE 
+      WHEN m.user1Id = ? THEN m.user2Id 
+      ELSE m.user1Id 
+    END
+  ) AS matchedUser
+FROM matches m
+WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   CHECK_DISLIKE: `SELECT * FROM dislikes WHERE senderId = ? AND receiverId = ?`,
