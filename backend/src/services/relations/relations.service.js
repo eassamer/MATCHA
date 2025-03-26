@@ -65,7 +65,10 @@ async function addLike(userId, receiverId) {
       console.log("You have already liked this user");
       throw new ForbiddenException("You have already liked this user");
     }
-    if (checkLike(receiverId, senderId)) {
+    if (await relationDao.checkMatch(senderId, receiverId)) {
+      throw new ForbiddenException("You have already matched with this user");
+    }
+    if (await checkLike(receiverId, senderId)) {
       await relationDao.addMatch(senderId, receiverId);
       await relationDao.deleteLike(receiverId, senderId);
       return await relationDao.getMatch(senderId, receiverId);
@@ -106,7 +109,7 @@ async function deleteMatch(senderId, receiverId) {
       throw new NotFoundException(`User with Id: ${receiverId} not found`);
     }
     const match = await relationDao.getMatch(senderId, receiverId);
-    if (!match) {
+    if (!match || match.length === 0) {
       throw new NotFoundException("Match not found");
     }
     const result = await relationDao.deleteMatch(senderId, receiverId);

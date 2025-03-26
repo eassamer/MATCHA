@@ -100,17 +100,17 @@ const queries = {
 `,
   FIND_AUTH_USER_BY_EMAIL: `
 SELECT 
-  u.*, 
+  users.*, 
   GROUP_CONCAT(DISTINCT i.locationUrl ORDER BY i.idx) AS userImages,
   ${joinLikes},
   ${joinLikedBy},
   ${joinMatches}
-FROM users u
-LEFT JOIN images i ON i.ownerId = u.userId
-LEFT JOIN dislikes d ON (d.receiverId = u.userId)
-WHERE u.email = ?
+FROM users
+LEFT JOIN images i ON i.ownerId = users.userId
+LEFT JOIN dislikes d ON (d.receiverId = users.userId)
+WHERE users.email = ?
   AND d.id IS NULL
-GROUP BY u.userId
+GROUP BY users.userId
 `,
 
   FIND_ALL_USERS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId GROUP BY users.userId`,
