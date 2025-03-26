@@ -3,7 +3,12 @@ const userFields =
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
 users.interests, users.sex, users.bio, users.emailVerified";
 
-const userFieldsWithImages = `${userFields}, GROUP_CONCAT(i.locationUrl ORDER BY i.idx) AS userImages`;
+const userFieldsWithImages = `${userFields}, (
+  SELECT JSON_ARRAYAGG(locationUrl)
+  FROM images i 
+  WHERE i.ownerId = users.userId 
+  ORDER BY i.idx
+) AS userImages`;
 
 const joinLikes = `(
   SELECT JSON_ARRAYAGG(

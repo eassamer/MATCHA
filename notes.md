@@ -35,13 +35,13 @@ adds the liked user in the matches, and when liked back, they add another matche
         }
     ]
 ```
-`getMatch()` should return the full profile of both users
+`getMatch()` should return the full profile of both users (FIXED)
 
-(FIX) `getNearbyUsers()` it doesn't filter liked and matched users
+(FIX) `getNearbyUsers()` it doesn't filter liked and matched users (FIXED)
 
-(FIX) `addDislike()` check if the user already disliked user
+(FIX) `addDislike()` check if the user already disliked user (FIXED)
 
-(FIX) `getImages()`, create an array instead of a comma seperated string
+(FIX) `getImages()`, create an array instead of a comma seperated string (FIXED)
 
 (FIX) `deleteImage()`, fix response, and update index when one is delete e.g (0 is deleted, all idxs are decreased)
 
