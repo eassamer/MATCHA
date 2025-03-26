@@ -25,9 +25,10 @@ const joinLikes = `(
       'sex', lu.sex,
       'likeId', l.id,
       'userImages', (
-        SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
+        SELECT JSON_ARRAYAGG(locationUrl)
         FROM images lui
         WHERE lui.ownerId = lu.userId
+        ORDER BY lui.idx
       )
     )
   )
@@ -51,9 +52,10 @@ const joinLikedBy = `(
       'sex', lu.sex,
       'likeId', l.id,
       'userImages', (
-        SELECT GROUP_CONCAT(DISTINCT lui.locationUrl ORDER BY lui.idx)
+        SELECT JSON_ARRAYAGG(locationUrl)
         FROM images lui
         WHERE lui.ownerId = lu.userId
+        ORDER BY lui.idx
       )
     )
   )
@@ -77,9 +79,10 @@ const joinMatches = `(
       'sex', mu.sex,
       'matchId', m.id,
       'userImages', (
-        SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
+        SELECT JSON_ARRAYAGG(locationUrl)
         FROM images mui
         WHERE mui.ownerId = mu.userId
+        ORDER BY mui.idx
       )
     )
   )
