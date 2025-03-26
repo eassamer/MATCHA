@@ -67,9 +67,9 @@ export const Chat = ({
             onClick={() => {
               router.push("/messages");
             }}
-            className="lg:hidden bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3"
+            className="lg:hidden bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-2"
           >
-            <ArrowLeft size="24" className="text-primary" />
+            <ArrowLeft size="20" className="text-primary" />
           </button>
           <Avatar className="h-12 w-12">
             <AvatarImage

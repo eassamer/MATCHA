@@ -23,9 +23,9 @@ export default function DetailsCard({
       <div className="mb-6">
         <button
           onClick={() => setShowDetailsCard(false)}
-          className="bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3"
+          className="bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-2 lg:p-3"
         >
-          <ArrowLeft size="24" className="text-primary" />
+          <ArrowLeft className="text-primary text-[18px] lg:text-[24px]" />
         </button>
       </div>
 
@@ -33,6 +33,7 @@ export default function DetailsCard({
         <ProfileHeader
           name="Jessica Parker"
           age={23}
+          rating={60}
           profession="Professional model"
         />
 

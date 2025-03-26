@@ -199,7 +199,7 @@ export default function RecentMessages() {
   const router = useRouter();
   return (
     <Card className="w-full  mx-auto shadow-none border-none lg:border-2  rounded-xl overflow-y-scroll">
-      <CardHeader className="pb-2 hidden lg:block">
+      <CardHeader className="py-2 hidden lg:block border-gray-100 border-b-2">
         <CardTitle className="font-poppins text-[14.4px] font-semibold">
           Messages
         </CardTitle>
