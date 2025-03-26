@@ -87,6 +87,9 @@ async function addLike(userId, receiverId) {
       console.log("You have already liked this user");
       throw new ForbiddenException("You have already liked this user");
     }
+    if (await checkDislike(senderId, receiverId)) {
+      await deleteDislike(senderId, receiverId);
+    }
     if (await checkMatch(senderId, receiverId)) {
       throw new ForbiddenException("You have already matched with this user");
     }
@@ -168,6 +171,9 @@ async function addDislike(senderId, receiverId) {
       console.log("You have already disliked this user");
       throw new ForbiddenException("You have already disliked this user");
     }
+    if (await checkMatch(senderId, receiverId)) {
+      await relationDao.deleteMatch(senderId, receiverId);
+    }
     const result = await relationDao.addDislike(senderId, receiverId);
     if (result.affectedRows === 0) {
       throw new ServiceUnavailableException("could not add dislike");
@@ -175,6 +181,19 @@ async function addDislike(senderId, receiverId) {
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.add_dislike: ${error.message}`);
+    throw error;
+  }
+}
+
+async function deleteDislike(senderId, receiverId) {
+  try {
+    const result = await relationDao.deleteDislike(senderId, receiverId);
+    if (result.affectedRows === 0) {
+      throw new ServiceUnavailableException("could not delete dislike");
+    }
+    return result;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.deleteDislike: ${error.message}`);
     throw error;
   }
 }

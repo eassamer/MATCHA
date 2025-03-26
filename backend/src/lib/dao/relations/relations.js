@@ -299,6 +299,24 @@ async function addDislike(senderId, receiverId) {
   }
 }
 
+async function deleteDislike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.DELETE_DISLIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.deleteDislike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in deleteDislike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 async function getLikesBySenderId(senderId) {
   try {
     const queryInput = [senderId];
@@ -334,5 +352,6 @@ module.exports = {
   checkDislike,
   getMatch,
   addDislike,
+  deleteDislike,
   getLikesBySenderId,
 };
