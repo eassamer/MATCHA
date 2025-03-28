@@ -26,7 +26,7 @@ async function create(image) {
       locationUrl = image.locationUrl,
       ownerId = image.ownerId,
       idx = image.idx,
-      public_id = image.public_id,
+      publicId = image.public_id,
     ];
     return new Promise(
       async (resolve, reject) => {
@@ -128,6 +128,26 @@ async function findByOwnerAndIdx(ownerId, idx) {
   );
 }
 
+
+async function decrementImagesIndex(ownerId, idx) {
+  const queryInput = [ownerId, idx];
+  return new Promise(
+    async (resolve, reject) => {
+      (await client).execute(
+        queries.DECREMENT_IMAGES_INDEX,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.decrementImagesIndex: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    }
+  );
+}
+
 /**
  * Finds images by the owner's ID.
  *
@@ -184,6 +204,7 @@ module.exports = {
   create,
   update,
   deleteImage,
+  decrementImagesIndex,
   findByOwnerAndIdx,
   findByOwner,
   findById,

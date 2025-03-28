@@ -146,8 +146,9 @@ GROUP BY users.userId
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,
   DELETE_OAUTH_USER: `DELETE FROM oauthUsers WHERE email = ?`,
   // image queries
-  ADD_IMAGE: `INSERT INTO images (locationUrl, ownerId, idx, public_id) VALUES (?, ?, ?, ?)`,
+  ADD_IMAGE: `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`,
   DELETE_IMAGE: `DELETE FROM images WHERE imageId = ?`,
+  DECREMENT_IMAGES_INDEX: `UPDATE images SET idx = idx - 1 WHERE ownerId = ? AND idx > ?`,
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries

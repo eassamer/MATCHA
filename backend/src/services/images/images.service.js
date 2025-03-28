@@ -43,9 +43,9 @@ async function create(user, img) {
     imageDao.findByOwnerAndIdx(user.id, img.idx).then(async (imageAtIdx) => {
       try {
         if (imageAtIdx.length > 0) {
-          console.log(imageAtIdx[0].public_id);
+          console.log(imageAtIdx[0].publicId);
           const result = await cloudinary.api.delete_resources(
-            [imageAtIdx[0].ownerId + '/' + imageAtIdx[0].public_id],
+            [imageAtIdx[0].ownerId + '/' + imageAtIdx[0].publicId],
             {
               type: "authenticated",
               resource_type: "image",
@@ -102,6 +102,8 @@ async function deleteImage(user, idx) {
           resource_type: "image",
         })
       );
+      await decrementImagesIndex(user.id, index);
+      console.log("decrementImagesIndex");
       return await imageDao.deleteImage(image[0].imageId);
     }
   } catch (error) {
@@ -110,6 +112,14 @@ async function deleteImage(user, idx) {
       throw new BadRequestException(error.message);
     throw new NotFoundException(errMessagePrefix + error.message);
   }
+}
+
+async function decrementImagesIndex(ownerId, idx) {
+  try {
+    const image = await imageDao.decrementImagesIndex(ownerId, idx);
+  } catch (error) {
+    console.error(`${errMessagePrefix} .decrementImagesIndex: ${error.message}`)
+  } 
 }
 
 async function getImagesByUser(userId) {
