@@ -8,6 +8,7 @@ var router = express.Router();
 
 router.post("/create", images.create);
 router.post("/delete", images.deleteImage);
+router.post("/swap", images.swapImages);
 
 /**
 ======GET Requests======

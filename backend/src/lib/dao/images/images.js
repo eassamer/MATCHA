@@ -48,24 +48,16 @@ async function create(image) {
   }
 }
 
-/**
- * Updates an image record in the database.
- *
- * @param {number} idx - The index of the image to update.
- * @param {string} locationUrl - The new URL location of the image.
- * @param {number} ownerId - The ID of the owner of the image.
- * @returns {Promise<Object>} A promise that resolves to the result of the update operation.
- */
-async function update(idx, locationUrl, ownerId) {
-  const queryInput = [idx, locationUrl, ownerId];
+async function swapImages(idx1, idx2, ownerId) {
+  const queryInput = [idx1, idx2, idx2, idx1, ownerId, idx1, idx2];
   return new Promise(
     async (resolve, reject) => {
       (await client).execute(
-        queries.UPDATE_IMAGE,
+        queries.SWAP_IMAGES,
         queryInput,
         (err, result) => {
           if (err) {
-            err.message = `${errMessagePrefix}.update: ${err.message}`;
+            err.message = `${errMessagePrefix}.swapImages: ${err.message}`;
             return reject(err);
           }
           resolve(result);
@@ -202,8 +194,8 @@ async function findById(imageId) {
 
 module.exports = {
   create,
-  update,
   deleteImage,
+  swapImages,
   decrementImagesIndex,
   findByOwnerAndIdx,
   findByOwner,

@@ -2,6 +2,7 @@ const {
   UnsupportedMediaTypeException,
   BadRequestException,
   NotFoundException,
+  ServiceUnavailableException,
 } = require("@lib/utils/exceptions");
 
 cloudinary = require("cloudinary").v2;
@@ -122,6 +123,31 @@ async function decrementImagesIndex(ownerId, idx) {
   } 
 }
 
+
+async function swapImages(idx1, idx2, ownerId) {
+  try {
+    if (idx1 === idx2) return;
+    if (isNaN(idx1) || isNaN(idx2)) throw new Error("Invalid image index");
+    if (idx1 < 0 || idx1 > 4 || idx2 < 0 || idx2 > 4)
+      throw new Error("Invalid image index");
+    const currentImages = await imageDao.findByOwner(ownerId);
+    if (currentImages.length === 0) throw new Error("No images found");
+    const imageAtIdx1 = currentImages.find((img) => img.idx === idx1);
+    const imageAtIdx2 = currentImages.find((img) => img.idx === idx2);
+    if (!imageAtIdx1 || !imageAtIdx2) throw new Error("Image not found");
+    return await imageDao.swapImages(idx1, idx2, ownerId);
+  } catch (error) {
+    console.error(`${errMessagePrefix} .swapImages: ${error.message}`);
+    if (error.message === "Invalid image index")
+      throw new BadRequestException(error.message);
+    if (error.message === "No images found")
+      throw new NotFoundException(error.message);
+    if (error.message === "Image not found")
+      throw new NotFoundException(error.message);
+    throw ServiceUnavailableException(error.message);
+  }
+}
+
 async function getImagesByUser(userId) {
   try {
     if (!userId || userId === "") throw new Error("User ID is required");
@@ -142,5 +168,6 @@ module.exports = {
   create,
   validateImage,
   deleteImage,
+  swapImages,
   getImagesByUser,
 };

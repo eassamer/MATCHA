@@ -149,6 +149,15 @@ GROUP BY users.userId
   ADD_IMAGE: `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`,
   DELETE_IMAGE: `DELETE FROM images WHERE imageId = ?`,
   DECREMENT_IMAGES_INDEX: `UPDATE images SET idx = idx - 1 WHERE ownerId = ? AND idx > ?`,
+  SWAP_IMAGES: `
+    UPDATE images 
+    SET idx = CASE 
+        WHEN idx = ? THEN ?
+        WHEN idx = ? THEN ?
+        ELSE idx 
+    END
+    WHERE ownerId = ? AND idx IN (?, ?)
+    `,
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries

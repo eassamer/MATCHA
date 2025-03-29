@@ -1,6 +1,5 @@
-const { BadRequestException } = require('@lib/utils/exceptions');
-const ImageService = require('@services/images/images.service');
-
+const { BadRequestException } = require("@lib/utils/exceptions");
+const ImageService = require("@services/images/images.service");
 
 async function create(req, res) {
   try {
@@ -20,11 +19,24 @@ async function deleteImage(req, res) {
   }
 }
 
+async function swapImages(req, res) {
+  try {
+    const { idx1, idx2 } = req.body;
+    if (isNaN(idx1) || isNaN(idx2)) {
+      throw new BadRequestException("Invalid image index");
+    }
+    const image = await ImageService.swapImages(idx1, idx2, req.user.id);
+    res.status(200).json(image);
+  } catch (error) {
+    res.status(error?.status || 400).json({ error: error?.message });
+  }
+}
+
 async function getImagesByUser(req, res) {
   try {
     const userId = req.params.userId;
     if (!userId) {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException("User ID is required");
     }
     const images = await ImageService.getImagesByUser(userId);
     res.status(200).json(images);
@@ -36,5 +48,6 @@ async function getImagesByUser(req, res) {
 module.exports = {
   create,
   deleteImage,
+  swapImages,
   getImagesByUser,
-}
+};
