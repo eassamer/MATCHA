@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "migrate": "node backend/src/lib/db/migrate.js"
+    "migrate": "node backend/src/lib/db/migrate.js",
+    "test": "jest"
   },
   "dependencies": {
     "@tensorflow-models/face-detection": "^1.0.3",
@@ -43,5 +44,11 @@
     "@controllers": "src/controllers",
     "@middlewares": "src/middlewares",
     "@routes": "src/routes"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
   }
 }
