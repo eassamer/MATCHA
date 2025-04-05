@@ -3,6 +3,7 @@ backend/node_modules
 backend/bin
 node_modules
 backend/package-lock.json
+backend/coverage
 node_modules
 package-lock.json
 frontend/matcha/node_modules
