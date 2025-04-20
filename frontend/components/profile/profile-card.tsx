@@ -7,6 +7,7 @@ import ProfileInterests from "@/components/profile/profile-interests";
 import ProfileEditGallery from "./profile-edit-gallery";
 import EditProfileDialog from "./edit-profile-dialog";
 import { useState } from "react";
+import MyInterests from "./my-interests";
 
 export interface profileInfoType {
   name: string;
@@ -24,7 +25,7 @@ export default function ProfileCard() {
     bio: "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
     profession: "Professional model",
     rating: 70,
-    interests: ["yoga", "sports", "music", "adventure"],
+    interests: ["Yoga", "Swimming", "Run", "Tennis"],
   });
   return (
     <div className="flex relative flex-col w-full h-full lg:flex-grow overflow-y-auto bg-white px-6 py-4 md:p-8 lg:p-7">
@@ -59,7 +60,7 @@ export default function ProfileCard() {
           <ProfileEditGallery />
         </div>
         <div className="lg:w-1/2">
-          {/* <ProfileInterests interests={profileInfo.interests} /> */}
+          <MyInterests interests={profileInfo.interests} />
         </div>
       </div>
     </div>

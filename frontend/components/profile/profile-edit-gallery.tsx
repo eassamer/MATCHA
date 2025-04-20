@@ -1,26 +1,69 @@
 "use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { HiPencil } from "react-icons/hi2";
-import { FiPlus } from "react-icons/fi";
+import { Pencil, Plus, Upload, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ProfileEditGallery() {
-  const images = ["/User1.svg", "/User2.svg", "/User3.svg"];
+  const [images, setImages] = useState<string[]>([
+    "/User1.svg",
+    "/User2.svg",
+    "/User3.svg",
+  ]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleUploadImage = (index: number) => {
-    console.log(`Upload image for slot ${index}`);
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          alert("File size must be 2MB or less.");
+        if (file.size > 5 * 1024 * 1024) {
+          alert("File size must be 5MB or less.");
           return;
         }
+
+        // In a real app, you would upload the file to a server
+        // For now, we'll just create a local URL
+        const imageUrl = URL.createObjectURL(file);
+
+        // If we're replacing an existing image
+        if (index < images.length) {
+          const newImages = [...images];
+          newImages[index] = imageUrl;
+          setImages(newImages);
+        } else {
+          // If we're adding a new image
+          setImages([...images, imageUrl]);
+        }
+
+        setIsDialogOpen(false);
       }
     };
     input.click();
+  };
+
+  const handleDeleteImage = (index: number) => {
+    // Remove the image at the specified index and shift all subsequent images
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+    setIsDialogOpen(false);
+  };
+
+  const openImageDialog = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsDialogOpen(true);
   };
 
   const gallerySlots = Array(5)
@@ -53,11 +96,11 @@ export default function ProfileEditGallery() {
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <button
-                    onClick={() => handleUploadImage(slot.index)}
-                    className="border-2 bprder-white bg-transparent rounded-full p-3 shadow-md"
+                    onClick={() => openImageDialog(slot.index)}
+                    className="border-2 border-white bg-black/30 rounded-full p-3 shadow-md hover:bg-black/50 transition-colors"
                     aria-label="Edit image"
                   >
-                    <HiPencil size={24} className="text-white" />
+                    <Pencil size={24} className="text-white" />
                   </button>
                 </div>
               </>
@@ -65,16 +108,48 @@ export default function ProfileEditGallery() {
               <div className="w-full h-full flex items-center justify-center">
                 <button
                   onClick={() => handleUploadImage(slot.index)}
-                  className="rounded-full p-4 border-2 border-primary flex items-center justify-center"
+                  className="rounded-full p-4 border-2 border-primary flex items-center justify-center hover:bg-primary/10 transition-colors"
                   aria-label="Add image"
                 >
-                  <FiPlus size={24} className="text-primary" />
+                  <Plus size={24} className="text-primary" />
                 </button>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-[80%] lg:w-[400px] rounded-[13px] ">
+          <DialogHeader>
+            <DialogTitle>Edit Image</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col space-y-3 py-4">
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2"
+              onClick={() =>
+                selectedImageIndex !== null &&
+                handleUploadImage(selectedImageIndex)
+              }
+            >
+              <Upload size={18} />
+              <span>Upload New Image</span>
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex items-center justify-start gap-2"
+              onClick={() =>
+                selectedImageIndex !== null &&
+                handleDeleteImage(selectedImageIndex)
+              }
+            >
+              <Trash2 size={18} />
+              <span>Delete Image</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

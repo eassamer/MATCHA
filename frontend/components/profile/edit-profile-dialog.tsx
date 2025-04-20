@@ -11,6 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { profileInfoType } from "./profile-card";
 import { set } from "date-fns";
 import { MultiSelect } from "./multi-select";
+import { InterestsHandler } from "@/lib/InterestsHandler";
 
 // Define validation schema
 const profileSchema = z.object({
@@ -30,21 +31,21 @@ export default function EditProfileDialog({
   setProfileInfo: React.Dispatch<React.SetStateAction<profileInfoType>>;
 }) {
   const interestOptions = [
-    { label: "Yoga", value: "yoga" },
-    { label: "Sports", value: "sports" },
-    { label: "Music", value: "music" },
-    { label: "Smoking", value: "smoking" },
-    { label: "Dancing", value: "dancing" },
-    { label: "Adventure", value: "adventure" },
-    { label: "Movies", value: "movies" },
-    { label: "Reading", value: "reading" },
-    { label: "Cooking", value: "cooking" },
-    { label: "Travel", value: "travel" },
-    { label: "Photography", value: "photography" },
-    { label: "Art", value: "art" },
-    { label: "Gaming", value: "gaming" },
-    { label: "Fitness", value: "fitness" },
-    { label: "Technology", value: "technology" },
+    { label: "Photography", value: "Photography" },
+    { label: "Shopping", value: "Shopping" },
+    { label: "Run", value: "Run" },
+    { label: "Swimming", value: "Swimming" },
+    { label: "Karaoke", value: "Karaoke" },
+    { label: "Yoga", value: "Yoga" },
+    { label: "Art", value: "Art" },
+    { label: "Traveling", value: "Traveling" },
+    { label: "Cooking", value: "Cooking" },
+    { label: "Tennis", value: "Tennis" },
+    { label: "Extreme", value: "Extreme" },
+    { label: "Music", value: "Music" },
+    { label: "Drink", value: "Drink" },
+    { label: "Video games", value: "Video games" },
+    { label: "Smoking", value: "Smoking" },
   ];
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -115,8 +116,7 @@ export default function EditProfileDialog({
   };
   const handleSubmit = () => {
     if (validateForm()) {
-      // Here you would typically send the data to your API
-      console.log("Profile updated:", formData);
+      console.log(InterestsHandler.interestsToInt(formData.interests));
       setProfileInfo({
         ...profileInfo,
         name: formData.displayName,
