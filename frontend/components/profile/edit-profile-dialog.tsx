@@ -9,9 +9,9 @@ import { z } from "zod";
 import { HiPencil } from "react-icons/hi2";
 import { ArrowLeft } from "lucide-react";
 import { profileInfoType } from "./profile-card";
-import { set } from "date-fns";
 import { MultiSelect } from "./multi-select";
 import { InterestsHandler } from "@/lib/InterestsHandler";
+import { interestsShifter } from "@/lib/constants";
 
 // Define validation schema
 const profileSchema = z.object({
@@ -30,23 +30,10 @@ export default function EditProfileDialog({
   profileInfo: profileInfoType;
   setProfileInfo: React.Dispatch<React.SetStateAction<profileInfoType>>;
 }) {
-  const interestOptions = [
-    { label: "Photography", value: "Photography" },
-    { label: "Shopping", value: "Shopping" },
-    { label: "Run", value: "Run" },
-    { label: "Swimming", value: "Swimming" },
-    { label: "Karaoke", value: "Karaoke" },
-    { label: "Yoga", value: "Yoga" },
-    { label: "Art", value: "Art" },
-    { label: "Traveling", value: "Traveling" },
-    { label: "Cooking", value: "Cooking" },
-    { label: "Tennis", value: "Tennis" },
-    { label: "Extreme", value: "Extreme" },
-    { label: "Music", value: "Music" },
-    { label: "Drink", value: "Drink" },
-    { label: "Video games", value: "Video games" },
-    { label: "Smoking", value: "Smoking" },
-  ];
+  let interestOptions: { label: string; value: string }[] = [];
+  interestsShifter.map((interest, index) => {
+    interestOptions.push({ label: interest.name, value: interest.name });
+  });
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     displayName: profileInfo.name,

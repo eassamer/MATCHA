@@ -3,7 +3,6 @@
 import type React from "react";
 import ProfileHeader from "@/components/profile/profile-header";
 import ProfileAbout from "@/components/profile/profile-about";
-import ProfileInterests from "@/components/profile/profile-interests";
 import ProfileEditGallery from "./profile-edit-gallery";
 import EditProfileDialog from "./edit-profile-dialog";
 import { useState } from "react";
