@@ -10,7 +10,7 @@ export default function MessageLayout({
       <h1 className="hidden lg:block font-poppins text-[34px] font-bold">
         Messages
       </h1>
-      <div className="w-full lg:h-fit flex-grow lg:flex-grow  flex items-center justify-between">
+      <div className="w-full  lg:max-h-[calc(100vh-60px)]  h-[calc(100vh-60px)] lg:h-[80%] flex-grow lg:flex-grow  flex items-center justify-between">
         <div className="custom:hidden lg:max-h-[86vh] lg:flex hidden w-[300px] h-[90%] bg-white rounded-[12.6px]">
           <RecentMessages />
         </div>

@@ -18,7 +18,7 @@ export default function ProfileCard({
   return (
     <div
       className={`rounded-2xl overflow-hidden  ${
-        isSuperLiker && "ring-[3.1px] ring-blue-400"
+        isSuperLiker && "ring-[3.1px] ring-primary"
       }`}
     >
       <div className="relative">
