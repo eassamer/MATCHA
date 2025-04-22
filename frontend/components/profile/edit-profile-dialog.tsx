@@ -12,6 +12,8 @@ import { profileInfoType } from "./profile-card";
 import { MultiSelect } from "./multi-select";
 import { InterestsHandler } from "@/lib/InterestsHandler";
 import { interestsShifter } from "@/lib/constants";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { setUser } from "@/lib/features/user/userSlice";
 
 // Define validation schema
 const profileSchema = z.object({
@@ -34,6 +36,8 @@ export default function EditProfileDialog({
   interestsShifter.map((interest, index) => {
     interestOptions.push({ label: interest.name, value: interest.name });
   });
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     displayName: profileInfo.name,
@@ -44,7 +48,7 @@ export default function EditProfileDialog({
   const [errors, setErrors] = useState<
     Partial<Record<keyof ProfileFormData, string>>
   >({});
-  const [bioLength, setBioLength] = useState(formData.bio.length);
+  const [bioLength, setBioLength] = useState(formData.bio?.length || 0);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -111,6 +115,15 @@ export default function EditProfileDialog({
         profession: formData.job || "",
         interests: formData.interests || [],
       });
+
+      dispatch(
+        setUser({
+          ...user,
+          displayName: formData.displayName,
+          bio: formData.bio,
+          interests: InterestsHandler.interestsToInt(formData.interests || []),
+        })
+      );
       setOpen(false);
       // Show success message or notification here
     }
