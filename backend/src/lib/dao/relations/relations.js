@@ -115,6 +115,24 @@ async function addLike(senderId, receiverId) {
   }
 }
 
+async function addSuperLike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.ADD_SUPER_LIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.addSuperLike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in addSuperLike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 async function deleteLike(senderId, receiverId) {
   try {
     const queryInput = [senderId, receiverId];
@@ -344,6 +362,7 @@ module.exports = {
   getLikes,
   checkLike,
   addLike,
+  addSuperLike,
   deleteLike,
   getMatches,
   deleteMatch,

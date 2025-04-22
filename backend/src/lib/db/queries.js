@@ -24,6 +24,7 @@ const joinLikes = `(
       'latitude', lu.latitude,
       'sex', lu.sex,
       'likeId', l.id,
+      'superLike', l.superLike,
       'userImages', (
         SELECT JSON_ARRAYAGG(locationUrl)
         FROM images lui
@@ -51,6 +52,7 @@ const joinLikedBy = `(
       'latitude', lu.latitude,
       'sex', lu.sex,
       'likeId', l.id,
+      'superLike', l.superLike,
       'userImages', (
         SELECT JSON_ARRAYAGG(locationUrl)
         FROM images lui
@@ -162,6 +164,7 @@ GROUP BY users.userId
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
+  ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   // match queries
@@ -195,7 +198,7 @@ GROUP BY users.userId
 `,
   GET_LIKED_BY: `
 SELECT l.*, 
-       ${userFieldsWithImages}
+       ${userFieldsWithImages}, l.superLike,
 FROM likes l
 JOIN users u ON l.senderId = u.userId
 LEFT JOIN images i ON i.ownerId = l.receiverId
