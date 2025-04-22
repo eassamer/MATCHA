@@ -140,6 +140,29 @@ GROUP BY users.userId
   GROUP BY users.userId`,
 
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
+  UPDATE_FAME_RATING: `UPDATE users u
+  JOIN (
+      SELECT 
+          u.userId AS user_id,
+          COUNT(DISTINCT l.id) AS like_count,
+          COUNT(DISTINCT m.id) AS match_count,
+          COUNT(DISTINCT d.id) AS dislike_count,
+          COUNT(DISTINCT r.id) AS report_count
+      FROM users u
+      LEFT JOIN likes l ON l.receiverId = u.id
+      LEFT JOIN matches m ON m.receiverId = u.id
+      LEFT JOIN dislikes d ON d.receiverId = u.id
+      LEFT JOIN reports r ON r.receiverId = u.id
+      GROUP BY u.id
+  ) stats ON u.id = stats.user_id
+  SET u.fameRating = 
+      CASE 
+          WHEN (like_count + match_count + dislike_count + report_count) = 0 THEN 50
+          ELSE (like_count + match_count) * 100 / 
+               (like_count + match_count + dislike_count + report_count)
+      END;
+  ;
+  `,
   UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ? WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,

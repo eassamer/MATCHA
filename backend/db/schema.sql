@@ -15,6 +15,7 @@ CREATE TABLE users (
     interests INT, -- each interest is 1 shifted by a corresponding interest
     sex VARCHAR(10) NOT NULL,
     bio TEXT,
+    fameRating INT default 50,
     emailVerified BOOLEAN default false,
     emailVerificationToken VARCHAR(255),
     emailVerificationTokenExpiresAt DATETIME,
@@ -69,6 +70,15 @@ CREATE TABLE messages (
     senderId varchar(36),
     receiverId varchar(36),
     content1 TEXT NOT NULL,
+    FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE report (
+    id varchar(36) PRIMARY KEY,
+    senderId varchar(36),
+    receiverId varchar(36),
+    reason TEXT NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );

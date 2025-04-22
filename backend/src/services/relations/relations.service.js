@@ -99,6 +99,7 @@ async function addLike(userId, receiverId) {
       return await relationDao.getMatch(senderId, receiverId);
     } else {
       await relationDao.addLike(senderId, receiverId);
+      await userService.updateFameRating(receiverId);
       return receiver;
     }
   } catch (error) {
@@ -141,6 +142,7 @@ async function deleteMatch(senderId, receiverId) {
     if (result.affectedRows === 0) {
       throw new ServiceUnavailableException("could not delete match");
     }
+    await userService.updateFameRating(receiverId);
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
@@ -178,6 +180,7 @@ async function addDislike(senderId, receiverId) {
     if (result.affectedRows === 0) {
       throw new ServiceUnavailableException("could not add dislike");
     }
+    await userService.updateFameRating(receiverId);
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.add_dislike: ${error.message}`);
@@ -191,6 +194,7 @@ async function deleteDislike(senderId, receiverId) {
     if (result.affectedRows === 0) {
       throw new ServiceUnavailableException("could not delete dislike");
     }
+    await userService.updateFameRating(receiverId);
     return result;
   } catch (error) {
     console.error(`${errMessagePrefix}.deleteDislike: ${error.message}`);

@@ -55,7 +55,7 @@ function isPasswordStrong(password) {
  * @returns true if the name is valid, false otherwise
  */
 function isNameValid(name) {
-  const nameRegex = /^[a-zA-Z]+$/;
+  const nameRegex = /^[a-zA-Z0-9 ]+$/;
   return nameRegex.test(name);
 }
 
@@ -265,6 +265,24 @@ async function create(user) {
       imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
     console.error(`${errMessagePrefix}.create: ${error.message}`);
     throw new Error(error.message);
+  }
+}
+
+
+async function updateFameRating(userId) {
+  try {
+    const user = await findById(userId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const queryOutput = await userDao.updateFameRating(userId);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return await findById(userId);
+  } catch (error) {
+    console.error(`${errMessagePrefix}.updateFameRating: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -616,6 +634,7 @@ module.exports = {
   getLocationByIP,
   findAll,
   update,
+  updateFameRating,
   updatePassword,
   updateLocation,
 };

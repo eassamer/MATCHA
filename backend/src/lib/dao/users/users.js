@@ -64,6 +64,23 @@ async function updatePassword(userId, password) {
   });
 }
 
+async function updateFameRating(userId) {
+  const queryInput = [userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.UPDATE_FAME_RATING,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.updateFameRating: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 /**
  * @description removes a user from the database
  * @param {*} userId the id of the user to remove
@@ -278,6 +295,7 @@ async function update(
 module.exports = {
   create,
   remove,
+  updateFameRating,
   findById,
   findByEmail,
   findAuthUserByEmail,
