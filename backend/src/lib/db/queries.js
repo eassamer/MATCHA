@@ -149,12 +149,12 @@ GROUP BY users.userId
           COUNT(DISTINCT d.id) AS dislike_count,
           COUNT(DISTINCT r.id) AS report_count
       FROM users u
-      LEFT JOIN likes l ON l.receiverId = u.id
-      LEFT JOIN matches m ON m.receiverId = u.id
-      LEFT JOIN dislikes d ON d.receiverId = u.id
-      LEFT JOIN reports r ON r.receiverId = u.id
-      GROUP BY u.id
-  ) stats ON u.id = stats.user_id
+      LEFT JOIN likes l ON l.receiverId = u.userId
+      LEFT JOIN matches m ON (m.user1Id = u.userId OR m.user2Id = u.userId)
+      LEFT JOIN dislikes d ON d.receiverId = u.userId
+      LEFT JOIN report r ON r.receiverId = u.userId
+      GROUP BY u.userId
+  ) stats ON u.userId = stats.user_id
   SET u.fameRating = 
       CASE 
           WHEN (like_count + match_count + dislike_count + report_count) = 0 THEN 50
