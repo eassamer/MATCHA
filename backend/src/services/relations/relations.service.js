@@ -144,6 +144,7 @@ async function deleteMatch(senderId, receiverId) {
       throw new ServiceUnavailableException("could not delete match");
     }
     await userService.updateFameRating(receiverId);
+    await userService.updateFameRating(senderId);
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
