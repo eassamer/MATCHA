@@ -96,6 +96,7 @@ async function addLike(userId, receiverId) {
     if (await checkLike(receiverId, senderId)) {
       await relationDao.addMatch(senderId, receiverId);
       await relationDao.deleteLike(receiverId, senderId);
+      await userService.updateFameRating(receiverId);
       return await relationDao.getMatch(senderId, receiverId);
     } else {
       await relationDao.addLike(senderId, receiverId);
