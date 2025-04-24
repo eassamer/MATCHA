@@ -100,6 +100,12 @@ function isValidRadius(radius) {
   return radius > 0 && radius <= 100;
 }
 
+
+function isValidReason(reason) {
+  const reasonRegex = /^[a-zA-Z0-9 "'()\[\]{}]{10,}$/;
+  return reasonRegex.test(reason);
+}
+
 /**
  * @description validates a user object
  * @param {*} user the user object to validate
@@ -623,6 +629,47 @@ async function updatePassword(userId, password) {
   }
 }
 
+
+async function reportUser(userId, reportedUserId, reason) {
+  try {
+    if (!isValidReason(reason)) {
+      throw new Error("Invalid reason");
+    }
+    const user = await findById(reportedUserId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const oldReport = await userDao.getReportBySenderAndReceiver(userId, reportedUserId);
+    if (oldReport.length > 0) {
+      throw new Error("User already reported");
+    }
+    const queryOutput = await userDao.reportUser(userId, reportedUserId, reason);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    await updateFameRating(reportedUserId); 
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    return user;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.reportUser: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("already reported")) {
+      throw new ForbiddenException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
+    if (error.message.includes("reported")) {
+      throw new ServiceUnavailableException(error.message);
+    }
+    throw new ServiceUnavailableException(error.message);
+  }
+}
+
 module.exports = {
   create,
   remove,
@@ -637,4 +684,5 @@ module.exports = {
   updateFameRating,
   updatePassword,
   updateLocation,
+  reportUser,
 };

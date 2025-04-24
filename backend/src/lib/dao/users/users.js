@@ -292,6 +292,49 @@ async function update(
   });
 }
 
+async function reportUser(userId, reportedUserId) {
+  const queryInput = [userId, reportedUserId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(queries.REPORT_USER, queryInput, (err, result) => {
+      if (err) {
+        err.message = `${errMessagePrefix}.reportUser: ${err.message}`;
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+
+async function getReports(userId) {
+  const queryInput = [userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(queries.GET_REPORTS, queryInput, (err, result) => {
+      if (err) {
+        err.message = `${errMessagePrefix}.getReports: ${err.message}`;
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+
+async function getReportBySenderAndReceiver(senderId, receiverId) {
+  const queryInput = [senderId, receiverId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.GET_REPORT_BY_SENDER_AND_RECEIVER,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.getReportBySenderAndReceiver: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 module.exports = {
   create,
   remove,
@@ -304,4 +347,7 @@ module.exports = {
   update,
   updatePassword,
   updateLastLocation,
+  reportUser,
+  getReports,
+  getReportBySenderAndReceiver,
 };

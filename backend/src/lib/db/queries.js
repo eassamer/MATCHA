@@ -1,7 +1,7 @@
 const userFields =
   "users.userId, users.firstName, users.lastName, users.displayName,\
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
-users.interests, users.sex, users.bio, users.emailVerified";
+users.interests, users.sex, users.bio, users.emailVerified, users.fameRating";
 
 const userFieldsWithImages = `${userFields}, (
   SELECT JSON_ARRAYAGG(locationUrl)
@@ -138,6 +138,10 @@ GROUP BY users.userId
   MOD(interests >> ?, 2) = 1 AND
   MOD(interests >> ?, 2) = 1
   GROUP BY users.userId`,
+
+  REPORT_USER:`INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
+  GET_REPORTS: `SELECT * FROM report WHERE receiverId = ?`,
+  FIND_REPORT_BY_SENDER_AND_RECEIVER: `SELECT * FROM report WHERE senderId = ? AND receiverId = ?`,
 
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
   UPDATE_FAME_RATING: `UPDATE users u
