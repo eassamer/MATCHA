@@ -8,7 +8,7 @@ import { SignupContext } from "@/context/SignupContext";
 const ProfileDetails = () => {
   const { state, dispatch } = useContext(SignupContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   const handleDateChange = (date: Date) => {
     dispatch({ type: "SET_BIRTHDATE", payload: date });
