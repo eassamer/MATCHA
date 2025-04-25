@@ -2,19 +2,37 @@
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
 import { Location } from "iconsax-react";
+import {
+  setUsersNearBy,
+  UserNearByType,
+} from "@/lib/features/users/userNearBySlice";
+import { useAppDispatch } from "@/lib/hooks";
+
+export function calculateAge(dateOfBirth: Date) {
+  const birthDate = new Date(dateOfBirth); // Parse the birthdate
+  const currentDate = new Date(); // Get the current date
+  let age = currentDate.getFullYear() - birthDate.getFullYear(); // Calculate the age based on years
+
+  const monthDifference = currentDate.getMonth() - birthDate.getMonth();
+  const dayDifference = currentDate.getDate() - birthDate.getDate();
+  if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+    age--;
+  }
+
+  return age;
+}
+
 export const Card = ({
   url,
   id,
   cards,
-  setCards,
   direction,
   setDirection,
   setShowDetailsCard,
 }: {
   url: string;
   id: number;
-  cards: { id: number; url: string }[];
-  setCards: React.Dispatch<React.SetStateAction<{ id: number; url: string }[]>>;
+  cards: UserNearByType[];
   direction: string;
   setDirection: React.Dispatch<React.SetStateAction<string>>;
   setShowDetailsCard: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,6 +41,7 @@ export const Card = ({
   const y = useMotionValue(0); // Add motion value for vertical movement
   const rotate = useTransform(x, [-100, 100], [-20, 20]);
   const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
+  const dispatch = useAppDispatch();
 
   const isFront = id === cards[cards.length - 1].id;
 
@@ -30,21 +49,22 @@ export const Card = ({
     if (isFront && direction === "right") {
       x.set(100);
       setTimeout(() => {
-        setCards((cards) => cards.filter((card) => card.id !== id));
+        dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
         setDirection("");
       }, 300);
     }
     if (isFront && direction === "left") {
       x.set(-100);
       setTimeout(() => {
-        setCards((cards) => cards.filter((card) => card.id !== id));
+        console.log(cards[0].id);
+        dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
         setDirection("");
       }, 300);
     }
     if (isFront && direction === "up") {
       y.set(-200); // Move the card upward off-screen
       setTimeout(() => {
-        setCards((cards) => cards.filter((card) => card.id !== id));
+        dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
         setDirection("");
       }, 300);
     }
@@ -53,9 +73,9 @@ export const Card = ({
   const dragEnd = () => {
     const dragThreshold = 100;
     if (Math.abs(x.get()) > dragThreshold) {
-      setCards((cards) => cards.filter((card) => card.id !== id));
+      dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
     } else if (y.get() < -dragThreshold) {
-      setCards((cards) => cards.filter((card) => card.id !== id));
+      dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
     }
   };
 
@@ -87,7 +107,7 @@ export const Card = ({
       </div>
       <div className="z-99 absolute w-full h-[22%] bottom-0 bg-[#00000026] rounded-b-lg flex flex-col items-start justify-center px-4">
         <h1 className="text-[24px] font-bold font-poppins text-white">
-          Yahya Zaml, 25
+          {cards[id].displayName}, {calculateAge(cards[id].birthDate)}
         </h1>
         <h1 className="text-[14px] font-regular font-poppins text-white">
           Professional whore

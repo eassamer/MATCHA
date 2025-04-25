@@ -30,12 +30,13 @@ const locations = [
 ];
 
 const images = [
-  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/496bc330a4eac708befa1f077277df6d/detailed",
-  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/7aa8a7967dd8c6930a7fc61faec5a101/detailed",
-  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/300592c16f6d8006dcefe2254bea76f0/detailed",
-  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/fbba0cef2ab2244c46d1e9dda9821902/detailed",
-  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/19c27355edbcd493f1cdacd95f6a6793/detailed"
-,]
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411030/samples/animals/cat.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411031/samples/people/kitchen-bar.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411033/samples/people/smiling-man.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411035/samples/people/boy-snow-hoodie.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411036/samples/people/jazz.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411038/samples/people/bicycle.jpg",
+];
 
 function getRandomOffset(cityLat) {
   // Convert 1-10 km to degrees (1 km ≈ 0.009 degrees latitude)
@@ -106,16 +107,10 @@ async function seedUsers() {
     for (let j = 0; j < 3; j++) {
       const randomImage = images[(startingIndex + j) % images.length];
       const publicId = uuidv4();
-      await connection.execute(query2, [
-        randomImage,
-        userId,
-        j,
-        publicId,
-      ]);
+      await connection.execute(query2, [randomImage, userId, j, publicId]);
     }
 
     // Insert random images
-
   }
 }
 

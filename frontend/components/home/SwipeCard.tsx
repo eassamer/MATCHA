@@ -1,62 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "../Card";
 import { Setting5 } from "iconsax-react";
+import { UserNearByType } from "@/lib/features/users/userNearBySlice";
 
-export const cardData = [
-  {
-    id: 1,
-    url: "/User1.svg",
-  },
-  {
-    id: 2,
-    url: "/User2.svg",
-  },
-  {
-    id: 3,
-    url: "/User3.svg",
-  },
-  {
-    id: 4,
-    url: "/User4.svg",
-  },
-  {
-    id: 5,
-    url: "/User5.svg",
-  },
-  {
-    id: 6,
-    url: "/User6.svg",
-  },
-  {
-    id: 7,
-    url: "/User7.svg",
-  },
-  {
-    id: 8,
-    url: "/User8.svg",
-  },
-  {
-    id: 9,
-    url: "/User9.svg",
-  },
-  {
-    id: 10,
-    url: "/User10.svg",
-  },
-];
 export const SwipeCard = ({
   cards,
-  setCards,
   direction,
   setDirection,
   setShowDetailsCard,
 }: {
-  cards: { id: number; url: string }[];
-  setCards: React.Dispatch<React.SetStateAction<{ id: number; url: string }[]>>;
+  cards: UserNearByType[];
   direction: string;
   setDirection: React.Dispatch<React.SetStateAction<string>>;
   setShowDetailsCard: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+
   return (
     <div className="h-[400px] w-[280px] lg:h-[400px] lg:w-[260px]  xl:h-[450px] xl:w-[300px] grid place-items-center">
       {!cards.length && (
@@ -72,20 +30,21 @@ export const SwipeCard = ({
           </button>
         </div>
       )}
-      {cards.map((card) => {
-        return (
-          <Card
-            key={card.id}
-            cards={cards}
-            setCards={setCards}
-            url={card.url}
-            id={card.id}
-            direction={direction}
-            setDirection={setDirection}
-            setShowDetailsCard={setShowDetailsCard}
-          />
-        );
-      })}
+      {cards.length > 0 &&
+        cards[0].displayName != "" &&
+        cards.map((card, id) => {
+          return (
+            <Card
+              key={id}
+              cards={cards}
+              url={card.userImages[0]}
+              id={card.id}
+              direction={direction}
+              setDirection={setDirection}
+              setShowDetailsCard={setShowDetailsCard}
+            />
+          );
+        })}
     </div>
   );
 };
