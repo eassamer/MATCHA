@@ -107,6 +107,39 @@ async function addLike(userId, receiverId) {
   }
 }
 
+async function addSuperLike(userId, receiverId) {
+  try {
+    const senderId = userId;
+    if (senderId === receiverId) {
+      throw new ForbiddenException("You cannot super like yourself");
+    }
+    const receiver = await userService.findById(receiverId);
+    if (!receiver) {
+      throw new NotFoundException(`User with Id: ${receiverId} not found`);
+    }
+    if (await checkLike(senderId, receiverId)) {
+      console.log("You have already liked this user");
+      throw new ForbiddenException("You have already liked this user");
+    }
+    if (await checkDislike(senderId, receiverId)) {
+      await deleteDislike(senderId, receiverId);
+    }
+    if (await checkMatch(senderId, receiverId)) {
+      throw new ForbiddenException("You have already matched with this user");
+    }
+    if (await checkLike(receiverId, senderId)) {
+      await relationDao.addMatch(senderId, receiverId);
+      await relationDao.deleteLike(receiverId, senderId);
+      return await relationDao.getMatch(senderId, receiverId);
+    }
+    await relationDao.addSuperLike(senderId, receiverId);
+    return receiver;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.addSuperLike: ${error.message}`);
+    throw error;
+  }
+}
+
 async function getMatches(userId) {
   try {
     const matches = await relationDao.getMatches(userId);
@@ -204,6 +237,7 @@ module.exports = {
   getNearbyUsers,
   getLikes,
   addLike,
+  addSuperLike,
   getMatches,
   deleteMatch,
   addDislike,

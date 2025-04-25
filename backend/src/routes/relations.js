@@ -18,6 +18,8 @@ router.get("/matches", relations.getMatches);
 
 router.post("/like", relations.addLike);
 
+router.post("/superlike", relations.addSuperLike);
+
 router.post("/dislike", relations.addDislike);
 
 /**

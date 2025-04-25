@@ -46,6 +46,15 @@ async function addLike(req, res) {
   }
 }
 
+async function addSuperLike(req, res) {
+  try {
+    const like = await relationService.addSuperLike(req.user.id, req.body.id);
+    res.status(200).json(like);
+  } catch (error) {
+    res.status(error.status || 400).json({ error: error.message });
+  }
+}
+
 async function getMatches(req, res) {
   try {
     const matches = await relationService.getMatches(req.user.id);
@@ -89,6 +98,7 @@ module.exports = {
   getNearbyUsers,
   getLikes,
   addLike,
+  addSuperLike,
   getMatches,
   deleteMatch,
   addDislike,

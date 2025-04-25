@@ -1,7 +1,7 @@
 const userFields =
   "users.userId, users.firstName, users.lastName, users.displayName,\
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
-users.interests, users.sex, users.bio, users.emailVerified";
+users.interests, users.sex, users.bio, users.emailVerified, users.fameRating";
 
 const userFieldsWithImages = `${userFields}, (
   SELECT JSON_ARRAYAGG(locationUrl)
@@ -139,7 +139,34 @@ GROUP BY users.userId
   MOD(interests >> ?, 2) = 1
   GROUP BY users.userId`,
 
+  REPORT_USER: `INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
+  GET_REPORTS: `SELECT * FROM report WHERE receiverId = ?`,
+  FIND_REPORT_BY_SENDER_AND_RECEIVER: `SELECT * FROM report WHERE senderId = ? AND receiverId = ?`,
+
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
+  UPDATE_FAME_RATING: `UPDATE users u
+  JOIN (
+      SELECT 
+          u.userId AS user_id,
+          COUNT(DISTINCT l.id) AS like_count,
+          COUNT(DISTINCT m.id) AS match_count,
+          COUNT(DISTINCT d.id) AS dislike_count,
+          COUNT(DISTINCT r.id) AS report_count
+      FROM users u
+      LEFT JOIN likes l ON l.receiverId = u.userId
+      LEFT JOIN matches m ON (m.user1Id = u.userId OR m.user2Id = u.userId)
+      LEFT JOIN dislikes d ON d.receiverId = u.userId
+      LEFT JOIN report r ON r.receiverId = u.userId
+      GROUP BY u.userId
+  ) stats ON u.userId = stats.user_id
+  SET u.fameRating = 
+      CASE 
+          WHEN (like_count + match_count + dislike_count + report_count) = 0 THEN 50
+          ELSE (like_count + match_count) * 100 / 
+               (like_count + match_count + dislike_count + report_count)
+      END;
+  ;
+  `,
   UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ? WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
@@ -197,10 +224,10 @@ GROUP BY users.userId
 SELECT l.*, 
        ${userFieldsWithImages}
 FROM likes l
-JOIN users u ON l.senderId = u.userId
+JOIN users ON l.senderId = users.userId
 LEFT JOIN images i ON i.ownerId = l.receiverId
 WHERE l.receiverId = ?
-GROUP BY l.id, u.userId
+GROUP BY l.id, users.userId
 `,
   GET_MATCHES: `SELECT m.*, ${userFieldsWithImages} FROM matches m JOIN users u ON (m.user1Id = u.userId OR m.user2Id = u.userId) WHERE user1Id = ? OR user2Id = ?`,
   FIND_MATCH: `SELECT 
