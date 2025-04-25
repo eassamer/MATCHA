@@ -139,7 +139,7 @@ GROUP BY users.userId
   MOD(interests >> ?, 2) = 1
   GROUP BY users.userId`,
 
-  REPORT_USER: `INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
+  REPORT_USER:`INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
   GET_REPORTS: `SELECT * FROM report WHERE receiverId = ?`,
   FIND_REPORT_BY_SENDER_AND_RECEIVER: `SELECT * FROM report WHERE senderId = ? AND receiverId = ?`,
 

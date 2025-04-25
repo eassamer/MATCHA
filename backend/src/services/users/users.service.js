@@ -55,7 +55,7 @@ function isPasswordStrong(password) {
  * @returns true if the name is valid, false otherwise
  */
 function isNameValid(name) {
-  const nameRegex = /^[a-zA-Z]+$/;
+  const nameRegex = /^[a-zA-Z0-9 ]+$/;
   return nameRegex.test(name);
 }
 
@@ -98,6 +98,12 @@ function isValidLocation(latitude, longitude) {
 
 function isValidRadius(radius) {
   return radius > 0 && radius <= 100;
+}
+
+
+function isValidReason(reason) {
+  const reasonRegex = /^[a-zA-Z0-9 "'()\[\]{}]{10,}$/;
+  return reasonRegex.test(reason);
 }
 
 /**
@@ -265,6 +271,24 @@ async function create(user) {
       imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
     console.error(`${errMessagePrefix}.create: ${error.message}`);
     throw new Error(error.message);
+  }
+}
+
+
+async function updateFameRating(userId) {
+  try {
+    const user = await findById(userId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const queryOutput = await userDao.updateFameRating(userId);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return await findById(userId);
+  } catch (error) {
+    console.error(`${errMessagePrefix}.updateFameRating: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -605,6 +629,50 @@ async function updatePassword(userId, password) {
   }
 }
 
+
+async function reportUser(userId, reportedUserId, reason) {
+  try {
+    if (!reportedUserId || reportedUserId === userId || reportedUserId === "") {
+      throw new Error("Invalid reported user id");
+    }
+    if (!isValidReason(reason)) {
+      throw new Error("Invalid reason");
+    }
+    const user = await findById(reportedUserId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const oldReport = await userDao.getReportBySenderAndReceiver(userId, reportedUserId);
+    if (oldReport.length > 0) {
+      throw new Error("User already reported");
+    }
+    const queryOutput = await userDao.reportUser(userId, reportedUserId, reason);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    await updateFameRating(reportedUserId); 
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    return user;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.reportUser: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("already reported")) {
+      throw new ForbiddenException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
+    if (error.message.includes("reported")) {
+      throw new ServiceUnavailableException(error.message);
+    }
+    throw new ServiceUnavailableException(error.message);
+  }
+}
+
 module.exports = {
   create,
   remove,
@@ -616,6 +684,8 @@ module.exports = {
   getLocationByIP,
   findAll,
   update,
+  updateFameRating,
   updatePassword,
   updateLocation,
+  reportUser,
 };
