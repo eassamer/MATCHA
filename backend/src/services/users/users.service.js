@@ -632,6 +632,9 @@ async function updatePassword(userId, password) {
 
 async function reportUser(userId, reportedUserId, reason) {
   try {
+    if (!reportedUserId || reportedUserId === userId || reportedUserId === "") {
+      throw new Error("Invalid reported user id");
+    }
     if (!isValidReason(reason)) {
       throw new Error("Invalid reason");
     }

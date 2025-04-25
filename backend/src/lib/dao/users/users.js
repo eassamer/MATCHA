@@ -292,8 +292,8 @@ async function update(
   });
 }
 
-async function reportUser(userId, reportedUserId) {
-  const queryInput = [userId, reportedUserId];
+async function reportUser(userId, reportedUserId, reason) {
+  const queryInput = [userId, reportedUserId, reason];
   return new Promise(async (resolve, reject) => {
     (await client).execute(queries.REPORT_USER, queryInput, (err, result) => {
       if (err) {
@@ -322,7 +322,7 @@ async function getReportBySenderAndReceiver(senderId, receiverId) {
   const queryInput = [senderId, receiverId];
   return new Promise(async (resolve, reject) => {
     (await client).execute(
-      queries.GET_REPORT_BY_SENDER_AND_RECEIVER,
+      queries.FIND_REPORT_BY_SENDER_AND_RECEIVER,
       queryInput,
       (err, result) => {
         if (err) {

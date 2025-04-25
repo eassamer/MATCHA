@@ -109,7 +109,7 @@ async function updateLocation(req, res) {
 
 async function reportUser(req, res) {
   try {
-    const user = await userService.reportUser(req.user.id, req.query.id);
+    const user = await userService.reportUser(req.user.id, req.body.id, req.body.reason);
     res.status(200).json(user);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
