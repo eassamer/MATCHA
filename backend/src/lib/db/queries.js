@@ -224,10 +224,10 @@ GROUP BY users.userId
 SELECT l.*, 
        ${userFieldsWithImages}
 FROM likes l
-JOIN users u ON l.senderId = u.userId
+JOIN users ON l.senderId = users.userId
 LEFT JOIN images i ON i.ownerId = l.receiverId
 WHERE l.receiverId = ?
-GROUP BY l.id, u.userId
+GROUP BY l.id, users.userId
 `,
   GET_MATCHES: `SELECT m.*, ${userFieldsWithImages} FROM matches m JOIN users u ON (m.user1Id = u.userId OR m.user2Id = u.userId) WHERE user1Id = ? OR user2Id = ?`,
   FIND_MATCH: `SELECT 

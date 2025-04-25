@@ -45,6 +45,7 @@ CREATE TABLE likes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
+    superLike BOOLEAN DEFAULT false,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );

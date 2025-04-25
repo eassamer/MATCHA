@@ -29,6 +29,14 @@ const locations = [
   { latitude: 30.4278, longitude: -9.5981 }, // Agadir
 ];
 
+const images = [
+  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/496bc330a4eac708befa1f077277df6d/detailed",
+  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/7aa8a7967dd8c6930a7fc61faec5a101/detailed",
+  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/300592c16f6d8006dcefe2254bea76f0/detailed",
+  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/fbba0cef2ab2244c46d1e9dda9821902/detailed",
+  "https://res-console.cloudinary.com/dfc1d7dmn/media_explorer_thumbnails/19c27355edbcd493f1cdacd95f6a6793/detailed"
+,]
+
 function getRandomOffset(cityLat) {
   // Convert 1-10 km to degrees (1 km ≈ 0.009 degrees latitude)
   const maxOffsetKm = 10;
@@ -45,92 +53,80 @@ function getRandomOffset(cityLat) {
   };
 }
 
+async function seedUsers() {
+  const connection = await db;
+  console.log("Inserting dummy users...");
+
+  for (let i = 0; i < 100; i++) {
+    const city = locations[Math.floor(i / 20)]; // Assign 20 users per city
+    const { latOffset, lonOffset } = getRandomOffset(city.latitude);
+
+    const latitude = city.latitude + latOffset;
+    const longitude = city.longitude + lonOffset;
+
+    const hashedPassword = await argon2.hash("password123");
+    const userId = uuidv4();
+    const createdAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const birthdate = new Date(
+      1995 + Math.floor(Math.random() * 10),
+      Math.random() * 12,
+      Math.random() * 28
+    )
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
+    const query = `
+      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      userId,
+      `First${i}`,
+      `Last${i}`,
+      `User${i}`,
+      `user${i}@test.com`,
+      createdAt,
+      longitude,
+      latitude,
+      birthdate,
+      Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
+      Math.floor(Math.random() * 100), // radiusInKm: 0-100km
+      i % 2 === 0 ? "Male" : "Female",
+      "This is a test bio.",
+      true,
+      hashedPassword,
+    ];
+
+    await connection.execute(query, values);
+
+    const query2 = `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`;
+    const startingIndex = Math.floor(Math.random() * images.length);
+    for (let j = 0; j < 3; j++) {
+      const randomImage = images[(startingIndex + j) % images.length];
+      const publicId = uuidv4();
+      await connection.execute(query2, [
+        randomImage,
+        userId,
+        j,
+        publicId,
+      ]);
+    }
+
+    // Insert random images
+
+  }
+}
+
 async function generateDummyUsers() {
   try {
-    const connection = await db;
-    console.log("Inserting dummy users...");
-
-    for (let i = 0; i < 100; i++) {
-      const city = locations[Math.floor(i / 20)]; // Assign 20 users per city
-      const { latOffset, lonOffset } = getRandomOffset(city.latitude);
-
-      const latitude = city.latitude + latOffset;
-      const longitude = city.longitude + lonOffset;
-
-      const hashedPassword = await argon2.hash("password123");
-      const userId = uuidv4();
-      const createdAt = new Date().toISOString().slice(0, 19).replace("T", " ");
-      const birthdate = new Date(
-        1995 + Math.floor(Math.random() * 10),
-        Math.random() * 12,
-        Math.random() * 28
-      )
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ");
-
-      const query = `
-        INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-
-      const values = [
-        userId,
-        `First${i}`,
-        `Last${i}`,
-        `User${i}`,
-        `user${i}@test.com`,
-        createdAt,
-        longitude,
-        latitude,
-        birthdate,
-        Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
-        Math.floor(Math.random() * 100), // radiusInKm: 0-100km
-        i % 2 === 0 ? "Male" : "Female",
-        "This is a test bio.",
-        true,
-        hashedPassword,
-      ];
-
-      await connection.execute(query, values);
-    }
+    console.log("Seeding dummy users...");
+    await seedUsers();
 
     console.log("✅ Dummy users inserted successfully!");
   } catch (error) {
     console.error("❌ Error inserting dummy users:", error);
-  }
-}
-
-// ✅ Fix: Move user insertion into an async function
-async function insertUsers() {
-  try {
-    const connection = await db;
-    for (const user of users) {
-      await connection.query(
-        `INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          user.userId,
-          user.firstName,
-          user.lastName,
-          user.displayName,
-          user.email,
-          user.createdAt,
-          user.longitude,
-          user.latitude,
-          user.birthdate,
-          user.includingRange,
-          user.radiusInKm,
-          user.sex,
-          user.bio,
-          user.emailVerified,
-          user.password,
-        ]
-      );
-    }
-    console.log(`✅ Successfully inserted dummy users.`);
-  } catch (err) {
-    console.error("❌ Error inserting dummy users:", err);
   }
 }
 
