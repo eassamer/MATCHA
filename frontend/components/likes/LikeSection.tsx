@@ -57,7 +57,7 @@ export default function LikesSection() {
         </div>
       </div>
       {profiles.length == 0 && (
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center justify-center h-[90%]">
           <h1 className="text-3xl md:text-4xl text-poppins font-bold text-gray-900">
             No likes yet
           </h1>
@@ -76,6 +76,7 @@ export default function LikesSection() {
               age={calculateAge(profile.birthDate!)}
               image={profile.userImages[0]}
               isSuperLiker={profile.radiusInKm < 10}
+              profiles={profiles}
             />
           ))}
         </div>

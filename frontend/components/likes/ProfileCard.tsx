@@ -1,4 +1,6 @@
 import { addDislike, addLike } from "@/hooks/likes";
+import { profileInfoType, setLikes } from "@/lib/features/likes/likesSlice";
+import { useAppDispatch } from "@/lib/hooks";
 import { Heart } from "iconsax-react";
 import Image from "next/image";
 import { IoClose } from "react-icons/io5";
@@ -9,6 +11,7 @@ interface ProfileCardProps {
   age: number;
   image: string;
   isSuperLiker: boolean;
+  profiles: profileInfoType[];
 }
 
 export default function ProfileCard({
@@ -17,7 +20,9 @@ export default function ProfileCard({
   age,
   image,
   isSuperLiker,
+  profiles,
 }: ProfileCardProps) {
+  const dispatch = useAppDispatch();
   return (
     <div
       className={`rounded-2xl overflow-hidden  ${
@@ -42,6 +47,7 @@ export default function ProfileCard({
         <button
           onClick={async () => {
             addDislike(userId);
+            dispatch(setLikes(profiles.filter((p) => p.userId != userId)));
           }}
           className="p-3 flex justify-center items-center hover:bg-gray-700 transition"
         >
@@ -50,6 +56,7 @@ export default function ProfileCard({
         <button
           onClick={async () => {
             addLike(userId);
+            dispatch(setLikes(profiles.filter((p) => p.userId != userId)));
           }}
           className="p-3 flex justify-center items-center hover:bg-gray-700 transition"
         >
