@@ -2,8 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface UserState {
   bio: string;
-  birthDate: Date;
-  createdAt: Date;
+  birthDate?: Date;
+  createdAt?: Date;
   displayName: string;
   email: string;
   emailVerified: boolean;
@@ -27,8 +27,8 @@ export const initialState: UserState = {
   lastName: "",
   displayName: "",
   bio: "",
-  birthDate: new Date(),
-  createdAt: new Date(),
+  birthDate: undefined,
+  createdAt: undefined,
   includingRange: 0,
   interests: 0,
   latitude: "",

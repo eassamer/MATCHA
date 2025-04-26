@@ -18,12 +18,12 @@ export async function getLikes() {
   }
 }
 
-export async function addLike(receiverId: number) {
+export async function addLike(receiverId: string) {
   try {
     const response = await axios
       .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/relations/likes`,
-        { receiverId },
+        `${process.env.NEXT_PUBLIC_API_URL}/relations/like`,
+        { id: receiverId },
         {
           withCredentials: true,
         }
@@ -40,11 +40,34 @@ export async function addLike(receiverId: number) {
   }
 }
 
-export async function dislike(receiverId: number) {
+export async function addDislike(receiverId: string) {
   try {
     const response = await axios
-      .delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/relations/likes/${receiverId}`,
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/relations/dislike`,
+        { id: receiverId },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        return err;
+      });
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function addSuperLike(receiverId: string) {
+  try {
+    const response = await axios
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/relations/superlike`,
+        { id: receiverId },
         {
           withCredentials: true,
         }

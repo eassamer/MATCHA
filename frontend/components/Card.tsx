@@ -7,6 +7,7 @@ import {
   UserNearByType,
 } from "@/lib/features/users/userNearBySlice";
 import { useAppDispatch } from "@/lib/hooks";
+import { addDislike, addLike, addSuperLike } from "@/hooks/likes";
 
 export function calculateAge(dateOfBirth: Date) {
   const birthDate = new Date(dateOfBirth); // Parse the birthdate
@@ -72,10 +73,15 @@ export const Card = ({
 
   const dragEnd = () => {
     const dragThreshold = 100;
-    if (Math.abs(x.get()) > dragThreshold) {
+    if (x.get() < -dragThreshold) {
       dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
+      addDislike(cards[id].userId);
+    } else if (x.get() > dragThreshold) {
+      dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
+      addLike(cards[id].userId);
     } else if (y.get() < -dragThreshold) {
       dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
+      addSuperLike(cards[id].userId);
     }
   };
 
@@ -107,7 +113,7 @@ export const Card = ({
       </div>
       <div className="z-99 absolute w-full h-[22%] bottom-0 bg-[#00000026] rounded-b-lg flex flex-col items-start justify-center px-4">
         <h1 className="text-[24px] font-bold font-poppins text-white">
-          {cards[id].displayName}, {calculateAge(cards[id].birthDate)}
+          {cards[id].displayName}, {calculateAge(cards[id].birthDate!)}
         </h1>
         <h1 className="text-[14px] font-regular font-poppins text-white">
           Professional whore

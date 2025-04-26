@@ -6,6 +6,7 @@ import { getLikes } from "@/hooks/likes";
 import { profileInfoType } from "@/lib/features/likes/likesSlice";
 import { useAppSelector } from "@/lib/hooks";
 import { calculateAge } from "../Card";
+import { BounceLoader } from "react-spinners";
 
 export default function LikesSection() {
   const [loader, setLoader] = useState(true);
@@ -35,7 +36,7 @@ export default function LikesSection() {
           </div>
         </div>
         <div className="w-full  flex  h-[90%] items-center justify-center">
-          <div className="w-16 h-16 bg-primary rounded-full animate-ping"></div>
+          <BounceLoader color="#C13D88" />
         </div>
       </div>
     );
@@ -70,8 +71,9 @@ export default function LikesSection() {
           {profiles.map((profile) => (
             <ProfileCard
               key={`${profile.displayName}`}
+              userId={profile.userId}
               name={profile.displayName}
-              age={calculateAge(profile.birthDate)}
+              age={calculateAge(profile.birthDate!)}
               image={profile.userImages[0]}
               isSuperLiker={profile.radiusInKm < 10}
             />

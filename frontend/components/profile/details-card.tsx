@@ -36,7 +36,7 @@ export default function DetailsCard({
       <div className="flex flex-col md:flex-wrap md:flex-row md:justify-between md:items-start gap-4 mb-8">
         <ProfileHeader
           name={card.displayName}
-          age={calculateAge(card.birthDate)}
+          age={calculateAge(card.birthDate!)}
           rating={card.fameRating}
           profession="Professional model"
         />
@@ -82,6 +82,7 @@ export default function DetailsCard({
 
       <div className="mt-auto w-full flex items-center justify-center">
         <SwipeButtons
+          card={card}
           setDirection={setDirection}
           setShowDetailsCard={setShowDetailsCard}
         />

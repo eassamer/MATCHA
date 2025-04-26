@@ -6,7 +6,7 @@ export interface UserNearByType {
   firstName: string;
   lastName: string;
   displayName: string;
-  birthDate: Date;
+  birthDate?: Date;
   email: string;
   createdAt: string;
   longitude: number;
@@ -33,7 +33,7 @@ const initialState: UsersNearByState = {
       firstName: "",
       lastName: "",
       displayName: "",
-      birthDate: new Date(),
+      birthDate: undefined,
       email: "",
       createdAt: "",
       longitude: 0,

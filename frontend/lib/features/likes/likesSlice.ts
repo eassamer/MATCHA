@@ -9,7 +9,7 @@ export interface profileInfoType {
   firstName: string;
   lastName: string;
   displayName: string;
-  birthDate: Date;
+  birthDate?: Date;
   email: string;
   createdAt: string;
   longitude: number;
@@ -27,6 +27,7 @@ export interface LikesState {
   profiles: profileInfoType[];
 }
 
+const today = new Date();
 const initialState: LikesState = {
   profiles: [
     {
@@ -38,7 +39,7 @@ const initialState: LikesState = {
       firstName: "",
       lastName: "",
       displayName: "",
-      birthDate: new Date(),
+      birthDate: undefined,
       email: "",
       createdAt: "",
       longitude: 0,
@@ -50,7 +51,7 @@ const initialState: LikesState = {
       emailVerified: 0,
       fameRating: 0,
       userImages: [],
-    },  
+    },
   ],
 };
 

@@ -130,7 +130,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
-app.use(cors({ origin: process.env.FRONTEND_PUBLIC_URL, credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_PUBLIC_URL, credentials: true }, {origin: "https://ipapi.co", credentials: false}));
 //limiting the size of the request body
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));

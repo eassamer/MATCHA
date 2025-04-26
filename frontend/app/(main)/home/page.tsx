@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import FilterButton from "@/components/home/FilterButton";
 import RecentMessages from "@/components/messages/recent-messages";
 import { useAppSelector } from "@/lib/hooks";
+import { BounceLoader } from "react-spinners";
 
 export default function Home() {
   const [direction, setDirection] = useState("");
@@ -65,13 +66,12 @@ export default function Home() {
           )}
           {!showDetailsCard && !loader && (
             <SwipeButtons
+              card={cards[cards.length - 1]}
               setDirection={setDirection}
               setShowDetailsCard={setShowDetailsCard}
             />
           )}
-          {loader && (
-            <div className="w-16 h-16 bg-primary rounded-full animate-ping"></div>
-          )}
+          {loader && <BounceLoader color="#C13D88" />}
         </div>
       </div>
     </div>

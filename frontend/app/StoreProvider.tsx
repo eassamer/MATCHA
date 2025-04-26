@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { makeStore, AppStore } from "../lib/store";
 import { setUser } from "../lib/features/user/userSlice";
@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/lib/hooks";
 import { setLikes } from "@/lib/features/likes/likesSlice";
 import { setUsersNearBy } from "@/lib/features/users/userNearBySlice";
 import { getRelations } from "@/hooks/realtions";
+import { updateLocation } from "@/hooks/users";
 
 export default function StoreProvider({
   children,
@@ -36,6 +37,22 @@ export default function StoreProvider({
     });
     storeRef.current!.dispatch(setUsersNearBy(users));
   }
+
+  async function updateNewLocation(coords: {
+    latitude: number;
+    longitude: number;
+  }) {
+    try {
+      const res = await updateLocation(coords);
+      if (res.data.latitude) {
+        fetchRelations();
+        fetchLikes();
+      }
+      storeRef.current!.dispatch(setUser(res.data));
+    } catch (error) {
+      toast.error("An error occurred" + error);
+    }
+  }
   useEffect(() => {
     const handleLoad = () => {
       const user = localStorage.getItem("user");
@@ -53,8 +70,32 @@ export default function StoreProvider({
           .catch((err) => {
             toast.error("An error occurred" + err.response.data.error);
           });
-        fetchRelations();
-        fetchLikes();
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const coords = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              };
+              updateNewLocation(coords);
+            },
+            async (error) => {
+              // 🧠 If denied or error, fallback to IP-based location
+              try {
+                const ipRes = await axios.get(
+                  "https://geolocation-db.com/json/"
+                );
+                const coords = {
+                  latitude: ipRes.data.latitude,
+                  longitude: ipRes.data.longitude,
+                };
+                updateNewLocation(coords);
+              } catch (err) {
+                console.error("Failed to get location from IP", err);
+              }
+            }
+          );
+        }
       }
     };
 
