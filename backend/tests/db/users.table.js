@@ -14,6 +14,7 @@ class usersTable {
   }
 
   async findByEmail(email) {
+    console.log("findByEmail", email);
     return this.users.find((user) => user.email === email);
   }
 
@@ -23,6 +24,14 @@ class usersTable {
 
   async findByUserName(userName) {
     return this.users.find((user) => user.userName === userName);
+  }
+
+  clear() {
+    this.users = [];
+  }
+
+  destroy() {
+    this.users = [];
   }
 
   async update(

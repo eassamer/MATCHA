@@ -17,6 +17,13 @@ class GlobalDatabase {
     this.messages = [];
   }
 
+  clearUsers() {
+    this.users.destroy();
+    this.users = new usersTable();
+  }
+
+  
+
   
 }
 

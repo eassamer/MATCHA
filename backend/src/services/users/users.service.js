@@ -90,6 +90,9 @@ function isValidInterest(interest) {
 }
 
 function isValidLocation(latitude, longitude) {
+  if (latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180) {
+    return false;
+  }
   const latitudeRegex = /^-?([1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
   const longitudeRegex =
     /^-?((1[0-7]\d|0?\d?\d)(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
@@ -99,7 +102,6 @@ function isValidLocation(latitude, longitude) {
 function isValidRadius(radius) {
   return radius > 0 && radius <= 100;
 }
-
 
 function isValidReason(reason) {
   const reasonRegex = /^[a-zA-Z0-9 "'()\[\]{}]{10,}$/;
@@ -274,7 +276,6 @@ async function create(user) {
   }
 }
 
-
 async function updateFameRating(userId) {
   try {
     const user = await findById(userId);
@@ -403,8 +404,8 @@ async function findAuthUserByEmail(email) {
   } catch (error) {
     console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
     if (error.message.includes("Invalid")) {
-    throw new BadRequestException(error.message);
-  }
+      throw new BadRequestException(error.message);
+    }
     if (error.message.includes("not found")) {
       throw new NotFoundException(error.message);
     }
@@ -412,35 +413,10 @@ async function findAuthUserByEmail(email) {
   }
 }
 
-async function updateLocation(id, longitude, latitude, ip) {
+async function updateLocation(id, longitude, latitude) {
   try {
     if (!isValidLocation(latitude, longitude)) {
       throw new Error("Invalid location");
-    }
-    const response = await fetch("http://ip-api.com/json/" + ip);
-    const data = await response.json();
-    if (data.status === "fail") {
-      const queryOutput = await userDao.updateLastLocation(
-        id,
-        longitude,
-        latitude
-      );
-      if (queryOutput.affectedRows === 0) {
-        throw new Error("User not updated");
-      }
-      return await findById(id);
-    }
-    const distance = getDistanceInKm(latitude, longitude, data.lat, data.lon);
-    if (distance > 100) {
-      const queryOutput = await userDao.updateLastLocation(
-        id,
-        data.lat,
-        data.lon
-      );
-      if (queryOutput.affectedRows === 0) {
-        throw new Error("User not updated");
-      }
-      return await findById(id);
     }
 
     const queryOutput = await userDao.updateLastLocation(
@@ -448,11 +424,11 @@ async function updateLocation(id, longitude, latitude, ip) {
       latitude,
       longitude
     );
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
+
+    if (queryOutput.affectedRows !== 0) {
+      user.longitude = longitude;
+      user.latitude = latitude;
     }
-    user.longitude = longitude;
-    user.latitude = latitude;
     return user;
   } catch (error) {
     console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
@@ -629,7 +605,6 @@ async function updatePassword(userId, password) {
   }
 }
 
-
 async function reportUser(userId, reportedUserId, reason) {
   try {
     if (!reportedUserId || reportedUserId === userId || reportedUserId === "") {
@@ -642,15 +617,22 @@ async function reportUser(userId, reportedUserId, reason) {
     if (!user) {
       throw new Error(`User with Id: ${userId} not found`);
     }
-    const oldReport = await userDao.getReportBySenderAndReceiver(userId, reportedUserId);
+    const oldReport = await userDao.getReportBySenderAndReceiver(
+      userId,
+      reportedUserId
+    );
     if (oldReport.length > 0) {
       throw new Error("User already reported");
     }
-    const queryOutput = await userDao.reportUser(userId, reportedUserId, reason);
+    const queryOutput = await userDao.reportUser(
+      userId,
+      reportedUserId,
+      reason
+    );
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not reported");
     }
-    await updateFameRating(reportedUserId); 
+    await updateFameRating(reportedUserId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not reported");
     }
