@@ -167,7 +167,7 @@ GROUP BY users.userId
       END;
   ;
   `,
-  UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ? WHERE userId = ?`,
+  UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ?, city = ?, region = ?, country = ?  WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,

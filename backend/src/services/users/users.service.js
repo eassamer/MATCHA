@@ -6,6 +6,11 @@ const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
 const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
+const nodeGeo = require("node-geocoder");
+const geocoder = nodeGeo({
+  provider: "google",
+  apiKey: process.env.GOOGLE_GEOCODE_API_KEY,
+});
 const {
   NotFoundException,
   ForbiddenException,
@@ -416,13 +421,24 @@ async function findAuthUserByEmail(email) {
 async function updateLocation(id, longitude, latitude) {
   try {
     if (!isValidLocation(latitude, longitude)) {
-      throw new Error("Invalid location");
+      throw new BadRequestException("Invalid location");
     }
+    const user = await findById(id);
+    const res = await geocoder.reverse({ lat: latitude, lon: longitude });
+    if (res.length === 0) {
+      throw new BadRequestException("Invalid location");
+    }
+    const city = res[0].city || res[0].locality || res[0].name;
+    const region = res[0].administrativeLevels.level1short;
+    const country = res[0].country;
 
     const queryOutput = await userDao.updateLastLocation(
       id,
       latitude,
-      longitude
+      longitude,
+      city,
+      region,
+      country
     );
 
     if (queryOutput.affectedRows !== 0) {
@@ -432,7 +448,7 @@ async function updateLocation(id, longitude, latitude) {
     return user;
   } catch (error) {
     console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
-    throw new ServiceUnavailableException(error.message);
+    throw new BadRequestException(error.message);
   }
 }
 
