@@ -22,11 +22,11 @@ var relationsRouter = require("@routes/relations");
 var app = express();
 
 const locations = [
-  { latitude: 33.5731, longitude: -7.5898 }, // Casablanca
-  { latitude: 34.0209, longitude: -6.8416 }, // Rabat
-  { latitude: 31.6295, longitude: -7.9811 }, // Marrakech
-  { latitude: 35.7595, longitude: -5.83395 }, // Tangier
-  { latitude: 30.4278, longitude: -9.5981 }, // Agadir
+  { latitude: 33.5731, longitude: -7.5898, city: 'Casablanca', region: 'Casablanca-Settat' }, // Casablanca
+  { latitude: 34.0209, longitude: -6.8416, city: 'Rabat', region: 'Rabat-Sale' }, // Rabat
+  { latitude: 31.6295, longitude: -7.9811, city: 'Marrakkech', region: 'Marrakkech-Safi' }, // Marrakech
+  { latitude: 35.7595, longitude: -5.83395, city: 'Tangier', region: 'Tangier-Assilah' }, // Tangier
+  { latitude: 30.4278, longitude: -9.5981, city: 'Agadir', region: 'Souss-Massa' }, // Agadir
 ];
 
 const images = [
