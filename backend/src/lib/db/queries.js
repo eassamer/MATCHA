@@ -188,7 +188,7 @@ GROUP BY users.userId
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
-  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId) VALUES (uuid(), ?, ?, false)`,
+  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId,superLike) VALUES (uuid(), ?, ?, false)`,
   ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
@@ -217,6 +217,11 @@ GROUP BY users.userId
     AND users.latitude IS NOT NULL 
     AND users.longitude IS NOT NULL
     AND d.receiverId IS NULL  -- Exclude disliked users
+    AND d.senderId IS NULL  -- Exclude disliked users
+    AND l.receiverId IS NULL  -- Exclude liked users
+    AND l.senderId IS NULL  -- Exclude liked users
+    AND m.user1Id IS NULL  -- Exclude matched users
+    AND m.user2Id IS NULL  -- Exclude matched users
     GROUP BY users.userId
     HAVING distance <= ?
     ORDER BY distance ASC;
