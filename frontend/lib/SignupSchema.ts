@@ -67,8 +67,7 @@ export const ProfileDetailsSchema: ZodType<ProfileDetails> = z.object({
     .regex(/^[a-zA-Z]+$/, { message: "Name can only contain letters" }),
   displayName: z
     .string()
-    .min(3, { message: "Display name has to be at least three letter long" })
-    .regex(/^[a-zA-Z]+$/, { message: "Display name can only contain letters" }),
+    .min(3, { message: "Display name has to be at least three letter long" }),
   image: z.string().min(100, { message: "image is required" }),
   birthDate: z
     .date()
@@ -106,10 +105,7 @@ export const ProfileDetailsLargeSchema: ZodType<ProfileDetailsLarge> = z.object(
       .regex(/^[a-zA-Z]+$/, { message: "Name can only contain letters" }),
     displayName: z
       .string()
-      .min(3, { message: "Display name has to be at least three letter long" })
-      .regex(/^[a-zA-Z]+$/, {
-        message: "Display name can only contain letters",
-      }),
+      .min(3, { message: "Display name has to be at least three letter long" }),
   }
 );
 

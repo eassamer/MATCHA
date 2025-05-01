@@ -8,13 +8,17 @@ import ProfileAbout from "@/components/profile/profile-about";
 import ProfileInterests from "@/components/profile/profile-interests";
 import ProfileGallery from "@/components/profile/profile-gallery";
 import { SwipeButtons } from "../home/SwipeButtons";
+import { UserNearByType } from "@/lib/features/users/userNearBySlice";
+import { calculateAge } from "../Card";
 
 interface DetailsCardProps {
+  card: UserNearByType;
   setShowDetailsCard: React.Dispatch<React.SetStateAction<boolean>>;
   setDirection: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function DetailsCard({
+  card,
   setShowDetailsCard,
   setDirection,
 }: DetailsCardProps) {
@@ -31,32 +35,46 @@ export default function DetailsCard({
 
       <div className="flex flex-col md:flex-wrap md:flex-row md:justify-between md:items-start gap-4 mb-8">
         <ProfileHeader
-          name="Jessica Parker"
-          age={23}
-          rating={60}
+          name={card.displayName}
+          age={calculateAge(card.birthDate!)}
+          rating={card.fameRating}
           profession="Professional model"
         />
 
-        <ProfileLocation location="Chicago, IL United States" distance="1 km" />
+        <ProfileLocation
+          location="Chicago, IL United States"
+          distance={card.distance.toFixed(0)}
+        />
       </div>
 
       <div className="mb-8">
-        <ProfileAbout description="My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.." />
+        <ProfileAbout bio="My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.." />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 mb-8">
         <div className="lg:w-1/2">
-          <ProfileGallery />
+          <ProfileGallery images={card.userImages} />
         </div>
 
         <div className="lg:w-1/2">
           <ProfileInterests
             interests={[
-              { name: "Travelling", selected: true },
-              { name: "Books", selected: true },
-              { name: "Music", selected: false },
-              { name: "Dancing", selected: false },
-              { name: "Modeling", selected: false },
+              {
+                name: "Cats",
+                selected: true,
+              },
+              {
+                name: "Dogs",
+                selected: false,
+              },
+              {
+                name: "Art",
+                selected: false,
+              },
+              {
+                name: "Music",
+                selected: false,
+              },
             ]}
           />
         </div>
@@ -64,6 +82,7 @@ export default function DetailsCard({
 
       <div className="mt-auto w-full flex items-center justify-center">
         <SwipeButtons
+          card={card}
           setDirection={setDirection}
           setShowDetailsCard={setShowDetailsCard}
         />

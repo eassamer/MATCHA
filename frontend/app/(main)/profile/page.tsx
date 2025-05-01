@@ -1,12 +1,7 @@
-"use client";
 import RecentMessages from "@/components/messages/recent-messages";
-import DetailsCard from "@/components/profile/details-card";
-import EditProfileDialog from "@/components/profile/edit-profile-dialog";
 import ProfileCard from "@/components/profile/profile-card";
-import { useState } from "react";
 
 const Profile = () => {
-  const [showDetailsCard, setShowDetailsCard] = useState(false);
   return (
     <div className="size-full lg:pt-14 pt-0 bg-[#F3F4F8] lg:px-10 px-0 flex flex-col items-start justify-start gap-6">
       <h1 className="hidden lg:block font-poppins text-[34px] font-bold">
