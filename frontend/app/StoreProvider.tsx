@@ -53,6 +53,7 @@ export default function StoreProvider({
       toast.error("An error occurred" + error);
     }
   }
+
   useEffect(() => {
     const handleLoad = () => {
       const user = localStorage.getItem("user");
@@ -70,37 +71,37 @@ export default function StoreProvider({
           .catch((err) => {
             toast.error("An error occurred" + err.response.data.error);
           });
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const coords = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              };
-              updateNewLocation(coords);
-            },
-            async (error) => {
-              // 🧠 If denied or error, fallback to IP-based location
-              try {
-                const ipRes = await axios.get(
-                  "https://geolocation-db.com/json/"
-                );
-                const coords = {
-                  latitude: ipRes.data.latitude,
-                  longitude: ipRes.data.longitude,
-                };
-                updateNewLocation(coords);
-              } catch (err) {
-                console.error("Failed to get location from IP", err);
-              }
-            }
-          );
-        }
       }
     };
 
     if (document.readyState === "complete") {
       handleLoad();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log("Position", position);
+            const coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+            updateNewLocation(coords);
+          },
+          async (error) => {
+            console.log("Error", error);
+            // 🧠 If denied or error, fallback to IP-based location
+            try {
+              const ipRes = await axios.get("https://geolocation-db.com/json/");
+              const coords = {
+                latitude: ipRes.data.latitude,
+                longitude: ipRes.data.longitude,
+              };
+              updateNewLocation(coords);
+            } catch (err) {
+              console.error("Failed to get location from IP", err);
+            }
+          }
+        );
+      }
     } else {
       window.addEventListener("load", handleLoad);
       return () => window.removeEventListener("load", handleLoad);

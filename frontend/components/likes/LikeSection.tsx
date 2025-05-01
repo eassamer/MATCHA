@@ -2,8 +2,6 @@
 import { TbArrowsSort } from "react-icons/tb";
 import ProfileCard from "./ProfileCard";
 import { useEffect, useState } from "react";
-import { getLikes } from "@/hooks/likes";
-import { profileInfoType } from "@/lib/features/likes/likesSlice";
 import { useAppSelector } from "@/lib/hooks";
 import { calculateAge } from "../Card";
 import { BounceLoader } from "react-spinners";

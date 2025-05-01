@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card } from "../Card";
 import { Setting5 } from "iconsax-react";
 import { UserNearByType } from "@/lib/features/users/userNearBySlice";
+import FilterDialogEmpty from "./FilterButtonEmpty";
 
 export const SwipeCard = ({
   cards,
@@ -14,7 +15,6 @@ export const SwipeCard = ({
   setDirection: React.Dispatch<React.SetStateAction<string>>;
   setShowDetailsCard: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-
   return (
     <div className="h-[400px] w-[280px] lg:h-[400px] lg:w-[260px]  xl:h-[450px] xl:w-[300px] grid place-items-center">
       {!cards.length && (
@@ -25,9 +25,7 @@ export const SwipeCard = ({
           <h1 className="font-poppins text-[14.4px] font-regular">
             change filters to see more
           </h1>
-          <button className="font-poppins text-[14.4px] flex items-center justify-center gap-4 font-semibold text-white bg-primary py-3 px-7 rounded-full">
-            Filters <Setting5 size="24" color="white" variant="Bold" />
-          </button>
+          <FilterDialogEmpty />
         </div>
       )}
       {cards.length > 0 &&

@@ -10,6 +10,7 @@ import MyInterests from "./my-interests";
 import { useAppSelector } from "@/lib/hooks";
 import { initialState } from "@/lib/features/user/userSlice";
 import { InterestsHandler } from "@/lib/InterestsHandler";
+import { BounceLoader } from "react-spinners";
 
 export interface profileInfoType {
   name: string;
@@ -57,10 +58,11 @@ export default function ProfileCard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center  w-full h-full ">
-        <h1 className="text-black text-3xl font-bold">Loading</h1>
+        <BounceLoader color="#C13D88" />
       </div>
     );
   }
+  
   return (
     <div className="flex relative flex-col w-full h-full lg:flex-grow overflow-y-auto bg-white px-6 py-4 md:p-8 lg:p-7">
       <div className="absolute top-6 right-6 z-[10]">
