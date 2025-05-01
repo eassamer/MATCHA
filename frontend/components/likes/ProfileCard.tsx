@@ -1,20 +1,28 @@
+import { addDislike, addLike } from "@/hooks/likes";
+import { profileInfoType, setLikes } from "@/lib/features/likes/likesSlice";
+import { useAppDispatch } from "@/lib/hooks";
 import { Heart } from "iconsax-react";
 import Image from "next/image";
 import { IoClose } from "react-icons/io5";
 
 interface ProfileCardProps {
+  userId: string;
   name: string;
   age: number;
   image: string;
   isSuperLiker: boolean;
+  profiles: profileInfoType[];
 }
 
 export default function ProfileCard({
+  userId,
   name,
   age,
   image,
   isSuperLiker,
+  profiles,
 }: ProfileCardProps) {
+  const dispatch = useAppDispatch();
   return (
     <div
       className={`rounded-2xl overflow-hidden  ${
@@ -36,10 +44,22 @@ export default function ProfileCard({
         </div>
       </div>
       <div className="grid grid-cols-2 bg-gray-800">
-        <button className="p-3 flex justify-center items-center hover:bg-gray-700 transition">
+        <button
+          onClick={async () => {
+            addDislike(userId);
+            dispatch(setLikes(profiles.filter((p) => p.userId != userId)));
+          }}
+          className="p-3 flex justify-center items-center hover:bg-gray-700 transition"
+        >
           <IoClose size={24} className=" text-white" />
         </button>
-        <button className="p-3 flex justify-center items-center hover:bg-gray-700 transition">
+        <button
+          onClick={async () => {
+            addLike(userId);
+            dispatch(setLikes(profiles.filter((p) => p.userId != userId)));
+          }}
+          className="p-3 flex justify-center items-center hover:bg-gray-700 transition"
+        >
           <Heart variant="Bold" size={24} className="  text-white" />
         </button>
       </div>

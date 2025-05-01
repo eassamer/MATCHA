@@ -1,10 +1,16 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import { makeStore, AppStore } from "../lib/store";
 import { setUser } from "../lib/features/user/userSlice";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { getLikes } from "@/hooks/likes";
+import { useAppDispatch } from "@/lib/hooks";
+import { setLikes } from "@/lib/features/likes/likesSlice";
+import { setUsersNearBy } from "@/lib/features/users/userNearBySlice";
+import { getRelations } from "@/hooks/realtions";
+import { updateLocation } from "@/hooks/users";
 
 export default function StoreProvider({
   children,
@@ -12,9 +18,40 @@ export default function StoreProvider({
   children: React.ReactNode;
 }) {
   const storeRef = useRef<AppStore | null>(null);
-
   if (!storeRef.current) {
     storeRef.current = makeStore();
+  }
+  async function fetchLikes() {
+    const res = await getLikes();
+    storeRef.current!.dispatch(setLikes(res.data));
+  }
+  async function fetchRelations() {
+    const res = await getRelations();
+    // add id to each res.data + res.data
+    let id = 0;
+    const users = res.data.map((user: any) => {
+      return {
+        ...user,
+        id: id++,
+      };
+    });
+    storeRef.current!.dispatch(setUsersNearBy(users));
+  }
+
+  async function updateNewLocation(coords: {
+    latitude: number;
+    longitude: number;
+  }) {
+    try {
+      const res = await updateLocation(coords);
+      if (res.data.latitude) {
+        fetchRelations();
+        fetchLikes();
+      }
+      storeRef.current!.dispatch(setUser(res.data));
+    } catch (error) {
+      toast.error("An error occurred" + error);
+    }
   }
 
   useEffect(() => {
@@ -39,6 +76,32 @@ export default function StoreProvider({
 
     if (document.readyState === "complete") {
       handleLoad();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log("Position", position);
+            const coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+            updateNewLocation(coords);
+          },
+          async (error) => {
+            console.log("Error", error);
+            // 🧠 If denied or error, fallback to IP-based location
+            try {
+              const ipRes = await axios.get("https://geolocation-db.com/json/");
+              const coords = {
+                latitude: ipRes.data.latitude,
+                longitude: ipRes.data.longitude,
+              };
+              updateNewLocation(coords);
+            } catch (err) {
+              console.error("Failed to get location from IP", err);
+            }
+          }
+        );
+      }
     } else {
       window.addEventListener("load", handleLoad);
       return () => window.removeEventListener("load", handleLoad);

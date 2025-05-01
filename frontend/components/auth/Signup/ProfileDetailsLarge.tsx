@@ -44,7 +44,7 @@ const ProfileDetailsLarge = () => {
             alt="avatar"
             width={60}
             height={60}
-            className="rounded-[25px] bg-cover size-[60px]"
+            className="rounded-[25px] bg-cover object-cover size-[60px]"
           />
           <button
             className="absolute bottom-0 right-0 bg-primary border-white border-2 rounded-full h-[30px] w-[30px] flex justify-center items-center"

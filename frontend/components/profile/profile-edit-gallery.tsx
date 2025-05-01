@@ -10,13 +10,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { profileInfoType } from "./profile-card";
 
-export default function ProfileEditGallery() {
-  const [images, setImages] = useState<string[]>([
-    "/User1.svg",
-    "/User2.svg",
-    "/User3.svg",
-  ]);
+export default function ProfileEditGallery({
+  profileInfo,
+  setProfileInfo,
+}: {
+  profileInfo: profileInfoType;
+  setProfileInfo: React.Dispatch<React.SetStateAction<profileInfoType>>;
+}) {
+  const [images, setImages] = useState<string[]>(profileInfo.images);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
@@ -46,6 +49,10 @@ export default function ProfileEditGallery() {
         } else {
           // If we're adding a new image
           setImages([...images, imageUrl]);
+          setProfileInfo({
+            ...profileInfo,
+            images: [...images, imageUrl],
+          });
         }
 
         setIsDialogOpen(false);
@@ -58,6 +65,10 @@ export default function ProfileEditGallery() {
     // Remove the image at the specified index and shift all subsequent images
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
+    setProfileInfo({
+      ...profileInfo,
+      images: newImages,
+    });
     setIsDialogOpen(false);
   };
 
