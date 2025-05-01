@@ -19,6 +19,7 @@ async function create(user) {
     user.email,
     user.password,
     user.sex,
+    user.orientation,
     user.interests,
     new Date(),
   ];
@@ -113,8 +114,8 @@ async function remove(userId) {
  * @returns {Promise} a promise that resolves to an object containing the affected rows
  * @throws {Error} if the database query fails
  */
-async function updateLastLocation(userId, longitude, latitude) {
-  const queryInput = [longitude, latitude, userId];
+async function updateLastLocation(userId, longitude, latitude, city, region, country) {
+  const queryInput = [longitude, latitude, city, region, country, userId];
   console.log("Updating last location ", queryInput);
   return new Promise(async (resolve, reject) => {
     (await client).execute(
@@ -266,6 +267,7 @@ async function update(
   radiusInKm,
   interests,
   sex,
+  orientation,
   bio
 ) {
   const queryInput = [
@@ -278,6 +280,7 @@ async function update(
     radiusInKm || 100,
     interests || 0,
     sex,
+    orientation,
     bio || "",
     userId,
   ];

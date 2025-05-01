@@ -1,7 +1,7 @@
 const userFields =
   "users.userId, users.firstName, users.lastName, users.displayName,\
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
-users.interests, users.sex, users.bio, users.emailVerified, users.fameRating";
+users.interests, users.sex, users.orientation, users.bio, users.emailVerified, users.fameRating";
 
 const userFieldsWithImages = `${userFields}, (
   SELECT JSON_ARRAYAGG(locationUrl)
@@ -23,6 +23,7 @@ const joinLikes = `(
       'longitude', lu.longitude,
       'latitude', lu.latitude,
       'sex', lu.sex,
+      'orientation', lu.orientation,
       'likeId', l.id,
       'userImages', (
         SELECT JSON_ARRAYAGG(locationUrl)
@@ -50,6 +51,7 @@ const joinLikedBy = `(
       'longitude', lu.longitude,
       'latitude', lu.latitude,
       'sex', lu.sex,
+      'orientation', lu.orientation,
       'likeId', l.id,
       'userImages', (
         SELECT JSON_ARRAYAGG(locationUrl)
@@ -77,6 +79,7 @@ const joinMatches = `(
       'longitude', mu.longitude,
       'latitude', mu.latitude,
       'sex', mu.sex,
+      'orientation', mu.orientation,
       'matchId', m.id,
       'userImages', (
         SELECT JSON_ARRAYAGG(locationUrl)
@@ -95,7 +98,7 @@ const queries = {
   USE_DB: "USE ?",
   // user queries
   ADD_NEW_USER:
-    "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, interests, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO users (userId, firstName, lastName, displayName, birthDate, email, password, sex, orientation, interests, createdAt) VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
   FIND_USERS_BY_FIRSTNAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE firstName = ? GROUP BY users.userId`,
   FIND_USERS_BY_LASTNAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE lastName = ? GROUP BY users.userId`,
   FIND_USER_BY_ID: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE userId = ? GROUP BY users.userId`,
@@ -143,7 +146,7 @@ GROUP BY users.userId
   GET_REPORTS: `SELECT * FROM report WHERE receiverId = ?`,
   FIND_REPORT_BY_SENDER_AND_RECEIVER: `SELECT * FROM report WHERE senderId = ? AND receiverId = ?`,
 
-  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, bio = ? WHERE userId = ?`,
+  UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, orientation = ?, bio = ? WHERE userId = ?`,
   UPDATE_FAME_RATING: `UPDATE users u
   JOIN (
       SELECT 
@@ -167,7 +170,7 @@ GROUP BY users.userId
       END;
   ;
   `,
-  UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ? WHERE userId = ?`,
+  UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ?, city = ?, region = ?, country = ?  WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   FIND_OAUTH_USER_BY_EMAIL: `SELECT * FROM oauthUsers WHERE email = ?`,
@@ -188,8 +191,7 @@ GROUP BY users.userId
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
-  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, false)`,
-  ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true, false)`,
+  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId,superLike) VALUES (uuid(), ?, ?, false)`,
   ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
@@ -215,9 +217,16 @@ GROUP BY users.userId
     LEFT JOIN likes l ON l.receiverId = users.userId AND l.senderId = ?
     LEFT JOIN matches m ON (m.user1Id = users.userId OR m.user2Id = users.userId) AND (m.user1Id = ? OR m.user2Id = ?)
     WHERE users.userId != ?
+    AND JSON_CONTAINS(users.orientation, JSON_QUOTE(?)) -- they interested  in your gender
+    AND JSON_CONTAINS(?, JSON_QUOTE(users.sex)) -- you are interested in their gender
     AND users.latitude IS NOT NULL 
     AND users.longitude IS NOT NULL
     AND d.receiverId IS NULL  -- Exclude disliked users
+    AND d.senderId IS NULL  -- Exclude disliked users
+    AND l.receiverId IS NULL  -- Exclude liked users
+    AND l.senderId IS NULL  -- Exclude liked users
+    AND m.user1Id IS NULL  -- Exclude matched users
+    AND m.user2Id IS NULL  -- Exclude matched users
     GROUP BY users.userId
     HAVING distance <= ?
     ORDER BY distance ASC;
@@ -249,6 +258,7 @@ GROUP BY l.id, users.userId
       'longitude', mu.longitude,
       'latitude', mu.latitude,
       'sex', mu.sex,
+      'orientation', mu.orientation,
       'userImages', (
         SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
         FROM images mui

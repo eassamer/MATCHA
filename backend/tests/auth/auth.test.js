@@ -1,9 +1,32 @@
-const { test, expect } = require("@jest/globals");
+const { test, expect, beforeAll, afterAll, jest } = require("@jest/globals");
 const GlobalDatabase = require("../db/global.database");
+const { beforeEach } = require("node:test");
 
-const DAO = new GlobalDatabase();
 
-let userDao = DAO.users;
+var DAO;
+const userDao = jest.createMockFromModule("userDao");
+
+
+beforeAll(() => {
+  console.log("Starting global database tests...");
+  DAO = new GlobalDatabase();
+  userDao.
+});
+
+afterAll(() => {
+  console.log("Cleaning up global database...");
+  DAO = null;
+  userDao = null;
+});
+
+beforeEach(() => {
+  console.log("Cleaning up users...");
+  DAO.clearUsers();
+});
+
+test("mock register", )
+
+
 
 test("mock user", async () => {
   const user = await userDao.create({
@@ -20,5 +43,4 @@ test("mock user", async () => {
 test("test global database", () => {
   expect(DAO).toBeDefined();
   expect(DAO.users).toBeDefined();
-
 });

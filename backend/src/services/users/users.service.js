@@ -6,6 +6,11 @@ const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
 const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
+const nodeGeo = require("node-geocoder");
+const geocoder = nodeGeo({
+  provider: "google",
+  apiKey: process.env.GOOGLE_GEOCODE_API_KEY,
+});
 const {
   NotFoundException,
   ForbiddenException,
@@ -90,6 +95,9 @@ function isValidInterest(interest) {
 }
 
 function isValidLocation(latitude, longitude) {
+  if (latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180) {
+    return false;
+  }
   const latitudeRegex = /^-?([1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
   const longitudeRegex =
     /^-?((1[0-7]\d|0?\d?\d)(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
@@ -100,10 +108,29 @@ function isValidRadius(radius) {
   return radius > 0 && radius <= 100;
 }
 
-
 function isValidReason(reason) {
   const reasonRegex = /^[a-zA-Z0-9 "'()\[\]{}]{10,}$/;
   return reasonRegex.test(reason);
+}
+
+function verifyOrientation(orientation) {
+  const validGenders = new Set(["male", "female", "other"]);
+
+  if (!Array.isArray(orientation)) {
+    return false;
+  }
+
+  if (orientation.length === 0 || orientation.length > 3) {
+    return false;
+  }
+
+  for (const gender of orientation) {
+    if (!validGenders.has(gender)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -123,6 +150,7 @@ function validateUser(user) {
     "password",
     "img",
     "sex",
+    "orientation",
   ];
 
   for (const field of requiredFields) {
@@ -217,6 +245,11 @@ function validateUserUpdate(user) {
     throw new Error(`Invalid sex`);
   }
 
+
+  if (!verifyOrientation(user.orientation)) {
+    throw new Error(`Invalid orientation`);
+  }
+
   if (!isValidLocation(user.latitude, user.longitude)) {
     throw new Error(`Invalid location`);
   }
@@ -273,7 +306,6 @@ async function create(user) {
     throw new Error(error.message);
   }
 }
-
 
 async function updateFameRating(userId) {
   try {
@@ -403,8 +435,8 @@ async function findAuthUserByEmail(email) {
   } catch (error) {
     console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
     if (error.message.includes("Invalid")) {
-    throw new BadRequestException(error.message);
-  }
+      throw new BadRequestException(error.message);
+    }
     if (error.message.includes("not found")) {
       throw new NotFoundException(error.message);
     }
@@ -412,51 +444,37 @@ async function findAuthUserByEmail(email) {
   }
 }
 
-async function updateLocation(id, longitude, latitude, ip) {
+async function updateLocation(id, longitude, latitude) {
   try {
     if (!isValidLocation(latitude, longitude)) {
-      throw new Error("Invalid location");
+      throw new BadRequestException("Invalid location");
     }
-    const response = await fetch("http://ip-api.com/json/" + ip);
-    const data = await response.json();
-    if (data.status === "fail") {
-      const queryOutput = await userDao.updateLastLocation(
-        id,
-        longitude,
-        latitude
-      );
-      if (queryOutput.affectedRows === 0) {
-        throw new Error("User not updated");
-      }
-      return await findById(id);
+    const user = await findById(id);
+    const res = await geocoder.reverse({ lat: latitude, lon: longitude });
+    if (res.length === 0) {
+      throw new BadRequestException("Invalid location");
     }
-    const distance = getDistanceInKm(latitude, longitude, data.lat, data.lon);
-    if (distance > 100) {
-      const queryOutput = await userDao.updateLastLocation(
-        id,
-        data.lat,
-        data.lon
-      );
-      if (queryOutput.affectedRows === 0) {
-        throw new Error("User not updated");
-      }
-      return await findById(id);
-    }
+    const city = res[0].city || res[0].locality || res[0].name;
+    const region = res[0].administrativeLevels.level1short;
+    const country = res[0].country;
 
     const queryOutput = await userDao.updateLastLocation(
       id,
       latitude,
-      longitude
+      longitude,
+      city,
+      region,
+      country
     );
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
+
+    if (queryOutput.affectedRows !== 0) {
+      user.longitude = longitude;
+      user.latitude = latitude;
     }
-    user.longitude = longitude;
-    user.latitude = latitude;
     return user;
   } catch (error) {
     console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
-    throw new ServiceUnavailableException(error.message);
+    throw new BadRequestException(error.message);
   }
 }
 
@@ -562,6 +580,7 @@ async function update(userId, user) {
       radiusInKm,
       interests,
       sex,
+      orientation,
       bio,
     } = user;
     const emailExists = await userDao.findByEmail(email);
@@ -580,6 +599,7 @@ async function update(userId, user) {
       radiusInKm,
       interests,
       sex,
+      orientation,
       bio
     );
     if (result.affectedRows === 0) {
@@ -629,7 +649,6 @@ async function updatePassword(userId, password) {
   }
 }
 
-
 async function reportUser(userId, reportedUserId, reason) {
   try {
     if (!reportedUserId || reportedUserId === userId || reportedUserId === "") {
@@ -642,15 +661,22 @@ async function reportUser(userId, reportedUserId, reason) {
     if (!user) {
       throw new Error(`User with Id: ${userId} not found`);
     }
-    const oldReport = await userDao.getReportBySenderAndReceiver(userId, reportedUserId);
+    const oldReport = await userDao.getReportBySenderAndReceiver(
+      userId,
+      reportedUserId
+    );
     if (oldReport.length > 0) {
       throw new Error("User already reported");
     }
-    const queryOutput = await userDao.reportUser(userId, reportedUserId, reason);
+    const queryOutput = await userDao.reportUser(
+      userId,
+      reportedUserId,
+      reason
+    );
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not reported");
     }
-    await updateFameRating(reportedUserId); 
+    await updateFameRating(reportedUserId);
     if (queryOutput.affectedRows === 0) {
       throw new Error("User not reported");
     }

@@ -1,6 +1,7 @@
 // Description: User controller for handling user requests
 
 // TODO: add a better error handling mechanism to send the error code and message
+const { BadRequestException } = require("@lib/utils/exceptions");
 const userService = require("@services/users/users.service");
 
 /**
@@ -99,8 +100,23 @@ async function updatePassword(req, res) {
 
 async function updateLocation(req, res) {
   try {
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress.split(":")[3];
-    const user = await userService.updateLocation(req.user.id, req.body.longitude, req.body.latitude, ip);
+    if (
+      !req.body.longitude ||
+      !req.body.latitude ||
+      req.body.longitude === "" ||
+      req.body.latitude === "" ||
+      typeof req.body.longitude !== "number" ||
+      typeof req.body.latitude !== "number"
+    ) {
+      throw new BadRequestException(
+        "Longitude and latitude are required and should be numbers"
+      );
+    }
+    const user = await userService.updateLocation(
+      req.user.id,
+      req.body.longitude,
+      req.body.latitude
+    );
     res.status(200).json(user);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
@@ -109,7 +125,11 @@ async function updateLocation(req, res) {
 
 async function reportUser(req, res) {
   try {
-    const user = await userService.reportUser(req.user.id, req.body.id, req.body.reason);
+    const user = await userService.reportUser(
+      req.user.id,
+      req.body.id,
+      req.body.reason
+    );
     res.status(200).json(user);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });

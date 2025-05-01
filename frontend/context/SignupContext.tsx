@@ -10,6 +10,7 @@ interface SignupState {
   birthDate: Date;
   image: string;
   gender: string;
+  orientation: string[];
   interests: string[];
 }
 
@@ -23,6 +24,7 @@ type SignupAction =
   | { type: "SET_BIRTHDATE"; payload: Date }
   | { type: "SET_IMAGE"; payload: string }
   | { type: "SET_GENDER"; payload: string }
+  | { type: "SET_ORIENTATION"; payload: string[] }
   | { type: "SET_INTERESTS"; payload: string[] };
 
 const initialState: SignupState = {
@@ -35,6 +37,7 @@ const initialState: SignupState = {
   birthDate: new Date("2000-01-01"),
   image: "",
   gender: "",
+  orientation: [],
   interests: [],
 };
 
@@ -55,12 +58,14 @@ const signupReducer = (
       return { ...state, lastName: action.payload };
     case "SET_DISPLAY_NAME":
       return { ...state, displayName: action.payload };
-	case "SET_BIRTHDATE":
-		return { ...state, birthDate: action.payload };
+    case "SET_BIRTHDATE":
+      return { ...state, birthDate: action.payload };
     case "SET_IMAGE":
       return { ...state, image: action.payload };
     case "SET_GENDER":
       return { ...state, gender: action.payload };
+    case "SET_ORIENTATION":
+      return { ...state, orientation: action.payload };
     case "SET_INTERESTS":
       return { ...state, interests: action.payload };
     default:

@@ -77,8 +77,15 @@ async function seedUsers() {
       .slice(0, 19)
       .replace("T", " ");
 
+    const orientations = ["male", "female", "bisexual"];
+
+
+    
+
+
+
     const query = `
-      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
+      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, orientation, bio, emailVerified, password)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
@@ -94,7 +101,8 @@ async function seedUsers() {
       birthdate,
       Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
       Math.floor(Math.random() * 100), // radiusInKm: 0-100km
-      i % 2 === 0 ? "Male" : "Female",
+      i % 2 === 0 ? "male" : "female",
+      
       "This is a test bio.",
       true,
       hashedPassword,
