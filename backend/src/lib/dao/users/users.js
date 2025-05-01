@@ -19,6 +19,7 @@ async function create(user) {
     user.email,
     user.password,
     user.sex,
+    user.orientation,
     user.interests,
     new Date(),
   ];
@@ -266,6 +267,7 @@ async function update(
   radiusInKm,
   interests,
   sex,
+  orientation,
   bio
 ) {
   const queryInput = [
@@ -278,6 +280,7 @@ async function update(
     radiusInKm || 100,
     interests || 0,
     sex,
+    orientation,
     bio || "",
     userId,
   ];

@@ -113,6 +113,26 @@ function isValidReason(reason) {
   return reasonRegex.test(reason);
 }
 
+function verifyOrientation(orientation) {
+  const validGenders = new Set(["male", "female", "other"]);
+
+  if (!Array.isArray(orientation)) {
+    return false;
+  }
+
+  if (orientation.length === 0 || orientation.length > 3) {
+    return false;
+  }
+
+  for (const gender of orientation) {
+    if (!validGenders.has(gender)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * @description validates a user object
  * @param {*} user the user object to validate
@@ -130,6 +150,7 @@ function validateUser(user) {
     "password",
     "img",
     "sex",
+    "orientation",
   ];
 
   for (const field of requiredFields) {
@@ -222,6 +243,11 @@ function validateUserUpdate(user) {
 
   if (!isValidSex(user.sex)) {
     throw new Error(`Invalid sex`);
+  }
+
+
+  if (!verifyOrientation(user.orientation)) {
+    throw new Error(`Invalid orientation`);
   }
 
   if (!isValidLocation(user.latitude, user.longitude)) {
@@ -554,6 +580,7 @@ async function update(userId, user) {
       radiusInKm,
       interests,
       sex,
+      orientation,
       bio,
     } = user;
     const emailExists = await userDao.findByEmail(email);
@@ -572,6 +599,7 @@ async function update(userId, user) {
       radiusInKm,
       interests,
       sex,
+      orientation,
       bio
     );
     if (result.affectedRows === 0) {

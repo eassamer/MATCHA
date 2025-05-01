@@ -23,6 +23,7 @@ async function verifyPassword(password, hash) {
   return await argon2.verify(hash, password);
 }
 
+
 /**
  * Generates a JSON Web Token (JWT) for a given user.
  *

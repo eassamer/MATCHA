@@ -20,6 +20,7 @@ CREATE TABLE users (
     radiusInKm INT default 100,
     interests INT, -- each interest is 1 shifted by a corresponding interest
     sex VARCHAR(10) NOT NULL,
+    orientation JSON NOT NULL,
     bio TEXT,
     fameRating INT default 50,
     emailVerified BOOLEAN default false,

@@ -76,8 +76,15 @@ async function seedUsers() {
       .slice(0, 19)
       .replace("T", " ");
 
+    const orientations = ["male", "female", "bisexual"];
+
+
+    
+
+
+
     const query = `
-      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
+      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, orientation, bio, emailVerified, password)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 

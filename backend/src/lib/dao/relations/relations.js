@@ -11,7 +11,7 @@ const errMessagePrefix = "RelationDao: "; //for better debugging
  * @returns {Promise<Array>} A promise that resolves to an array of user objects
  * @throws Will throw an error if the database query fails or if the user location is not found
  */
-async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
+async function getNearbyUsers(userId, userLat, userLon, radiusInKm, sex, orientation) {
   try {
     if (!userLat || !userLon) {
       throw new Error("User location not found");
@@ -26,6 +26,8 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
       userId,
       userId,
       userId,
+      sex,
+      orientation,
       radiusInKm,
     ];
     return new Promise(async (resolve, reject) => {
