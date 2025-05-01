@@ -19,7 +19,7 @@ const customColors = {
   radius: "11px",
 };
 
-type NotificationType = "view" | "like" | "dislike";
+type NotificationType = "view" | "like" | "unlike";
 
 interface Notification {
   id: string;
@@ -43,7 +43,7 @@ export default function NotificationButton() {
     },
     {
       id: "2",
-      type: "dislike",
+      type: "unlike",
       username: "alex_design",
       time: "1 hour ago",
       read: false,
@@ -78,7 +78,7 @@ export default function NotificationButton() {
     },
     {
       id: "7",
-      type: "dislike",
+      type: "unlike",
       username: "emma_dev",
       time: "Yesterday",
       read: true,
@@ -104,7 +104,7 @@ export default function NotificationButton() {
   return (
     <div
       className={`${
-        pathname === "/likes" || pathname.startsWith("/messages/")
+        pathname === "/likes" || pathname === "/profile" || pathname.startsWith("/messages/")
           ? "hidden lg:block"
           : ""
       } fixed z-10 top-6 right-6`}
@@ -181,7 +181,7 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
         return "👁️";
       case "like":
         return "❤️";
-      case "dislike":
+      case "unlike":
         return "👎";
       default:
         return "📣";
@@ -191,11 +191,11 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
   const getMessage = () => {
     switch (type) {
       case "view":
-        return `${username} has viewed your profile`;
+        return ` has viewed your profile`;
       case "like":
-        return `${username} has liked you`;
-      case "dislike":
-        return `${username} has disliked you`;
+        return ` has liked you`;
+      case "unlike":
+        return ` has unliked you`;
       default:
         return "New notification";
     }
@@ -217,7 +217,10 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
           <span className="text-lg">{getIcon()}</span>
         </div>
         <div className="grid gap-1">
-          <p className="text-sm font-medium leading-none">{getMessage()}</p>
+          <p className="text-sm font-medium leading-none">
+            <span className="font-black">{username}</span>
+            {getMessage()}
+          </p>
           <p className="text-xs text-muted-foreground">{time}</p>
         </div>
         {!read && (

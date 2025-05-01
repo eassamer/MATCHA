@@ -4,16 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import ImageLightbox from "./image-lightbox";
 
-export default function ProfileGallery() {
-  // Sample gallery images - replace with your actual images
-  const images = [
-    "/User1.svg",
-    "/User2.svg",
-    "/User3.svg",
-    "/User4.svg",
-    "/User5.svg",
-  ];
-
+export default function ProfileGallery({ images }: { images: string[] }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -79,55 +70,62 @@ export default function ProfileGallery() {
             className="w-full h-full object-cover aspect-[3/4]"
           />
         </div>
-        <div
-          className="relative rounded-lg overflow-hidden cursor-pointer"
-          onClick={() => openLightbox(1)}
-        >
-          <Image
-            src={images[1] || "/placeholder.svg"}
-            alt="Gallery image 2"
-            width={300}
-            height={400}
-            className="w-full h-full object-cover aspect-[3/4]"
-          />
-        </div>
-
-        <div
-          className="relative rounded-lg overflow-hidden cursor-pointer"
-          onClick={() => openLightbox(2)}
-        >
-          <Image
-            src={images[2] || "/placeholder.svg"}
-            alt="Gallery image 3"
-            width={300}
-            height={300}
-            className="w-full h-full object-cover aspect-square"
-          />
-        </div>
-        <div
-          className="relative rounded-lg overflow-hidden cursor-pointer"
-          onClick={() => openLightbox(3)}
-        >
-          <Image
-            src={images[3] || "/placeholder.svg"}
-            alt="Gallery image 4"
-            width={300}
-            height={300}
-            className="w-full h-full object-cover aspect-square"
-          />
-        </div>
-        <div
-          className="relative rounded-lg overflow-hidden cursor-pointer"
-          onClick={() => openLightbox(4)}
-        >
-          <Image
-            src={images[4] || "/placeholder.svg"}
-            alt="Gallery image 5"
-            width={300}
-            height={300}
-            className="w-full h-full object-cover aspect-square"
-          />
-        </div>
+        {images[1] && (
+          <div
+            className="relative rounded-lg overflow-hidden cursor-pointer"
+            onClick={() => openLightbox(1)}
+          >
+            <Image
+              src={images[1] || "/placeholder.svg"}
+              alt="Gallery image 2"
+              width={300}
+              height={400}
+              className="w-full h-full object-cover aspect-[3/4]"
+            />
+          </div>
+        )}
+        {images[2] && (
+          <div
+            className="relative rounded-lg overflow-hidden cursor-pointer"
+            onClick={() => openLightbox(2)}
+          >
+            <Image
+              src={images[2] || "/placeholder.svg"}
+              alt="Gallery image 3"
+              width={300}
+              height={300}
+              className="w-full h-full object-cover aspect-square"
+            />
+          </div>
+        )}
+        {images[3] && (
+          <div
+            className="relative rounded-lg overflow-hidden cursor-pointer"
+            onClick={() => openLightbox(3)}
+          >
+            <Image
+              src={images[3] || "/placeholder.svg"}
+              alt="Gallery image 4"
+              width={300}
+              height={300}
+              className="w-full h-full object-cover aspect-square"
+            />
+          </div>
+        )}
+        {images[4] && (
+          <div
+            className="relative rounded-lg overflow-hidden cursor-pointer"
+            onClick={() => openLightbox(4)}
+          >
+            <Image
+              src={images[4] || "/placeholder.svg"}
+              alt="Gallery image 5"
+              width={300}
+              height={300}
+              className="w-full h-full object-cover aspect-square"
+            />
+          </div>
+        )}
       </div>
 
       {lightboxOpen && (

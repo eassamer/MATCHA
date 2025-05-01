@@ -22,95 +22,106 @@ var relationsRouter = require("@routes/relations");
 var app = express();
 
 const locations = [
-  { latitude: 33.5731, longitude: -7.5898 }, // Casablanca
-  { latitude: 34.0209, longitude: -6.8416 }, // Rabat
-  { latitude: 31.6295, longitude: -7.9811 }, // Marrakech
-  { latitude: 35.7595, longitude: -5.83395 }, // Tangier
-  { latitude: 30.4278, longitude: -9.5981 }, // Agadir
+  { latitude: 33.5731, longitude: -7.5898, city: 'Casablanca', region: 'Casablanca-Settat' }, // Casablanca
+  { latitude: 34.0209, longitude: -6.8416, city: 'Rabat', region: 'Rabat-Sale' }, // Rabat
+  { latitude: 31.6295, longitude: -7.9811, city: 'Marrakkech', region: 'Marrakkech-Safi' }, // Marrakech
+  { latitude: 35.7595, longitude: -5.83395, city: 'Tangier', region: 'Tangier-Assilah' }, // Tangier
+  { latitude: 30.4278, longitude: -9.5981, city: 'Agadir', region: 'Souss-Massa' }, // Agadir
 ];
+
+const images = [
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411030/samples/animals/cat.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411031/samples/people/kitchen-bar.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411033/samples/people/smiling-man.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411035/samples/people/boy-snow-hoodie.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411036/samples/people/jazz.jpg",
+  "https://res.cloudinary.com/dfc1d7dmn/image/upload/v1703411038/samples/people/bicycle.jpg",
+];
+
+function getRandomOffset(cityLat) {
+  // Convert 1-10 km to degrees (1 km ≈ 0.009 degrees latitude)
+  const maxOffsetKm = 10;
+  const minOffsetKm = 1;
+  const offsetKm = Math.random() * (maxOffsetKm - minOffsetKm) + minOffsetKm;
+
+  const offsetLat = offsetKm / 111; // Convert km to latitude degrees
+  const offsetLon = offsetKm / (111 * Math.cos((cityLat * Math.PI) / 180)); // Adjust for longitude
+
+  // Randomly add or subtract the offset
+  return {
+    latOffset: (Math.random() < 0.5 ? -1 : 1) * offsetLat,
+    lonOffset: (Math.random() < 0.5 ? -1 : 1) * offsetLon,
+  };
+}
+
+async function seedUsers() {
+  const connection = await db;
+  console.log("Inserting dummy users...");
+
+  for (let i = 0; i < 100; i++) {
+    const city = locations[Math.floor(i / 20)]; // Assign 20 users per city
+    const { latOffset, lonOffset } = getRandomOffset(city.latitude);
+
+    const latitude = city.latitude + latOffset;
+    const longitude = city.longitude + lonOffset;
+
+    const hashedPassword = await argon2.hash("password123");
+    const userId = uuidv4();
+    const createdAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const birthdate = new Date(
+      1995 + Math.floor(Math.random() * 10),
+      Math.random() * 12,
+      Math.random() * 28
+    )
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
+    const query = `
+      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      userId,
+      `First${i}`,
+      `Last${i}`,
+      `User${i}`,
+      `user${i}@test.com`,
+      createdAt,
+      longitude,
+      latitude,
+      birthdate,
+      Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
+      Math.floor(Math.random() * 100), // radiusInKm: 0-100km
+      i % 2 === 0 ? "Male" : "Female",
+      "This is a test bio.",
+      true,
+      hashedPassword,
+    ];
+
+    await connection.execute(query, values);
+
+    const query2 = `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`;
+    const startingIndex = Math.floor(Math.random() * images.length);
+    for (let j = 0; j < 3; j++) {
+      const randomImage = images[(startingIndex + j) % images.length];
+      const publicId = uuidv4();
+      await connection.execute(query2, [randomImage, userId, j, publicId]);
+    }
+
+    // Insert random images
+  }
+}
 
 async function generateDummyUsers() {
   try {
-    const connection = await db;
-    console.log("Inserting dummy users...");
-
-    for (let i = 0; i < 100; i++) {
-      const { latitude, longitude } =
-        locations[Math.floor(Math.random() * locations.length)];
-      const hashedPassword = await argon2.hash("password123");
-      const userId = uuidv4();
-      const createdAt = new Date().toISOString().slice(0, 19).replace("T", " ");
-      const birthdate = new Date(
-        1995 + Math.floor(Math.random() * 10),
-        Math.random() * 12,
-        Math.random() * 28
-      )
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ");
-
-      const query = `
-        INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-
-      const values = [
-        userId,
-        `First${i}`,
-        `Last${i}`,
-        `User${i}`,
-        `user${i}@test.com`,
-        createdAt,
-        longitude,
-        latitude,
-        birthdate,
-        Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
-        Math.floor(Math.random() * 100), // radiusInKm: 0-100km
-        i % 2 === 0 ? "Male" : "Female",
-        "This is a test bio.",
-        true,
-        hashedPassword,
-      ];
-
-      await connection.execute(query, values);
-    }
+    console.log("Seeding dummy users...");
+    await seedUsers();
 
     console.log("✅ Dummy users inserted successfully!");
   } catch (error) {
     console.error("❌ Error inserting dummy users:", error);
-  }
-}
-
-// ✅ Fix: Move user insertion into an async function
-async function insertUsers() {
-  try {
-    const connection = await db;
-    for (const user of users) {
-      await connection.query(
-        `INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, bio, emailVerified, password) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          user.userId,
-          user.firstName,
-          user.lastName,
-          user.displayName,
-          user.email,
-          user.createdAt,
-          user.longitude,
-          user.latitude,
-          user.birthdate,
-          user.includingRange,
-          user.radiusInKm,
-          user.sex,
-          user.bio,
-          user.emailVerified,
-          user.password,
-        ]
-      );
-    }
-    console.log(`✅ Successfully inserted dummy users.`);
-  } catch (err) {
-    console.error("❌ Error inserting dummy users:", err);
   }
 }
 
@@ -119,7 +130,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
-app.use(cors({ origin: process.env.FRONTEND_PUBLIC_URL, credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_PUBLIC_URL, credentials: true }, {origin: "https://ipapi.co", credentials: false}));
 //limiting the size of the request body
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));

@@ -15,6 +15,7 @@ CREATE TABLE users (
     interests INT, -- each interest is 1 shifted by a corresponding interest
     sex VARCHAR(10) NOT NULL,
     bio TEXT,
+    fameRating INT default 50,
     emailVerified BOOLEAN default false,
     emailVerificationToken VARCHAR(255),
     emailVerificationTokenExpiresAt DATETIME,
@@ -35,6 +36,7 @@ CREATE TABLE images (
     imageId INT AUTO_INCREMENT PRIMARY KEY,
     locationUrl varchar(255) NOT NULL,
     ownerId varchar(36),
+    publicId varchar(255),
     idx INT, -- 0 is profile picture
     FOREIGN KEY (ownerId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -43,6 +45,7 @@ CREATE TABLE likes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
+    superLike BOOLEAN DEFAULT false,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -68,6 +71,15 @@ CREATE TABLE messages (
     senderId varchar(36),
     receiverId varchar(36),
     content1 TEXT NOT NULL,
+    FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE report (
+    id varchar(36) PRIMARY KEY,
+    senderId varchar(36),
+    receiverId varchar(36),
+    reason TEXT NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );

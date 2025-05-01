@@ -18,6 +18,7 @@ async function createConnection(retryCount = 0, maxRetries = 5, retryDelay = 500
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.DB_NAME,
+      enableKeepAlive: true,
     });
     console.log("Successfully connected to the database!");
     return connection;

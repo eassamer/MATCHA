@@ -6,7 +6,7 @@ register = async (req, res) => {
     res.cookie("jwt", token, { httpOnly: true });
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status).json({ error: error.message });
   }
 };
 
@@ -18,9 +18,13 @@ login = async (req, res) => {
     );
     res.cookie("jwt", token, { httpOnly: true });
     delete user.password;
+    delete user.emailVerificationToken;
+    delete user.emailVerificationTokenExpiresAt;
+    delete user.passwordResetToken;
+    delete user.passwordResetTokenExpiresAt;
     res.status(200).json(user);
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    res.status(error.status).json({ error: error.message });
   }
 };
 

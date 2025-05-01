@@ -40,10 +40,9 @@ export default function FilterDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className=" bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3">
+        <button className=" bg-transparent rounded-[11px] border-2 border-[#E8E6EA]  p-2 lg:p-3">
           <Setting5
-            className="self-end"
-            size="24"
+            className="self-end text-[18px] lg:text-[24px]"
             color="#C13D88"
             variant="Bold"
           />
