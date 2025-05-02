@@ -277,6 +277,17 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   CHECK_DISLIKE: `SELECT * FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
+  ADD_NOTIFICATION: `INSERT INTO notifications (id, userId, type, content, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
+  GET_NOTIFICATIONS: `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC taking ? LIMIT ?`,
+  MARK_AS_READ: `UPDATE notifications SET isRead = true WHERE id = ?`,
+  DELETE_NOTIFICATION: `DELETE FROM notifications WHERE id = ?`,
+  ADD_BLOCK: `INSERT INTO block (id, blockerId, blockedId) VALUES (uuid(), ?, ?)`,
+  CHECK_BLOCK: `SELECT * FROM block WHERE (blockerId = ? AND blockedId = ?) OR (blockerId = ? AND blockedId = ?)`,
+  DELETE_BLOCK: `DELETE FROM block WHERE blockerId = ? AND blockedId = ?`,
+  GET_BLOCKED_USERS: `SELECT *, ${userFieldsWithImages} FROM block JOIN users u WHERE blockerId = ? and u.userId = blockedId`,
+  ADD_VIEW: `INSERT INTO views (id, viewerId, viewedId, createdAt) VALUES (uuid(), ?, ?, ?)`,
+  GET_VIEWS: `SELECT *,  FROM views WHERE viewedId = ?`,
+  CHECK_VIEW: `SELECT * FROM views WHERE viewerId = ? AND viewedId = ?`,
 };
 
 module.exports = queries;

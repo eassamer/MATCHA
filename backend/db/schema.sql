@@ -53,6 +53,7 @@ CREATE TABLE likes (
     senderId varchar(36),
     receiverId varchar(36),
     superLike BOOLEAN DEFAULT false,
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -61,6 +62,7 @@ CREATE TABLE dislikes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -69,6 +71,7 @@ CREATE TABLE matches (
     id varchar(36) PRIMARY KEY,
     user1Id varchar(36),
     user2Id varchar(36),
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (user1Id) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (user2Id) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -78,6 +81,7 @@ CREATE TABLE messages (
     senderId varchar(36),
     receiverId varchar(36),
     content1 TEXT NOT NULL,
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -89,4 +93,32 @@ CREATE TABLE report (
     reason TEXT NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+
+CREATE TABLE notifications (
+    id varchar(36) PRIMARY KEY,
+    userId varchar(36),
+    type VARCHAR(50) NOT NULL, -- like, match, message, etc
+    content TEXT NOT NULL,
+    isRead BOOLEAN DEFAULT false,
+    createdAt DATETIME NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE blocks (
+    id varchar(36) PRIMARY KEY,
+    blockerId varchar(36),
+    blockedId varchar(36),
+    FOREIGN KEY (blockerId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (blockedId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE views (
+    id varchar(36) PRIMARY KEY,
+    viewerId varchar(36),
+    viewedId varchar(36),
+    createdAt DATETIME NOT NULL,
+    FOREIGN KEY (viewerId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (viewedId) REFERENCES users(userId) ON DELETE CASCADE
 );
