@@ -101,7 +101,7 @@ async function getLikes(userId) {
  */
 async function addLike(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, false, new Date()];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.ADD_LIKE, queryInput, (err, result) => {
         if (err) {
@@ -119,9 +119,9 @@ async function addLike(senderId, receiverId) {
 
 async function addSuperLike(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, true, new Date()];
     return new Promise(async (resolve, reject) => {
-      (await client).execute(queries.ADD_SUPER_LIKE, queryInput, (err, result) => {
+      (await client).execute(queries.ADD_LIKE, queryInput, (err, result) => {
         if (err) {
           err.message = `${errMessagePrefix}.addSuperLike: ${err.message}`;
           return reject(err);

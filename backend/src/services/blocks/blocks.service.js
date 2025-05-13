@@ -1,5 +1,7 @@
 var blockDao = require('@lib/dao/blocks/blocks');
 const userService = require('@services/users/users.service');
+const relationDao = require('@dao/relations/relations');
+
 
 const {
   ServiceUnavailableException,
@@ -21,6 +23,18 @@ async function blockUser(blockerId, blockedId) {
     const checkBlock = await blockDao.checkIfBlocked(blockerId, blockedId);
     if (checkBlock.length > 0) {
       throw new ForbiddenException('User already blocked');
+    }
+    const checkLike = await relationDao.checkLike(blockerId, blockedId);
+    if (checkLike.length > 0) {
+      await relationDao.deleteLike(blockerId, blockedId);
+    }
+    const checkDislike = await relationDao.checkDislike(blockerId, blockedId);
+    if (checkDislike.length > 0) {
+      await relationDao.deleteDislike(blockerId, blockedId);
+    }
+    const checkMatch = await relationDao.checkMatch(blockerId, blockedId);
+    if (checkMatch.length > 0) {
+      await relationDao.deleteMatch(blockerId, blockedId);
     }
     const result = await blockDao.create(blockerId, blockedId);
     if (result.affectedRows === 0) {

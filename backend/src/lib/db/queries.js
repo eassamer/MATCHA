@@ -191,8 +191,7 @@ GROUP BY users.userId
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
-  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId,superLike) VALUES (uuid(), ?, ?, false)`,
-  ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true)`,
+  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   // match queries
