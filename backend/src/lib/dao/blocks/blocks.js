@@ -2,8 +2,8 @@ const queries = require("@lib/db/queries");
 const client = require("@lib/db/dbconnect");
 const errMessagePrefix = "BlocksDAO: "; //for better debugging
 
-async function create(block) {
-  const queryInput = [block.blockerId, block.blockedId];
+async function create(blockerId, blockedId) {
+  const queryInput = [blockerId, blockedId];
   return new Promise(async (resolve, reject) => {
     (await client).execute(queries.ADD_BLOCK, queryInput, (err, result) => {
       if (err) {
@@ -17,7 +17,7 @@ async function create(block) {
 
 async function checkIfBlocked(blockerId, blockedId) {
   return new Promise(async (resolve, reject) => {
-    (await client).execute(queries.CHECK_BLOCK, [blockerId, blockedId], (err, result) => {
+    (await client).execute(queries.CHECK_BLOCK, [blockerId, blockedId, blockedId, blockerId], (err, result) => {
       if (err) {
         err.message = `${errMessagePrefix}.checkIfBlocked: ${err.message}`;
         return reject(err);

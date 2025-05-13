@@ -16,8 +16,9 @@ var indexRouter = require("@routes/index");
 var usersRouter = require("@routes/users");
 var authRoutes = require("@routes/auth");
 var imagesRouter = require("@routes/images");
-var cors = require("cors");
 var relationsRouter = require("@routes/relations");
+var blocksRouter = require("@routes/blocks");
+var cors = require("cors");
 
 var app = express();
 
@@ -177,6 +178,7 @@ app.use("/users", usersRouter);
 app.use("/auth", authRoutes);
 app.use("/images", imagesRouter);
 app.use("/relations", relationsRouter);
+app.use("/blocks", blocksRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
