@@ -28,7 +28,17 @@ async function unblockUser(req, res) {
   }
 }
 
+async function getBlockedUsers(req, res) {
+  try {
+    const blockedUsers = await BlockService.getBlockedUsers(req.user.id);
+    res.status(200).json(blockedUsers);
+  } catch (error) {
+    res.status(error.status).json({ error: error.message });
+  }
+}
+
 module.exports = {
   blockUser,
   unblockUser,
+  getBlockedUsers,
 };
