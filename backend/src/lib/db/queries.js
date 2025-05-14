@@ -215,6 +215,7 @@ GROUP BY users.userId
     LEFT JOIN dislikes d ON d.receiverId = users.userId AND d.senderId = ?
     LEFT JOIN likes l ON l.receiverId = users.userId AND l.senderId = ?
     LEFT JOIN matches m ON (m.user1Id = users.userId OR m.user2Id = users.userId) AND (m.user1Id = ? OR m.user2Id = ?)
+    LEFT JOIN blocks b ON (b.blockedId = users.userId AND b.blockerId = ?) OR (b.blockedId = ? AND b.blockerId = users.userId)
     WHERE users.userId != ?
     AND JSON_CONTAINS(users.orientation, JSON_QUOTE(?)) -- they interested  in your gender
     AND JSON_CONTAINS(?, JSON_QUOTE(users.sex)) -- you are interested in their gender
@@ -226,6 +227,8 @@ GROUP BY users.userId
     AND l.senderId IS NULL  -- Exclude liked users
     AND m.user1Id IS NULL  -- Exclude matched users
     AND m.user2Id IS NULL  -- Exclude matched users
+    AND b.blockedId IS NULL  -- Exclude blocked users
+    AND b.blockerId IS NULL  -- Exclude blocked users
     GROUP BY users.userId
     HAVING distance <= ?
     ORDER BY distance ASC;

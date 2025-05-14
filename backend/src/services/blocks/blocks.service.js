@@ -81,8 +81,20 @@ async function getBlockedUsers(userId) {
   }
 }
 
+async function checkIfBlocked(blockerId, blockedId) {
+  try {
+    const result = await blockDao.checkIfBlocked(blockerId, blockedId);
+    if (result.length > 0) return true;
+    return false;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.checkIfBlocked: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
+  }
+}
+
 module.exports = {
   blockUser,
   unblockUser,
   getBlockedUsers,
+  checkIfBlocked,
 };
