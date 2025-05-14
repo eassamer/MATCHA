@@ -286,9 +286,9 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   ADD_BLOCK: `INSERT INTO blocks (id, blockerId, blockedId) VALUES (uuid(), ?, ?)`,
   CHECK_BLOCK: `SELECT * FROM blocks WHERE (blockerId = ? AND blockedId = ?) OR (blockerId = ? AND blockedId = ?)`,
   DELETE_BLOCK: `DELETE FROM blocks WHERE blockerId = ? AND blockedId = ?`,
-  GET_BLOCKED_USERS: `SELECT *, ${userFieldsWithImages} FROM blocks JOIN users WHERE blockerId = ? and users.userId = blockedId`,
+  GET_BLOCKED_USERS: `SELECT blocks.*, ${userFieldsWithImages} FROM blocks JOIN users ON (blocks.blockedId = users.userId) WHERE blockerId = ?`,
   ADD_VIEW: `INSERT INTO views (id, viewerId, viewedId, createdAt) VALUES (uuid(), ?, ?, ?)`,
-  GET_VIEWS: `SELECT *, ${userFieldsWithImages} FROM views JOIN users WHERE viewedId = ? and users.userId = viewerId`,
+  GET_VIEWS: `SELECT blocks.*, ${userFieldsWithImages} FROM views JOIN users WHERE viewedId = ? and users.userId = viewerId`,
   CHECK_VIEW: `SELECT * FROM views WHERE viewerId = ? AND viewedId = ?`,
 };
 
