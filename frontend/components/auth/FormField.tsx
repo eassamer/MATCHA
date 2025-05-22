@@ -5,6 +5,7 @@ export type FormFieldInput = {
   required: boolean;
   className?: string;
   value?: string;
+  autoComplete?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -20,6 +21,7 @@ export const FormField = (formFieldInput: FormFieldInput) => {
         {formFieldInput.label}
       </label>
       <input
+        autoComplete={formFieldInput.autoComplete}
         id={formFieldInput.id ? formFieldInput.id : formFieldInput.type}
         type={formFieldInput.type}
         required={formFieldInput.required}

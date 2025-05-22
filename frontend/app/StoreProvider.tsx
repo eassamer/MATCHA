@@ -11,6 +11,7 @@ import { setLikes } from "@/lib/features/likes/likesSlice";
 import { setUsersNearBy } from "@/lib/features/users/userNearBySlice";
 import { getRelations } from "@/hooks/realtions";
 import { updateLocation } from "@/hooks/users";
+import socket from "@/lib/socket";
 
 export default function StoreProvider({
   children,
@@ -46,7 +47,7 @@ export default function StoreProvider({
       const res = await updateLocation(coords);
       if (res.data.latitude) {
         fetchRelations();
-        fetchLikes();
+        // fetchLikes();
       }
       storeRef.current!.dispatch(setUser(res.data));
     } catch (error) {
@@ -58,8 +59,11 @@ export default function StoreProvider({
     const handleLoad = () => {
       const user = localStorage.getItem("user");
       if (user) {
+        const parsedUser = JSON.parse(user);
         localStorage.removeItem("user");
-        storeRef.current!.dispatch(setUser(JSON.parse(user)));
+        storeRef.current!.dispatch(setUser(parsedUser));
+
+        socket.emit("getLikes"); // 🔥 Emit getLikes when user connects
       } else {
         axios
           .get(process.env.NEXT_PUBLIC_API_URL + "/users/user/me", {
@@ -67,11 +71,27 @@ export default function StoreProvider({
           })
           .then((res) => {
             storeRef.current!.dispatch(setUser(res.data));
+            socket.emit("getLikes"); // 🔥 Emit getLikes after fetching user
           })
           .catch((err) => {
-            toast.error("An error occurred" + err.response.data.error);
+            toast.error("An error occurred: " + err.response?.data?.error);
           });
       }
+
+      // 🛰️ Socket listeners
+      socket.on("likesResponse", (data) => {
+        storeRef.current!.dispatch(setLikes(data));
+      });
+
+      socket.on("like", (senderId) => {
+        toast.success("You just got a new like 💖!");
+        // Refresh likes list
+        socket.emit("getLikes");
+      });
+
+      socket.on("likesError", (error) => {
+        toast.error("Error fetching likes: " + error?.error);
+      });
     };
 
     if (document.readyState === "complete") {
@@ -79,7 +99,6 @@ export default function StoreProvider({
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log("Position", position);
             const coords = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
@@ -87,8 +106,6 @@ export default function StoreProvider({
             updateNewLocation(coords);
           },
           async (error) => {
-            console.log("Error", error);
-            // 🧠 If denied or error, fallback to IP-based location
             try {
               const ipRes = await axios.get("https://geolocation-db.com/json/");
               const coords = {
@@ -106,6 +123,13 @@ export default function StoreProvider({
       window.addEventListener("load", handleLoad);
       return () => window.removeEventListener("load", handleLoad);
     }
+
+    return () => {
+      // 🔌 Clean up socket listeners on unmount
+      socket.off("likesResponse");
+      socket.off("like");
+      socket.off("likesError");
+    };
   }, []);
 
   return <Provider store={storeRef.current}>{children}</Provider>;

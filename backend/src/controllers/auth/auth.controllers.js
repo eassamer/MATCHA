@@ -3,7 +3,7 @@ const authService = require("@services/auth/auth.service");
 register = async (req, res) => {
   try {
     const { newUser, token } = await authService.registerUser(req.body);
-    res.cookie("jwt", token, { httpOnly: true });
+    res.cookie("jwt", token);
     res.status(201).json(newUser);
   } catch (error) {
     res.status(error.status).json({ error: error.message });
@@ -16,7 +16,7 @@ login = async (req, res) => {
       req.body.email,
       req.body.password
     );
-    res.cookie("jwt", token, { httpOnly: true });
+    res.cookie("jwt", token);
     delete user.password;
     delete user.emailVerificationToken;
     delete user.emailVerificationTokenExpiresAt;
@@ -36,7 +36,7 @@ FourtyTwoAuthenticate = (req, res) => {
 oauthCallback = (req, res) => {
   // Set JWT token on successful OAuth authentication
   const token = authService.generateToken(req.user);
-  res.cookie("jwt", token, { httpOnly: true });
+  res.cookie("jwt", token);
   res.redirect("/"); // TODO: Redirect to the frontend URL
 };
 
