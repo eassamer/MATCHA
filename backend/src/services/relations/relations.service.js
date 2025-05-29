@@ -1,5 +1,7 @@
 var userService = require("@services/users/users.service");
 var relationDao = require("@dao/relations/relations");
+const { getIO } = require("@lib/socketManager");
+
 const {
   ServiceUnavailableException,
   NotFoundException,
@@ -23,7 +25,7 @@ async function getNearbyUsers(userId) {
       user.longitude,
       user.radiusInKm || 100,
       user.sex,
-      user.orientation,
+      user.orientation
     );
     return nearby;
   } catch (error) {
@@ -64,6 +66,26 @@ async function checkDislike(senderId, receiverId) {
   }
 }
 
+/**
+ * @description Checks if a user has liked another user.
+ * @param {number} senderId The id of the user who gave the like.
+ * @param {number} receiverId The id of the user who received the like.
+ * @returns {Promise<Object>} A promise that resolves to the result of the database query.
+ * @throws If there is an error querying the database.
+ */
+async function getLikeBySenderIdAndReceiverId(senderId, receiverId) {
+  try {
+    const result = await relationDao.getLikeBySenderIdAndReceiverId(
+      senderId,
+      receiverId
+    );
+    return result[0];
+  } catch (error) {
+    console.error(`${errMessagePrefix}.checkLike: ${error.message}`);
+    throw new ServiceUnavailableException(`${error.message}`);
+  }
+}
+
 async function checkMatch(senderId, receiverId) {
   try {
     const result = await relationDao.checkMatch(senderId, receiverId);
@@ -75,13 +97,23 @@ async function checkMatch(senderId, receiverId) {
   }
 }
 
+/**
+ * @description Adds a like from the authenticated user to another user.
+ * @param {string} userId - The id of the user who is giving the like.
+ * @param {number} receiverId - The id of the user who is receiving the like.
+ * @returns {Promise<Object>} A promise that resolves to the result of the database query.
+ * @throws Responds with a 400 status code and an error message if adding the like fails.
+ */
 async function addLike(userId, receiverId) {
   try {
+    const io = getIO();
+
     const senderId = userId;
     if (senderId === receiverId) {
       throw new ForbiddenException("You cannot like yourself");
     }
     const receiver = await userService.findById(receiverId);
+    const sender = await userService.findById(senderId);
     if (!receiver) {
       throw new NotFoundException(`User with Id: ${receiverId} not found`);
     }
@@ -99,10 +131,16 @@ async function addLike(userId, receiverId) {
       await relationDao.addMatch(senderId, receiverId);
       await relationDao.deleteLike(receiverId, senderId);
       await userService.updateFameRating(receiverId);
+      io.to(senderId).emit("match", receiverId);
+      io.to(receiverId).emit("match", senderId);
       return await relationDao.getMatch(senderId, receiverId);
     } else {
       await relationDao.addLike(senderId, receiverId);
       await userService.updateFameRating(receiverId);
+      io.to(receiverId).emit(
+        "like",
+        await getLikeBySenderIdAndReceiverId(senderId, receiverId)
+      );
       return receiver;
     }
   } catch (error) {
@@ -114,10 +152,12 @@ async function addLike(userId, receiverId) {
 async function addSuperLike(userId, receiverId) {
   try {
     const senderId = userId;
+    const io = getIO();
     if (senderId === receiverId) {
       throw new ForbiddenException("You cannot super like yourself");
     }
     const receiver = await userService.findById(receiverId);
+    const sender = await userService.findById(senderId);
     if (!receiver) {
       throw new NotFoundException(`User with Id: ${receiverId} not found`);
     }
@@ -134,9 +174,16 @@ async function addSuperLike(userId, receiverId) {
     if (await checkLike(receiverId, senderId)) {
       await relationDao.addMatch(senderId, receiverId);
       await relationDao.deleteLike(receiverId, senderId);
+      io.to(senderId).emit("match", receiverId);
+      io.to(receiverId).emit("match", senderId);
       return await relationDao.getMatch(senderId, receiverId);
     }
     await relationDao.addSuperLike(senderId, receiverId);
+    io.to(receiverId).emit(
+      "like",
+      await getLikeBySenderIdAndReceiverId(senderId, receiverId)
+    );
+
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.addSuperLike: ${error.message}`);
@@ -238,8 +285,6 @@ async function deleteDislike(senderId, receiverId) {
     throw error;
   }
 }
-
-
 
 module.exports = {
   getNearbyUsers,
