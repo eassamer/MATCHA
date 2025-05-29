@@ -166,7 +166,6 @@ async function seedUsers() {
       true,
       hashedPassword,
     ];
-    console.log(values);
     await connection.execute(query, values);
 
     const query2 = `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`;
@@ -237,7 +236,6 @@ setSocketInstance(io);
 io.use(socketAuthMiddleware);
 
 io.on("connection", (socket) => {
-  console.log("User connected via socket:", socket.user.id);
   const userId = socket.user.id;
   socket.join(userId.toString());
   registerRelationEvents(socket);

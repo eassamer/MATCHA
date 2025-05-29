@@ -62,9 +62,17 @@ export const likesSlice = createSlice({
     setLikes: (state, action: PayloadAction<profileInfoType[]>) => {
       state.profiles = action.payload;
     },
+    addLike: (state, action: PayloadAction<profileInfoType>) => {
+      state.profiles = [...state.profiles, action.payload];
+    },
+    removeLike: (state, action: PayloadAction<string>) => {
+      state.profiles = state.profiles.filter(
+        (like) => like.id !== action.payload
+      );
+    },
   },
 });
 
-export const { setLikes } = likesSlice.actions;
+export const { setLikes, addLike, removeLike } = likesSlice.actions;
 
 export default likesSlice.reducer;

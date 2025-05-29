@@ -108,7 +108,6 @@ export default function EditProfileDialog({
   };
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log(InterestsHandler.interestsToInt(formData.interests));
       setProfileInfo({
         ...profileInfo,
         name: formData.displayName,
@@ -126,7 +125,6 @@ export default function EditProfileDialog({
           interests: InterestsHandler.interestsToInt(formData.interests || []),
         })
       );
-      console.log(user);
       updateUser({
         ...user,
         latitude: "3.13",

@@ -39,7 +39,6 @@ export const SwipeButtons = ({
         onClick={async () => {
           setDirection("right");
           setShowDetailsCard(false);
-          console.log(card.userId);
           addLike(card.userId);
         }}
         className="lg:size-[85px] size-[70px] [box-shadow:0px_20px_50px_0px_rgba(0,0,0,0.07)] text-xl font-bold font-montserrat bg-white rounded-full flex items-center justify-center"

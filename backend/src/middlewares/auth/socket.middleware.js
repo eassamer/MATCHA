@@ -11,7 +11,6 @@ const jwt = require("jsonwebtoken");
 module.exports = (socket, next) => {
   try {
     const rawCookies = socket.handshake.headers.cookie;
-    console.log("🔍 Raw Cookies from Socket:", socket.handshake.headers.cookie);
 
     if (!rawCookies) {
       return next(new Error("Access denied, no cookies sent"));
@@ -19,14 +18,12 @@ module.exports = (socket, next) => {
 
     const cookies = cookie.parse(rawCookies);
     const token = cookies.jwt;
-    console.log(`token=${token}`);
 
     if (!token) {
       return next(new Error("Access denied, token missing in cookies"));
     }
 
     const verified = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(verified);
     socket.user = verified;
     next();
   } catch (err) {

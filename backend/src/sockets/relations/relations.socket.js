@@ -14,8 +14,6 @@ const relationService = require("@services/relations/relations.service");
  */
 
 module.exports = function registerRelationEvents(socket) {
-  console.log("Relation socket ready for user:", socket.user.id);
-
   // getLikes
   socket.on("getLikes", async () => {
     try {

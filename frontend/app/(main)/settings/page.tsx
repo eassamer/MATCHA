@@ -71,7 +71,6 @@ const Settings = () => {
     try {
       // Validate the form data
       const validatedData = formSchema.parse(formState);
-      console.log("Form submitted:", validatedData);
       setErrors({});
 
       // Here you would typically send the data to your API
@@ -98,7 +97,6 @@ const Settings = () => {
       )
     ) {
       // Handle account deletion logic here
-      console.log("Account deletion requested");
     }
   };
   return (

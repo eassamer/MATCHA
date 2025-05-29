@@ -142,7 +142,7 @@ GROUP BY users.userId
   MOD(interests >> ?, 2) = 1
   GROUP BY users.userId`,
 
-  REPORT_USER:`INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
+  REPORT_USER: `INSERT INTO report (id, senderId, receiverId, reason) VALUES (uuid(), ?, ?, ?)`,
   GET_REPORTS: `SELECT * FROM report WHERE receiverId = ?`,
   FIND_REPORT_BY_SENDER_AND_RECEIVER: `SELECT * FROM report WHERE senderId = ? AND receiverId = ?`,
 
@@ -277,6 +277,15 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
   CHECK_DISLIKE: `SELECT * FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
+  GET_LIKE_BY_SENDER_ID_AND_RECEIVER_ID: `
+  SELECT l.*, 
+         ${userFieldsWithImages}
+  FROM likes l
+  JOIN users ON l.senderId = users.userId
+  LEFT JOIN images i ON i.ownerId = l.senderId
+  WHERE l.senderId = ? AND l.receiverId = ?
+  GROUP BY l.id, users.userId
+  `,
 };
 
 module.exports = queries;

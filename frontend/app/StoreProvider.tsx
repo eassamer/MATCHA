@@ -1,13 +1,12 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Provider } from "react-redux";
 import { makeStore, AppStore } from "../lib/store";
 import { setUser } from "../lib/features/user/userSlice";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getLikes } from "@/hooks/likes";
-import { useAppDispatch } from "@/lib/hooks";
-import { setLikes } from "@/lib/features/likes/likesSlice";
+import { setLikes, addLike, removeLike } from "@/lib/features/likes/likesSlice";
 import { setUsersNearBy } from "@/lib/features/users/userNearBySlice";
 import { getRelations } from "@/hooks/realtions";
 import { updateLocation } from "@/hooks/users";
@@ -47,7 +46,6 @@ export default function StoreProvider({
       const res = await updateLocation(coords);
       if (res.data.latitude) {
         fetchRelations();
-        // fetchLikes();
       }
       storeRef.current!.dispatch(setUser(res.data));
     } catch (error) {
@@ -63,7 +61,7 @@ export default function StoreProvider({
         localStorage.removeItem("user");
         storeRef.current!.dispatch(setUser(parsedUser));
 
-        socket.emit("getLikes"); // 🔥 Emit getLikes when user connects
+        socket.emit("getLikes");
       } else {
         axios
           .get(process.env.NEXT_PUBLIC_API_URL + "/users/user/me", {
@@ -71,7 +69,7 @@ export default function StoreProvider({
           })
           .then((res) => {
             storeRef.current!.dispatch(setUser(res.data));
-            socket.emit("getLikes"); // 🔥 Emit getLikes after fetching user
+            socket.emit("getLikes");
           })
           .catch((err) => {
             toast.error("An error occurred: " + err.response?.data?.error);
@@ -83,14 +81,12 @@ export default function StoreProvider({
         storeRef.current!.dispatch(setLikes(data));
       });
 
-      socket.on("like", (senderId) => {
-        toast.success("You just got a new like 💖!");
-        // Refresh likes list
-        socket.emit("getLikes");
+      socket.on("like", (data) => {
+        storeRef.current!.dispatch(addLike(data));
       });
 
-      socket.on("likesError", (error) => {
-        toast.error("Error fetching likes: " + error?.error);
+      socket.on("match", (data) => {
+        storeRef.current!.dispatch(removeLike(data));
       });
     };
 
@@ -125,7 +121,6 @@ export default function StoreProvider({
     }
 
     return () => {
-      // 🔌 Clean up socket listeners on unmount
       socket.off("likesResponse");
       socket.off("like");
       socket.off("likesError");

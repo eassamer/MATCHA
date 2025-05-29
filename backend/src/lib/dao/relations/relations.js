@@ -378,6 +378,28 @@ async function getLikesBySenderId(senderId) {
   }
 }
 
+async function getLikeBySenderIdAndReceiverId(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.GET_LIKE_BY_SENDER_ID_AND_RECEIVER_ID,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.getLikeBySenderIdAndReceiverId: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in getLikeBySenderIdAndReceiverId DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 module.exports = {
   getNearbyUsers,
   getLikes,
@@ -394,4 +416,5 @@ module.exports = {
   addDislike,
   deleteDislike,
   getLikesBySenderId,
+  getLikeBySenderIdAndReceiverId,
 };

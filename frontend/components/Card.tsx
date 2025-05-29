@@ -57,7 +57,6 @@ export const Card = ({
     if (isFront && direction === "left") {
       x.set(-100);
       setTimeout(() => {
-        console.log(cards[0].id);
         dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
         setDirection("");
       }, 300);

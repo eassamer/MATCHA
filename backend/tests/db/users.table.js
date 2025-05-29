@@ -14,7 +14,6 @@ class usersTable {
   }
 
   async findByEmail(email) {
-    console.log("findByEmail", email);
     return this.users.find((user) => user.email === email);
   }
 
