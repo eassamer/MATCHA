@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("module-alias/register");
 const { v4: uuidv4 } = require("uuid");
+const { Server } = require("socket.io");
 const argon2 = require("argon2");
 var createError = require("http-errors");
 var express = require("express");
@@ -10,7 +11,10 @@ var logger = require("morgan");
 var sanitizer = require("perfect-express-sanitizer");
 const db = require("@lib/db/dbconnect");
 var authMiddleware = require("@middlewares/auth/auth.middleware");
+const socketAuthMiddleware = require("@middlewares/auth/socket.middleware");
 var passport = require("@middlewares/auth/passport.middleware");
+const http = require("http");
+const { setSocketInstance } = require("@lib/socketManager");
 
 var indexRouter = require("@routes/index");
 var usersRouter = require("@routes/users");
@@ -19,10 +23,40 @@ var imagesRouter = require("@routes/images");
 var relationsRouter = require("@routes/relations");
 var blocksRouter = require("@routes/blocks");
 var cors = require("cors");
-
+const registerRelationEvents = require("@sockets/relations/relations.socket");
 var app = express();
 
 const locations = [
+  {
+    latitude: 33.5731,
+    longitude: -7.5898,
+    city: "Casablanca",
+    region: "Casablanca-Settat",
+  }, // Casablanca
+  {
+    latitude: 34.0209,
+    longitude: -6.8416,
+    city: "Rabat",
+    region: "Rabat-Sale",
+  }, // Rabat
+  {
+    latitude: 31.6295,
+    longitude: -7.9811,
+    city: "Marrakkech",
+    region: "Marrakkech-Safi",
+  }, // Marrakech
+  {
+    latitude: 35.7595,
+    longitude: -5.83395,
+    city: "Tangier",
+    region: "Tangier-Assilah",
+  }, // Tangier
+  {
+    latitude: 30.4278,
+    longitude: -9.5981,
+    city: "Agadir",
+    region: "Souss-Massa",
+  }, // Agadir
   {
     latitude: 33.5731,
     longitude: -7.5898,
@@ -106,9 +140,13 @@ async function seedUsers() {
     const orientations = ["male", "female", "other"];
 
     const query = `
-      INSERT INTO users (userId, firstName, lastName, displayName, email, createdAt, longitude, latitude, birthdate, includingRange, radiusInKm, sex, orientation, bio, emailVerified, password)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+  INSERT INTO users (
+    userId, firstName, lastName, displayName, email, createdAt,
+    longitude, latitude, birthdate, includingRange, radiusInKm,
+    interests, sex, orientation, bio, emailVerified, password
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
     const values = [
       userId,
@@ -120,15 +158,15 @@ async function seedUsers() {
       longitude,
       latitude,
       birthdate,
-      Math.floor(Math.random() * 5) + 1, // includingRange: 1-5
-      Math.floor(Math.random() * 100), // radiusInKm: 0-100km
-      orientations[Math.floor(Math.random() * orientations.length)],
-      [orientations[Math.floor(Math.random() * orientations.length)]],
+      Math.floor(Math.random() * 5) + 1,
+      Math.floor(Math.random() * 100),
+      1 << Math.floor(Math.random() * 10), // Random interest bitmask
+      i % 2 === 0 ? "male" : "female",
+      JSON.stringify(orientations), // orientation as JSON array
       "This is a test bio.",
       true,
       hashedPassword,
     ];
-
     await connection.execute(query, values);
 
     const query2 = `INSERT INTO images (locationUrl, ownerId, idx, publicId) VALUES (?, ?, ?, ?)`;
@@ -165,6 +203,12 @@ app.use(
     { origin: "https://ipapi.co", credentials: false }
   )
 );
+app.use(
+  cors(
+    { origin: process.env.FRONTEND_PUBLIC_URL, credentials: true },
+    { origin: "https://ipapi.co", credentials: false }
+  )
+);
 //limiting the size of the request body
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
@@ -179,6 +223,25 @@ app.use("/auth", authRoutes);
 app.use("/images", imagesRouter);
 app.use("/relations", relationsRouter);
 app.use("/blocks", blocksRouter);
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true,
+  },
+});
+
+setSocketInstance(io);
+
+// --- Socket Auth Middleware ---
+io.use(socketAuthMiddleware);
+
+io.on("connection", (socket) => {
+  const userId = socket.user.id;
+  socket.join(userId.toString());
+  registerRelationEvents(socket);
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -205,7 +268,7 @@ app.use(
 );
 
 // ✅ Fix: Call generateDummyUsers() properly
-app.listen(3001, async () => {
+server.listen(3001, async () => {
   console.log(`Example app listening on port 3001`);
   // await generateDummyUsers();
 });

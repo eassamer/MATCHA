@@ -6,22 +6,57 @@ import { IoIosFemale } from "react-icons/io";
 import { PiGenderNonbinary } from "react-icons/pi";
 
 const Orientation = () => {
-  const orientations = [
-    { orientation: "female", sexuality: "Female", icon: <IoIosFemale className="text-primary text-[20px]" /> },
-    { orientation: "male",  sexuality: "Male", icon: <IoIosMale className="text-primary text-[20px]" /> },
-    { orientation: "other", sexuality: "Other", icon: <PiGenderNonbinary className="text-primary text-[20px]" /> },
-  ];
   const { state, dispatch } = useContext(SignupContext);
-   // eslint-disable-next-line
+  const orientations = [
+    {
+      orientation: "female",
+      sexuality: "Female",
+      icon: (
+        <IoIosFemale
+          className={`${
+            state.orientation.includes("female") && "text-white"
+          } text-primary text-[20px] group-hover:text-white`}
+        />
+      ),
+    },
+    {
+      orientation: "male",
+      sexuality: "Male",
+      icon: (
+        <IoIosMale
+          className={`${
+            state.orientation.includes("male") && "text-white"
+          } text-primary text-[20px] group-hover:text-white`}
+        />
+      ),
+    },
+    {
+      orientation: "other",
+      sexuality: "Other",
+      icon: (
+        <PiGenderNonbinary
+          className={` ${
+            state.orientation.includes("other") && "text-white"
+          } text-primary text-[20px] group-hover:text-white`}
+        />
+      ),
+    },
+  ];
+  // eslint-disable-next-line
   const handleSelectOrientation = (e: any) => {
     const value = e.target.value;
     if (state.orientation.includes(value)) {
       dispatch({
         type: "SET_ORIENTATION",
-        payload: state.orientation.filter((orientation) => orientation !== value),
+        payload: state.orientation.filter(
+          (orientation) => orientation !== value
+        ),
       });
     } else {
-      dispatch({ type: "SET_ORIENTATION", payload: [...state.orientation, value] });
+      dispatch({
+        type: "SET_ORIENTATION",
+        payload: [...state.orientation, value],
+      });
     }
   };
   return (
@@ -32,7 +67,7 @@ const Orientation = () => {
             return (
               <div key={index}>
                 <label
-                  className={`flex border-2 border-black border-opacity-10 rounded-[15px] p-4  hover:bg-pink-500
+                  className={`flex border-2 border-black border-opacity-10 rounded-[15px] p-4  hover:bg-pink-500 group
                   hover:text-white
                   transition-all
                   duration-300

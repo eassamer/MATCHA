@@ -8,8 +8,6 @@ var relations = require("@controllers/relations/relations.controllers");
 
 router.get("/", relations.getNearbyUsers);
 
-router.get("/likes", relations.getLikes);
-
 router.get("/matches", relations.getMatches);
 
 /**

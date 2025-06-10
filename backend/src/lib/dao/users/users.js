@@ -116,7 +116,6 @@ async function remove(userId) {
  */
 async function updateLastLocation(userId, longitude, latitude, city, region, country) {
   const queryInput = [longitude, latitude, city, region, country, userId];
-  console.log("Updating last location ", queryInput);
   return new Promise(async (resolve, reject) => {
     (await client).execute(
       queries.UPDATE_LAST_LOCATION,

@@ -35,6 +35,7 @@
     "passport-local": "^1.0.0",
     "passport-oauth2": "^1.8.0",
     "perfect-express-sanitizer": "^2.0.2",
+    "socket.io": "^4.8.1",
     "uuid": "^11.1.0"
   },
   "_moduleAliases": {
@@ -43,7 +44,8 @@
     "@services": "src/services",
     "@controllers": "src/controllers",
     "@middlewares": "src/middlewares",
-    "@routes": "src/routes"
+    "@routes": "src/routes",
+    "@sockets": "src/sockets"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
