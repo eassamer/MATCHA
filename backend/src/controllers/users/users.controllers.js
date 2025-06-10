@@ -1,8 +1,9 @@
 // Description: User controller for handling user requests
 
 // TODO: add a better error handling mechanism to send the error code and message
-const { BadRequestException } = require("@lib/utils/exceptions");
+const { BadRequestException, NotFoundException } = require("@lib/utils/exceptions");
 const userService = require("@services/users/users.service");
+const { blockService } = require("@services/blocks/blocks.service");
 
 /**
  * @description deletes a user
@@ -26,6 +27,9 @@ async function deleteUser(req, res) {
 async function getUser(req, res) {
   try {
     const user = await userService.findById(req.query.id);
+    if (await blockService.checkIfBlocked(req.user.id, req.query.id)) { //check in the controller level cause the findById method is used in other places
+      throw new NotFoundException("User not found");
+    }
     res.status(200).json(user);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
