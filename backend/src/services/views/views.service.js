@@ -1,6 +1,7 @@
 var viewsDao = require('@lib/dao/views/views');
 const { NotFoundException } = require('@lib/utils/exceptions');
 var userService = require('@services/user/user.service');
+const { getIO } = require("@lib/socketManager");
 
 
 const errMessagePrefix = 'ViewsService: '; //for better debugging
@@ -27,6 +28,14 @@ async function addView(viewerId, viewedId) {
       return { message: 'View already exists' };
     }
     const result = await viewsDao.create(viewerId, viewedId);
+    if (result) {
+      const io = getIO();
+      io.to(viewedId).emit('newView', {
+        viewerId: viewerId,
+        viewedId: viewedId,
+        timestamp: new Date(),
+      });
+    }
     return result;
   } catch (err) {
     err.message = `${errMessagePrefix}.addView: ${err.message}`;

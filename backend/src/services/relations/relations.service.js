@@ -180,7 +180,7 @@ async function addSuperLike(userId, receiverId) {
     }
     await relationDao.addSuperLike(senderId, receiverId);
     io.to(receiverId).emit(
-      "like",
+      "superLike",
       await getLikeBySenderIdAndReceiverId(senderId, receiverId)
     );
 

@@ -289,7 +289,7 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   GROUP BY l.id, users.userId
   `,
   ADD_NOTIFICATION: `INSERT INTO notifications (id, userId, type, content, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
-  GET_NOTIFICATIONS: `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC taking ? LIMIT ?`,
+  GET_NOTIFICATIONS: `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
   MARK_AS_READ: `UPDATE notifications SET isRead = true WHERE id = ?`,
   DELETE_NOTIFICATION: `DELETE FROM notifications WHERE id = ?`,
   ADD_BLOCK: `INSERT INTO blocks (id, blockerId, blockedId) VALUES (uuid(), ?, ?)`,

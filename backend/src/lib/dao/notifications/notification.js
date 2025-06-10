@@ -22,7 +22,7 @@ async function create(notification) {
 
 async function findByUserId(userId, take = 0, limit = 10) {
   return new Promise(async (resolve, reject) => {
-    (await client).execute(queries.GET_NOTIFICATIONS, [userId, take, limit], (err, result) => {
+    (await client).execute(queries.GET_NOTIFICATIONS, [userId, limit, take], (err, result) => {
       if (err) {
         err.message = `${errMessagePrefix}.findByUserId: ${err.message}`;
         return reject(err);
