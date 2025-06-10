@@ -1,6 +1,7 @@
 var viewsDao = require('@lib/dao/views/views');
 const { NotFoundException } = require('@lib/utils/exceptions');
 var userService = require('@services/user/user.service');
+var notificationsService = require('@services/notifications/notifications.service');
 const { getIO } = require("@lib/socketManager");
 
 
@@ -30,11 +31,12 @@ async function addView(viewerId, viewedId) {
     const result = await viewsDao.create(viewerId, viewedId);
     if (result) {
       const io = getIO();
-      io.to(viewedId).emit('newView', {
+      io.to(viewedId).emit(`${viewer.name} has viewed your profile`, {
         viewerId: viewerId,
         viewedId: viewedId,
         timestamp: new Date(),
       });
+      await notificationsService.createNotifcation(viewedId, 'view', `${viewer.name} has viewed your profile`);
     }
     return result;
   } catch (err) {
