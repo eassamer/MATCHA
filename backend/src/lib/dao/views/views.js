@@ -2,8 +2,8 @@ const queries = require("@lib/db/queries");
 const client = require("@lib/db/dbconnect");
 const errMessagePrefix = "ViewsDAO: ";
 
-async function create(view) {
-  const queryInput = [view.viewerId, view.viewedId, new Date()];
+async function create(viewerId, viewedId) {
+  const queryInput = [viewerId, viewedId, new Date(), viewedId, viewerId];
   return new Promise(async (resolve, reject) => {
     (await client).execute(queries.ADD_VIEW, queryInput, (err, result) => {
       if (err) {
