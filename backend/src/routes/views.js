@@ -1,6 +1,8 @@
 var express = require("express");
+var views = require("@controllers/views/views.controller");
 var router = express.Router();
-var views = require("@controllers/views/views.controllers");
 
 router.post("/", views.addView);
 router.get("/:userId", views.getViewsByUserId);
+
+module.exports = router;

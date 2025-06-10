@@ -22,6 +22,7 @@ var authRoutes = require("@routes/auth");
 var imagesRouter = require("@routes/images");
 var relationsRouter = require("@routes/relations");
 var blocksRouter = require("@routes/blocks");
+var viewsRouter = require("@routes/views");
 var cors = require("cors");
 const registerRelationEvents = require("@sockets/relations/relations.socket");
 var app = express();
@@ -223,6 +224,7 @@ app.use("/auth", authRoutes);
 app.use("/images", imagesRouter);
 app.use("/relations", relationsRouter);
 app.use("/blocks", blocksRouter);
+app.use("/views", viewsRouter )
 const server = http.createServer(app);
 
 const io = new Server(server, {
