@@ -201,7 +201,7 @@ GROUP BY users.userId
   // message queries
   ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
-  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
+  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
   // relations
   GET_NEARBY_USERS: `
   SELECT ${userFieldsWithImages},
