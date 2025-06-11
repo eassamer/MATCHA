@@ -64,7 +64,7 @@ export default function Home() {
               setDirection={setDirection}
             />
           )}
-          {!showDetailsCard && !loader && (
+          {cards.length > 0 && !showDetailsCard && !loader && (
             <SwipeButtons
               card={cards[cards.length - 1]}
               setDirection={setDirection}

@@ -48,7 +48,7 @@ export default function DetailsCard({
       </div>
 
       <div className="mb-8">
-        <ProfileAbout bio="My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.." />
+        <ProfileAbout bio={card.bio} />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 mb-8">

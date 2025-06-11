@@ -1,11 +1,16 @@
+"use client";
+
+import type React from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Send, Check } from "lucide-react";
+import { Send, Check } from "lucide-react";
 import { RiEmojiStickerLine } from "react-icons/ri";
 import { IoCall, IoVideocam } from "react-icons/io5";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { ActionMenu } from "./action-menu";
 
 export interface Message {
@@ -34,11 +39,33 @@ export const Chat = ({
   setNewMessage: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -59,6 +86,15 @@ export const Chat = ({
     setNewMessage("");
   };
 
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker((prev) => !prev);
+  };
+
   return (
     <div className="flex flex-col size-full mx-auto bg-white [box-shadow:0px_1px_50px_-11px_rgba(0,0,0,0.25)] rounded-0 lg:rounded-[15px]">
       {/* Header */}
@@ -75,7 +111,7 @@ export const Chat = ({
           <Avatar className="h-12 w-12">
             <AvatarImage
               className="object-cover"
-              src={user.avatar}
+              src={user.avatar || "/placeholder.svg"}
               alt="Grace"
             />
             <AvatarFallback>{user.initials}</AvatarFallback>
@@ -144,7 +180,7 @@ export const Chat = ({
       </div>
 
       {/* Input Area */}
-      <div className="p-4">
+      <div className="p-4 relative">
         <div className="flex items-center gap-2">
           <input
             value={newMessage}
@@ -157,9 +193,32 @@ export const Chat = ({
               }
             }}
           />
-          <Button variant="ghost" size="icon">
-            <RiEmojiStickerLine className="text-5 text-muted-foreground" />
-          </Button>
+          <div className="relative" ref={emojiPickerRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleEmojiPicker}
+              className={`${showEmojiPicker ? "bg-gray-100" : ""}`}
+            >
+              <RiEmojiStickerLine className="text-5 text-muted-foreground" />
+            </Button>
+
+            {/* Emoji Picker */}
+            {showEmojiPicker && (
+              <div className="absolute bottom-full right-0 mb-2 z-50">
+                <EmojiPicker
+                  onEmojiClick={handleEmojiClick}
+                  width={300}
+                  height={400}
+                  searchDisabled={false}
+                  skinTonesDisabled={false}
+                  previewConfig={{
+                    showPreview: false,
+                  }}
+                />
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSendMessage}
             className="bg-transparent border-2 border-[#E8E6EA] text-white rounded-[11px] p-3"
