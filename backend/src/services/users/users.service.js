@@ -18,6 +18,7 @@ const {
   ServiceUnavailableException,
 } = require("@lib/utils/exceptions");
 
+
 /**
  * Hashes a given password using Argon2.
  *

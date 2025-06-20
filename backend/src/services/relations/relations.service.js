@@ -1,5 +1,6 @@
 var userService = require("@services/users/users.service");
 var relationDao = require("@dao/relations/relations");
+var notificationsService = require("@services/notifications/notifications.service");
 const { getIO } = require("@lib/socketManager");
 
 const {
@@ -133,6 +134,16 @@ async function addLike(userId, receiverId) {
       await userService.updateFameRating(receiverId);
       io.to(senderId).emit("match", receiverId);
       io.to(receiverId).emit("match", senderId);
+      notificationsService.createNotifcation(
+        receiverId,
+        "match",
+        `You have a new match with ${sender.name}`
+      );
+      notificationsService.createNotifcation(
+        senderId,
+        "match",
+        `You have a new match with ${receiver.name}`
+      );
       return await relationDao.getMatch(senderId, receiverId);
     } else {
       await relationDao.addLike(senderId, receiverId);
@@ -140,6 +151,11 @@ async function addLike(userId, receiverId) {
       io.to(receiverId).emit(
         "like",
         await getLikeBySenderIdAndReceiverId(senderId, receiverId)
+      );
+      notificationsService.createNotifcation(
+        receiverId,
+        "like",
+        `${sender.name} liked you`
       );
       return receiver;
     }
@@ -176,14 +192,28 @@ async function addSuperLike(userId, receiverId) {
       await relationDao.deleteLike(receiverId, senderId);
       io.to(senderId).emit("match", receiverId);
       io.to(receiverId).emit("match", senderId);
+      notificationsService.createNotifcation(
+        receiverId,
+        "match",
+        `You have a new match with ${sender.name}`
+      );
+      notificationsService.createNotifcation(
+        senderId,
+        "match",
+        `You have a new match with ${receiver.name}`
+      );
       return await relationDao.getMatch(senderId, receiverId);
     }
     await relationDao.addSuperLike(senderId, receiverId);
     io.to(receiverId).emit(
-      "like",
+      "superLike",
       await getLikeBySenderIdAndReceiverId(senderId, receiverId)
     );
-
+    notificationsService.createNotifcation(
+      receiverId,
+      "superLike",
+      `${sender.name} super liked you`
+    );
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.addSuperLike: ${error.message}`);
@@ -227,6 +257,19 @@ async function deleteMatch(senderId, receiverId) {
     }
     await userService.updateFameRating(receiverId);
     await userService.updateFameRating(senderId);
+    const io = getIO();
+    io.to(senderId).emit("unmatch", receiverId);
+    io.to(receiverId).emit("unmatch", senderId);
+    notificationsService.createNotifcation(
+      receiverId,
+      "unmatch",
+      `${senderId} has unmatched you`
+    );
+    notificationsService.createNotifcation(
+      senderId,
+      "unmatch",
+      `you have unmatched ${receiver.name}`
+    );
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.deleteMatch: ${error.message}`);
@@ -265,6 +308,16 @@ async function addDislike(senderId, receiverId) {
       throw new ServiceUnavailableException("could not add dislike");
     }
     await userService.updateFameRating(receiverId);
+    const io = getIO();
+    io.to(receiverId).emit(
+      "dislike",
+      await getLikeBySenderIdAndReceiverId(senderId, receiverId)
+    );
+    notificationsService.createNotifcation(
+      receiverId,
+      "dislike",
+      `${senderId} disliked you`
+    );
     return receiver;
   } catch (error) {
     console.error(`${errMessagePrefix}.add_dislike: ${error.message}`);

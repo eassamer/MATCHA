@@ -191,8 +191,7 @@ GROUP BY users.userId
   FIND_IMAGE_BY_OWNER_AND_IDX: `SELECT * FROM images WHERE ownerId = ? AND idx = ?`,
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
-  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId,superLike) VALUES (uuid(), ?, ?, false)`,
-  ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike) VALUES (uuid(), ?, ?, true)`,
+  ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   // match queries
@@ -202,7 +201,7 @@ GROUP BY users.userId
   // message queries
   ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
-  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)`,
+  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
   // relations
   GET_NEARBY_USERS: `
   SELECT ${userFieldsWithImages},
@@ -216,6 +215,7 @@ GROUP BY users.userId
     LEFT JOIN dislikes d ON d.receiverId = users.userId AND d.senderId = ?
     LEFT JOIN likes l ON l.receiverId = users.userId AND l.senderId = ?
     LEFT JOIN matches m ON (m.user1Id = users.userId OR m.user2Id = users.userId) AND (m.user1Id = ? OR m.user2Id = ?)
+    LEFT JOIN blocks b ON (b.blockedId = users.userId AND b.blockerId = ?) OR (b.blockedId = ? AND b.blockerId = users.userId)
     WHERE users.userId != ?
     AND JSON_CONTAINS(users.orientation, JSON_QUOTE(?)) -- they interested  in your gender
     AND JSON_CONTAINS(?, JSON_QUOTE(users.sex)) -- you are interested in their gender
@@ -227,6 +227,8 @@ GROUP BY users.userId
     AND l.senderId IS NULL  -- Exclude liked users
     AND m.user1Id IS NULL  -- Exclude matched users
     AND m.user2Id IS NULL  -- Exclude matched users
+    AND b.blockedId IS NULL  -- Exclude blocked users
+    AND b.blockerId IS NULL  -- Exclude blocked users
     GROUP BY users.userId
     HAVING distance <= ?
     ORDER BY distance ASC;
@@ -286,6 +288,17 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   WHERE l.senderId = ? AND l.receiverId = ?
   GROUP BY l.id, users.userId
   `,
+  ADD_NOTIFICATION: `INSERT INTO notifications (id, userId, type, content, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
+  GET_NOTIFICATIONS: `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
+  MARK_AS_READ: `UPDATE notifications SET isRead = true WHERE id = ?`,
+  DELETE_NOTIFICATION: `DELETE FROM notifications WHERE id = ?`,
+  ADD_BLOCK: `INSERT INTO blocks (id, blockerId, blockedId) VALUES (uuid(), ?, ?)`,
+  CHECK_BLOCK: `SELECT * FROM blocks WHERE (blockerId = ? AND blockedId = ?) OR (blockerId = ? AND blockedId = ?)`,
+  DELETE_BLOCK: `DELETE FROM blocks WHERE blockerId = ? AND blockedId = ?`,
+  GET_BLOCKED_USERS: `SELECT blocks.*, ${userFieldsWithImages} FROM blocks JOIN users ON (blocks.blockedId = users.userId) WHERE blockerId = ?`,
+  ADD_VIEW: `INSERT INTO views (id, viewerId, viewedId, createdAt) SELECT uuid(), ?, ?, ? WHERE NOT EXISTS (SELECT * FROM views WHERE viewerId = ? AND viewedId = ?)`,
+  GET_VIEWS: `SELECT blocks.*, ${userFieldsWithImages} FROM views JOIN users WHERE viewedId = ? and users.userId = viewerId`,
+  CHECK_VIEW: `SELECT * FROM views WHERE viewerId = ? AND viewedId = ?`,
 };
 
 module.exports = queries;
