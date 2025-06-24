@@ -33,6 +33,8 @@ async function getNearbyUsers(
       userId,
       userId,
       userId,
+      userId,
+      userId,
       sex,
       orientation,
       radiusInKm,
