@@ -38,12 +38,12 @@ export default function DetailsCard({
           name={card.displayName}
           age={calculateAge(card.birthDate!)}
           rating={card.fameRating}
-          profession="Professional model"
+          profession={card.firstName + " " + card.lastName}
         />
 
         <ProfileLocation
-          location="Chicago, IL United States"
-          distance={card.distance.toFixed(0)}
+          location={card.city + ", " + card.country}
+          distance={2 + card.distance.toFixed(0) + " km"}
         />
       </div>
 

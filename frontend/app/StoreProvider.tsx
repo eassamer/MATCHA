@@ -29,12 +29,15 @@ export default function StoreProvider({
     const res = await getRelations();
     // add id to each res.data + res.data
     let id = 0;
-    const users = res.data.map((user: any) => {
-      return {
-        ...user,
-        id: id++,
-      };
-    });
+    let users = [];
+    if (res.data.length > 0) {
+      users = res.data.map((user: any) => {
+        return {
+          ...user,
+          id: id++,
+        };
+      });
+    }
     storeRef.current!.dispatch(setUsersNearBy(users));
   }
 

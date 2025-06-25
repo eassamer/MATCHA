@@ -9,6 +9,9 @@ export interface UserNearByType {
   birthDate?: Date;
   email: string;
   createdAt: string;
+  city: string;
+  country: string;
+  region: string;
   longitude: number;
   latitude: number;
   radiusInKm: number;
@@ -37,6 +40,9 @@ const initialState: UsersNearByState = {
       email: "",
       createdAt: "",
       longitude: 0,
+      city: "",
+      country: "",
+      region: "",
       latitude: 0,
       radiusInKm: 0,
       interests: [],

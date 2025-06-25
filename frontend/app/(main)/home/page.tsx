@@ -44,6 +44,11 @@ export default function Home() {
               <h1 className="font-poppins text-[24px] font-bold">Discover</h1>
             </div>
           )}
+          {loader && (
+            <div className="size-full flex items-center justify-center">
+              <BounceLoader color="#C13D88" />
+            </div>
+          )}
           {!showDetailsCard && (
             <div className="absolute top-4 right-4 hidden lg:block">
               <FilterButton />
@@ -64,14 +69,13 @@ export default function Home() {
               setDirection={setDirection}
             />
           )}
-          {!showDetailsCard && !loader && (
+          {cards.length > 0 && !showDetailsCard && !loader && (
             <SwipeButtons
               card={cards[cards.length - 1]}
               setDirection={setDirection}
               setShowDetailsCard={setShowDetailsCard}
             />
           )}
-          {loader && <BounceLoader color="#C13D88" />}
         </div>
       </div>
     </div>

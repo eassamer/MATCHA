@@ -227,7 +227,7 @@ app.use("/auth", authRoutes);
 app.use("/images", imagesRouter);
 app.use("/relations", relationsRouter);
 app.use("/blocks", blocksRouter);
-app.use("/views", viewsRouter );
+app.use("/views", viewsRouter);
 app.use("/notifications", notificationRouter);
 app.use("/messages", messageRouter);
 const server = http.createServer(app);

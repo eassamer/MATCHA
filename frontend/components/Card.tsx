@@ -107,7 +107,7 @@ export const Card = ({
       <div className="z-99 absolute flex items-center gap-1 justify-center top-3 left-3 w-fit px-2 h-[35px] bg-[#000000CF] rounded-[7px]">
         <Location size="16" color="#FFFFFF" />
         <h1 className="text-[12px] font-bold font-poppins text-white">
-          Ifrane, Ma
+          {cards[id].city}, {cards[id].country}
         </h1>
       </div>
       <div className="z-99 absolute w-full h-[22%] bottom-0 bg-[#00000026] rounded-b-lg flex flex-col items-start justify-center px-4">
@@ -115,7 +115,10 @@ export const Card = ({
           {cards[id].displayName}, {calculateAge(cards[id].birthDate!)}
         </h1>
         <h1 className="text-[14px] font-regular font-poppins text-white">
-          Professional whore
+          {cards[id].bio && cards[id].bio.length > 10
+            ? cards[id].bio.slice(0, 10) + "..."
+            : cards[id].bio}
+          {cards[id].bio == null && "No bio"}
         </h1>
       </div>
       <img

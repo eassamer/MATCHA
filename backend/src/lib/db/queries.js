@@ -1,5 +1,5 @@
 const userFields =
-  "users.userId, users.firstName, users.lastName, users.displayName,\
+  "users.userId, users.firstName, users.lastName, users.city, users.country, users.displayName,\
 users.birthDate, users.email, users.createdAt, users.longitude, users.latitude, users.radiusInKm,\
 users.interests, users.sex, users.orientation, users.bio, users.emailVerified, users.fameRating";
 
