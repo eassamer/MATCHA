@@ -10,7 +10,7 @@ async function create(notification) {
     new Date(),
   ];
   return new Promise(async (resolve, reject) => {
-    (await client).execute(queries.ADD_NEW_NOTIFICATION, queryInput, (err, result) => {
+    (await client).execute(queries.ADD_NOTIFICATION, queryInput, (err, result) => {
       if (err) {
         err.message = `${errMessagePrefix}.create: ${err.message}`;
         return reject(err);
@@ -34,7 +34,7 @@ async function findByUserId(userId, take = 0, limit = 10) {
 
 async function markAsRead(notificationId) {
   return new Promise(async (resolve, reject) => {
-    (await client).execute(queries.MARK_NOTIFICATION_AS_READ, [notificationId], (err, result) => {
+    (await client).execute(queries.MARK_AS_READ, [notificationId], (err, result) => {
       if (err) {
         err.message = `${errMessagePrefix}.markAsRead: ${err.message}`;
         return reject(err);

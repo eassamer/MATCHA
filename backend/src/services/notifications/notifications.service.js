@@ -9,7 +9,6 @@ async function createNotifcation(userId, type, content) {
       userId,
       type,
       content,
-      createdAt: new Date(),
     };
     const result = await notificatioDao.create(notification);
     return result;
