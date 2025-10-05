@@ -25,6 +25,10 @@ interface ProfileDetailsImageAndBirthdate {
   birthDate: Date;
 }
 
+interface Orientation {
+  orientation: string[];
+}
+
 interface Gender {
   gender: "female" | "male" | "other";
 }
@@ -63,8 +67,7 @@ export const ProfileDetailsSchema: ZodType<ProfileDetails> = z.object({
     .regex(/^[a-zA-Z]+$/, { message: "Name can only contain letters" }),
   displayName: z
     .string()
-    .min(3, { message: "Display name has to be at least three letter long" })
-    .regex(/^[a-zA-Z]+$/, { message: "Display name can only contain letters" }),
+    .min(3, { message: "Display name has to be at least three letter long" }),
   image: z.string().min(100, { message: "image is required" }),
   birthDate: z
     .date()
@@ -102,10 +105,7 @@ export const ProfileDetailsLargeSchema: ZodType<ProfileDetailsLarge> = z.object(
       .regex(/^[a-zA-Z]+$/, { message: "Name can only contain letters" }),
     displayName: z
       .string()
-      .min(3, { message: "Display name has to be at least three letter long" })
-      .regex(/^[a-zA-Z]+$/, {
-        message: "Display name can only contain letters",
-      }),
+      .min(3, { message: "Display name has to be at least three letter long" }),
   }
 );
 
@@ -146,4 +146,10 @@ export const InterestsSchema: ZodType<Interests> = z.object({
   interests: z
     .array(z.string())
     .max(5, { message: "You can't pick more than five interests" }),
+});
+
+export const OrientationSchema: ZodType<Orientation> = z.object({
+  orientation: z
+    .array(z.string())
+    .min(1, { message: "Please choose your orientation" }),
 });

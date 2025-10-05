@@ -27,6 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       { path: "/likes", Icon: Heart, showNotif: true },
       { path: "/messages", Icon: Message, showNotif: false },
       { path: "/profile", Icon: Profile, showNotif: false },
+      { path: "/settings", Icon: Setting2, showNotif: false },
     ],
     desktopMenu: [
       {
@@ -129,7 +130,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="w-full h-[calc(100%-60px)] lg:w-[calc(100%-250px)] lg:h-full">
             {children}
           </div>
-          <div className="w-full h-[60px] bg-[#F3F3F3] lg:hidden flex items-center justify-between px-12">
+          <div className="w-full h-[60px] bg-[#F3F3F3] lg:hidden flex items-center justify-between px-7">
             {routes.mobileNav.map((item, index) => (
               <Link
                 key={index}

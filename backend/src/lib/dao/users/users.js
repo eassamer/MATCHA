@@ -19,6 +19,7 @@ async function create(user) {
     user.email,
     user.password,
     user.sex,
+    user.orientation,
     user.interests,
     new Date(),
   ];
@@ -38,7 +39,6 @@ async function create(user) {
     });
   });
 }
-
 
 /**
  * @description updates the user's first name
@@ -65,6 +65,23 @@ async function updatePassword(userId, password) {
   });
 }
 
+async function updateFameRating(userId) {
+  const queryInput = [userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.UPDATE_FAME_RATING,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.updateFameRating: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 /**
  * @description removes a user from the database
  * @param {*} userId the id of the user to remove
@@ -81,6 +98,31 @@ async function remove(userId) {
       (err, result) => {
         if (err) {
           err.message = `${errMessagePrefix}.remove: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
+/**
+ * @description Updates the last location of a user in the database.
+ * @param {number} userId the id of the user to update
+ * @param {number} longitude the new longitude
+ * @param {number} latitude the new latitude
+ * @returns {Promise} a promise that resolves to an object containing the affected rows
+ * @throws {Error} if the database query fails
+ */
+async function updateLastLocation(userId, longitude, latitude, city, region, country) {
+  const queryInput = [longitude, latitude, city, region, country, userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.UPDATE_LAST_LOCATION,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.updateLastLocation: ${err.message}`;
           return reject(err);
         }
         resolve(result);
@@ -129,6 +171,29 @@ async function findByEmail(email) {
       (err, result) => {
         if (err) {
           err.message = `${errMessagePrefix}.findByEmail: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
+/**
+ * Finds an authenticated user by email.
+ *
+ * @param {string} email - The email of the user to find.
+ * @returns {Promise} A promise that resolves with the result of the query.
+ */
+async function findAuthUserByEmail(email) {
+  const queryInput = [email];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.FIND_AUTH_USER_BY_EMAIL,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.findAuthUserByEmail: ${err.message}`;
           return reject(err);
         }
         resolve(result);
@@ -190,8 +255,34 @@ async function findAll() {
  * @returns {Promise} a promise that resolves to an object containing the affected rows
  * @throws {Error} if the database query fails
  */
-async function update(userId, firstName, lastName, email, latitude, longitude) {
-  const queryInput = [firstName, lastName, email, latitude, longitude, userId];
+async function update(
+  userId,
+  firstName,
+  lastName,
+  displayName,
+  email,
+  longitude,
+  latitude,
+  radiusInKm,
+  interests,
+  sex,
+  orientation,
+  bio
+) {
+  const queryInput = [
+    firstName,
+    lastName,
+    displayName,
+    email,
+    longitude,
+    latitude,
+    radiusInKm || 100,
+    interests || 0,
+    sex,
+    orientation,
+    bio || "",
+    userId,
+  ];
   return new Promise(async (resolve, reject) => {
     (await client).execute(queries.UPDATE_USER, queryInput, (err, result) => {
       if (err) {
@@ -203,13 +294,62 @@ async function update(userId, firstName, lastName, email, latitude, longitude) {
   });
 }
 
+async function reportUser(userId, reportedUserId, reason) {
+  const queryInput = [userId, reportedUserId, reason];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(queries.REPORT_USER, queryInput, (err, result) => {
+      if (err) {
+        err.message = `${errMessagePrefix}.reportUser: ${err.message}`;
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+
+async function getReports(userId) {
+  const queryInput = [userId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(queries.GET_REPORTS, queryInput, (err, result) => {
+      if (err) {
+        err.message = `${errMessagePrefix}.getReports: ${err.message}`;
+        return reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+
+async function getReportBySenderAndReceiver(senderId, receiverId) {
+  const queryInput = [senderId, receiverId];
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.FIND_REPORT_BY_SENDER_AND_RECEIVER,
+      queryInput,
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.getReportBySenderAndReceiver: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 module.exports = {
   create,
   remove,
+  updateFameRating,
   findById,
   findByEmail,
+  findAuthUserByEmail,
   findUsersByName,
   findAll,
   update,
   updatePassword,
+  updateLastLocation,
+  reportUser,
+  getReports,
+  getReportBySenderAndReceiver,
 };

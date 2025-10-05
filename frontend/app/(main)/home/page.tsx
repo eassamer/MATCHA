@@ -1,22 +1,32 @@
 "use client";
 import DetailsCard from "@/components/profile/details-card";
 import { SwipeButtons } from "@/components/home/SwipeButtons";
-import { cardData, SwipeCard } from "@/components/home/SwipeCard";
-import { useState } from "react";
+import { SwipeCard } from "@/components/home/SwipeCard";
+import { useEffect, useState } from "react";
 import FilterButton from "@/components/home/FilterButton";
 import RecentMessages from "@/components/messages/recent-messages";
+import { useAppSelector } from "@/lib/hooks";
+import { BounceLoader } from "react-spinners";
 
 export default function Home() {
-  const [cards, setCards] = useState(cardData);
   const [direction, setDirection] = useState("");
   const [showDetailsCard, setShowDetailsCard] = useState(false);
+  const cards = useAppSelector((state) => state.usersNearBy.usersNearBy);
+  const [loader, setLoader] = useState(true);
 
+  useEffect(() => {
+    if (cards.length == 1 && cards[0].displayName == "") {
+      setLoader(true);
+    } else {
+      setLoader(false);
+    }
+  });
   return (
     <div className="size-full lg:pt-14 pt-0 bg-[#F3F4F8] lg:px-10 px-0 flex flex-col items-start justify-start gap-6">
       <h1 className="hidden lg:block font-poppins text-[34px] font-bold">
         Discover
       </h1>
-      <div className="w-full lg:h-fit flex-grow lg:flex-grow  flex items-center justify-between">
+      <div className="w-full lg:max-h-[calc(100vh-60px)]  h-[calc(100vh-60px)] lg:h-[80%] flex-grow lg:flex-grow  flex items-center justify-between">
         <div className="custom:hidden lg:max-h-[86vh] lg:flex hidden w-[300px] h-[90%] bg-white rounded-[12.6px]">
           <RecentMessages />
         </div>
@@ -34,6 +44,11 @@ export default function Home() {
               <h1 className="font-poppins text-[24px] font-bold">Discover</h1>
             </div>
           )}
+          {loader && (
+            <div className="size-full flex items-center justify-center">
+              <BounceLoader color="#C13D88" />
+            </div>
+          )}
           {!showDetailsCard && (
             <div className="absolute top-4 right-4 hidden lg:block">
               <FilterButton />
@@ -41,21 +56,22 @@ export default function Home() {
           )}
           {showDetailsCard && (
             <DetailsCard
+              card={cards[cards.length - 1]}
               setShowDetailsCard={setShowDetailsCard}
               setDirection={setDirection}
             />
           )}
-          {!showDetailsCard && (
+          {!showDetailsCard && !loader && (
             <SwipeCard
               cards={cards}
-              setCards={setCards}
               direction={direction}
               setShowDetailsCard={setShowDetailsCard}
               setDirection={setDirection}
             />
           )}
-          {!showDetailsCard && (
+          {cards.length > 0 && !showDetailsCard && !loader && (
             <SwipeButtons
+              card={cards[cards.length - 1]}
               setDirection={setDirection}
               setShowDetailsCard={setShowDetailsCard}
             />

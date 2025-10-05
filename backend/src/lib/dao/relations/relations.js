@@ -11,7 +11,14 @@ const errMessagePrefix = "RelationDao: "; //for better debugging
  * @returns {Promise<Array>} A promise that resolves to an array of user objects
  * @throws Will throw an error if the database query fails or if the user location is not found
  */
-async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
+async function getNearbyUsers(
+  userId,
+  userLat,
+  userLon,
+  radiusInKm,
+  sex,
+  orientation
+) {
   try {
     if (!userLat || !userLon) {
       throw new Error("User location not found");
@@ -26,6 +33,10 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
       userId,
       userId,
       userId,
+      userId,
+      userId,
+      sex,
+      orientation,
       radiusInKm,
     ];
     return new Promise(async (resolve, reject) => {
@@ -44,6 +55,24 @@ async function getNearbyUsers(userId, userLat, userLon, radiusInKm) {
   }
 }
 
+async function checkLike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.CHECK_LIKE, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.checkLike: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in checkLike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 /**
  * @description Retrieves a list of users who have liked the user with the given userId
  * @param {number} userId The id of the user whose likes are being retrieved
@@ -54,13 +83,17 @@ async function getLikes(userId) {
   try {
     const queryInput = [userId];
     return new Promise(async (resolve, reject) => {
-      (await client).execute(queries.GET_LIKES, queryInput, (err, result) => {
-        if (err) {
-          err.message = `${errMessagePrefix}.getLikes: ${err.message}`;
-          return reject(err);
+      (await client).execute(
+        queries.GET_LIKED_BY,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.getLikes: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
         }
-        resolve(result);
-      });
+      );
     });
   } catch (err) {
     err.message = `Error in getLikes DAO: ${err.message}`;
@@ -77,7 +110,7 @@ async function getLikes(userId) {
  */
 async function addLike(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, false, new Date()];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.ADD_LIKE, queryInput, (err, result) => {
         if (err) {
@@ -93,6 +126,27 @@ async function addLike(senderId, receiverId) {
   }
 }
 
+async function addSuperLike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId, true, new Date()];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.ADD_SUPER_LIKE,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.addSuperLike: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in addSuperLike DAO: ${err.message}`;
+    throw err;
+  }
+}
 
 async function deleteLike(senderId, receiverId) {
   try {
@@ -191,6 +245,46 @@ async function checkMatch(senderId, receiverId) {
   }
 }
 
+async function checkDislike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.CHECK_DISLIKE,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.checkDislike: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in checkDislike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
+async function getMatch(user1Id, user2Id) {
+  try {
+    const queryInput = [user1Id, user1Id, user2Id, user2Id];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(queries.FIND_MATCH, queryInput, (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.getMatch: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  } catch (err) {
+    err.message = `Error in getMatch DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 /**
  * @description Adds a match between two users.
  * @param {number} senderId - The id of one of the users in the match.
@@ -242,6 +336,28 @@ async function addDislike(senderId, receiverId) {
   }
 }
 
+async function deleteDislike(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.DELETE_DISLIKE,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.deleteDislike: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in deleteDislike DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 async function getLikesBySenderId(senderId) {
   try {
     const queryInput = [senderId];
@@ -264,15 +380,43 @@ async function getLikesBySenderId(senderId) {
   }
 }
 
+async function getLikeBySenderIdAndReceiverId(senderId, receiverId) {
+  try {
+    const queryInput = [senderId, receiverId];
+    return new Promise(async (resolve, reject) => {
+      (await client).execute(
+        queries.GET_LIKE_BY_SENDER_ID_AND_RECEIVER_ID,
+        queryInput,
+        (err, result) => {
+          if (err) {
+            err.message = `${errMessagePrefix}.getLikeBySenderIdAndReceiverId: ${err.message}`;
+            return reject(err);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (err) {
+    err.message = `Error in getLikeBySenderIdAndReceiverId DAO: ${err.message}`;
+    throw err;
+  }
+}
+
 module.exports = {
   getNearbyUsers,
   getLikes,
+  checkLike,
   addLike,
+  addSuperLike,
   deleteLike,
   getMatches,
   deleteMatch,
   addMatch,
   checkMatch,
+  checkDislike,
+  getMatch,
   addDislike,
+  deleteDislike,
   getLikesBySenderId,
+  getLikeBySenderIdAndReceiverId,
 };

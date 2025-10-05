@@ -12,6 +12,7 @@ import { InterestsHandler } from "@/lib/InterestsHandler";
 import {
   GenderSchema,
   InterestsSchema,
+  OrientationSchema,
   ProfileDetailsImageAndBirthdateSchema,
   ProfileDetailsLargeSchema,
   ProfileDetailsSchema,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/SignupSchema";
 import { toast } from "react-hot-toast";
 import { SignupContext } from "@/context/SignupContext";
+import Orientation from "@/components/auth/Signup/Orientation";
 
 const Page = () => {
   const pathname = usePathname();
@@ -38,6 +40,7 @@ const Page = () => {
       lastName: state.lastName,
       displayName: state.displayName,
       birthDate: state.birthDate,
+      orientation: state.orientation,
       sex: state.gender,
       img: img,
       interests: InterestsHandler.interestsToInt(state.interests),
@@ -65,18 +68,20 @@ const Page = () => {
         "Profile details",
         "Profile details",
         "I am a",
+        "I want to date",
         "Your Interests",
       ]
-    : ["Sign Up", "Profile details", "I am a", "Your Interests"];
+    : ["Sign Up", "Profile details", "I am a", "I want to date", "Your Interests"];
   const schemas = isLargeScreen
     ? [
         SignupSchema,
         ProfileDetailsLargeSchema,
         ProfileDetailsImageAndBirthdateSchema,
         GenderSchema,
+        OrientationSchema,
         InterestsSchema,
       ]
-    : [SignupSchema, ProfileDetailsSchema, GenderSchema, InterestsSchema];
+    : [SignupSchema, ProfileDetailsSchema, GenderSchema, OrientationSchema, InterestsSchema];
 
   const param = parseInt(pathname.split("/")[3]);
   const step = isNaN(param) || param < 1 || param > steps.length ? 1 : param;
@@ -160,6 +165,8 @@ const Page = () => {
         case 3:
           return <IAmA />;
         case 4:
+          return <Orientation />;
+        case 5:
           return <Interests />;
         default:
           return <Email />;
@@ -175,6 +182,8 @@ const Page = () => {
         case 4:
           return <IAmA />;
         case 5:
+          return <Orientation />;
+        case 6:
           return <Interests />;
         default:
           return <Email />;

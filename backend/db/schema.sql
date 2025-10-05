@@ -6,6 +6,12 @@ CREATE TABLE users (
     lastName VARCHAR(50) NOT NULL,
     displayName VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    isOnline BOOLEAN DEFAULT false,
+    lastOnline DATETIME,
+    profession VARCHAR(100) default 'unemployed',
+    city VARCHAR(100) default 'Khouribga',
+    region VARCHAR(100) default 'Beni Mellal-Khenifra',
+    country VARCHAR(100) default 'Morocco',
     createdAt DATETIME NOT NULL,
     longitude float,
     latitude float,
@@ -14,7 +20,9 @@ CREATE TABLE users (
     radiusInKm INT default 100,
     interests INT, -- each interest is 1 shifted by a corresponding interest
     sex VARCHAR(10) NOT NULL,
+    orientation JSON NOT NULL,
     bio TEXT,
+    fameRating INT default 50,
     emailVerified BOOLEAN default false,
     emailVerificationToken VARCHAR(255),
     emailVerificationTokenExpiresAt DATETIME,
@@ -35,6 +43,7 @@ CREATE TABLE images (
     imageId INT AUTO_INCREMENT PRIMARY KEY,
     locationUrl varchar(255) NOT NULL,
     ownerId varchar(36),
+    publicId varchar(255),
     idx INT, -- 0 is profile picture
     FOREIGN KEY (ownerId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -43,6 +52,8 @@ CREATE TABLE likes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
+    superLike BOOLEAN DEFAULT false,
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -51,6 +62,7 @@ CREATE TABLE dislikes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -59,6 +71,7 @@ CREATE TABLE matches (
     id varchar(36) PRIMARY KEY,
     user1Id varchar(36),
     user2Id varchar(36),
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (user1Id) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (user2Id) REFERENCES users(userId) ON DELETE CASCADE
 );
@@ -68,6 +81,44 @@ CREATE TABLE messages (
     senderId varchar(36),
     receiverId varchar(36),
     content1 TEXT NOT NULL,
+    createdAt DATETIME NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE report (
+    id varchar(36) PRIMARY KEY,
+    senderId varchar(36),
+    receiverId varchar(36),
+    reason TEXT NOT NULL,
+    FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+
+CREATE TABLE notifications (
+    id varchar(36) PRIMARY KEY,
+    userId varchar(36),
+    type VARCHAR(50) NOT NULL, -- like, match, message, etc
+    content TEXT NOT NULL,
+    isRead BOOLEAN DEFAULT false,
+    createdAt DATETIME NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE blocks (
+    id varchar(36) PRIMARY KEY,
+    blockerId varchar(36),
+    blockedId varchar(36),
+    FOREIGN KEY (blockerId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (blockedId) REFERENCES users(userId) ON DELETE CASCADE
+);
+
+CREATE TABLE views (
+    id varchar(36) PRIMARY KEY,
+    viewerId varchar(36),
+    viewedId varchar(36),
+    createdAt DATETIME NOT NULL,
+    FOREIGN KEY (viewerId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (viewedId) REFERENCES users(userId) ON DELETE CASCADE
 );

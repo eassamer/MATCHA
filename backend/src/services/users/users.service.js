@@ -4,7 +4,31 @@ const userDao = require("@dao/users/users");
 const oauthUserDao = require("@dao/users/oauth.users");
 const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
+const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
+const nodeGeo = require("node-geocoder");
+const geocoder = nodeGeo({
+  provider: "google",
+  apiKey: process.env.GOOGLE_GEOCODE_API_KEY,
+});
+const {
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  ServiceUnavailableException,
+} = require("@lib/utils/exceptions");
+
+
+/**
+ * Hashes a given password using Argon2.
+ *
+ * @param {string} password - The password to hash.
+ *
+ * @returns {Promise<string>} The hashed password.
+ */
+async function hashPassword(password) {
+  return await argon2.hash(password);
+}
 
 function isValidDate(date) {
   const dateRegex = /\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])/; // yyyy-mm-dd
@@ -37,7 +61,7 @@ function isPasswordStrong(password) {
  * @returns true if the name is valid, false otherwise
  */
 function isNameValid(name) {
-  const nameRegex = /^[a-zA-Z]+$/;
+  const nameRegex = /^[a-zA-Z0-9 ]+$/;
   return nameRegex.test(name);
 }
 
@@ -71,6 +95,45 @@ function isValidInterest(interest) {
   return interest === undefined || interestRegex.test(interest);
 }
 
+function isValidLocation(latitude, longitude) {
+  if (latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180) {
+    return false;
+  }
+  const latitudeRegex = /^-?([1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
+  const longitudeRegex =
+    /^-?((1[0-7]\d|0?\d?\d)(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
+  return latitudeRegex.test(latitude) && longitudeRegex.test(longitude);
+}
+
+function isValidRadius(radius) {
+  return radius > 0 && radius <= 100;
+}
+
+function isValidReason(reason) {
+  const reasonRegex = /^[a-zA-Z0-9 "'()\[\]{}]{10,}$/;
+  return reasonRegex.test(reason);
+}
+
+function verifyOrientation(orientation) {
+  const validGenders = new Set(["male", "female", "other"]);
+
+  if (!Array.isArray(orientation)) {
+    return false;
+  }
+
+  if (orientation.length === 0 || orientation.length > 3) {
+    return false;
+  }
+
+  for (const gender of orientation) {
+    if (!validGenders.has(gender)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * @description validates a user object
  * @param {*} user the user object to validate
@@ -88,10 +151,16 @@ function validateUser(user) {
     "password",
     "img",
     "sex",
+    "orientation",
   ];
 
   for (const field of requiredFields) {
-    if (!user[field]) {
+    if (
+      !user[field] ||
+      user[field] === "" ||
+      user[field] === null ||
+      user[field] === undefined
+    ) {
       throw new Error(`Missing required field: ${field}`);
     }
   }
@@ -125,9 +194,10 @@ function validateUser(user) {
     throw new Error(`Invalid sex`);
   }
 
-  if (!isValidInterest(user.interests)) {
+  if (user.interests && !isValidInterest(user.interests)) {
     throw new Error(`Invalid interests`);
   }
+
   if (!imagesService.validateImage(user.img)) {
     throw new Error("Invalid image data");
   }
@@ -153,7 +223,7 @@ function validateUserUpdate(user) {
     "email",
     "latitude",
     "longitude",
-    "userId",
+    "sex",
   ];
 
   for (const field of requiredFields) {
@@ -169,7 +239,32 @@ function validateUserUpdate(user) {
     !isNameValid(user.lastName) ||
     !isNameValid(user.displayName)
   ) {
-    throw new Error(`Invalid first name`);
+    throw new Error(`Invalid first name,last name or display name`);
+  }
+
+  if (!isValidSex(user.sex)) {
+    throw new Error(`Invalid sex`);
+  }
+
+
+  if (!verifyOrientation(user.orientation)) {
+    throw new Error(`Invalid orientation`);
+  }
+
+  if (!isValidLocation(user.latitude, user.longitude)) {
+    throw new Error(`Invalid location`);
+  }
+
+  if (user.radiusInKm && !isValidRadius(user.radiusInKm)) {
+    throw new Error(`Invalid radius`);
+  }
+
+  if (user.interests && !isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
+  }
+
+  if (user.interests && !isValidInterest(user.interests)) {
+    throw new Error(`Invalid interests`);
   }
 }
 /**
@@ -184,6 +279,7 @@ async function create(user) {
     newImage = null;
   try {
     validateUser(user);
+    user.password = await hashPassword(user.password);
     const oauthUser = await oauthUserDao.findByEmail(user.email);
     if (oauthUser.length > 0) {
       await oauthUserDao.remove(user.email);
@@ -195,10 +291,7 @@ async function create(user) {
     }
     newUser = await findByEmail(user.email);
     user.img.idx = 0; // force it to be a profile picture
-    const image = await imagesService.create({
-      user: { id: newUser.userId },
-      img: user.img,
-    });
+    const image = await imagesService.create({ id: newUser.userId }, user.img);
     if (image.affectedRows === 0) {
       throw new Error("Image not created");
     }
@@ -210,7 +303,25 @@ async function create(user) {
     if (newUser) remove(newUser.userId);
     if (newImage)
       imagesService.deleteImage({ user: { id: newUser.userId }, idx: 0 });
-    throw new Error(`${errMessagePrefix}.create: ${error.message}`);
+    console.error(`${errMessagePrefix}.create: ${error.message}`);
+    throw new Error(error.message);
+  }
+}
+
+async function updateFameRating(userId) {
+  try {
+    const user = await findById(userId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const queryOutput = await userDao.updateFameRating(userId);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return await findById(userId);
+  } catch (error) {
+    console.error(`${errMessagePrefix}.updateFameRating: ${error.message}`);
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -241,10 +352,10 @@ async function findOrCreate(user) {
     }
     return await oauthUserDao.findByEmail(user.email);
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
+    console.error(`${errMessagePrefix}.findOrCreate: ${error.message}`);
+    throw new Error(error.message);
   }
 }
-
 /**
  * @description finds all users
  * @returns an array of all users
@@ -280,6 +391,10 @@ async function findById(userId) {
     }
     return user[0];
   } catch (error) {
+    console.error(`${errMessagePrefix}.findById: ${error.message}`);
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
     throw new Error(`${errMessagePrefix}.findById: ${error.message}`);
   }
 }
@@ -292,14 +407,75 @@ async function findById(userId) {
  */
 async function findByEmail(email) {
   try {
-    if (!isValidEmail(email)) return await userDao.findByEmail(email);
+    if (!isValidEmail(email)) throw new Error("Invalid email");
     const user = await userDao.findByEmail(email);
     if (!user || user.length === 0) {
       throw new Error(`User with email ${email} not found`);
     }
     return user[0];
   } catch (error) {
+    console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
     throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+  }
+}
+
+async function findAuthUserByEmail(email) {
+  try {
+    if (!isValidEmail(email)) throw new Error("Invalid email");
+    const user = await userDao.findAuthUserByEmail(email);
+    if (!user || user.length === 0) {
+      throw new Error(`User with email ${email} not found`);
+    }
+    return user[0];
+  } catch (error) {
+    console.error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
+    throw new Error(`${errMessagePrefix}.findByEmail: ${error.message}`);
+  }
+}
+
+async function updateLocation(id, longitude, latitude) {
+  try {
+    if (!isValidLocation(latitude, longitude)) {
+      throw new BadRequestException("Invalid location");
+    }
+    const user = await findById(id);
+    const res = await geocoder.reverse({ lat: latitude, lon: longitude });
+    if (res.length === 0) {
+      throw new BadRequestException("Invalid location");
+    }
+    const city = res[0].city || res[0].locality || res[0].name;
+    const region = res[0].administrativeLevels.level1short;
+    const country = res[0].country;
+
+    const queryOutput = await userDao.updateLastLocation(
+      id,
+      latitude,
+      longitude,
+      city,
+      region,
+      country
+    );
+
+    if (queryOutput.affectedRows !== 0) {
+      user.longitude = longitude;
+      user.latitude = latitude;
+    }
+    return user;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
+    throw new BadRequestException(error.message);
   }
 }
 
@@ -332,6 +508,13 @@ async function findUsersByName({ name, limit, offset }) {
     const users = await userDao.findUsersByName(name, limit, offset);
     return users;
   } catch (error) {
+    if (
+      error.message.includes("Invalid") ||
+      error.message.includes("Limit too large")
+    ) {
+      throw new BadRequestException(error.message);
+    }
+    console.error(`${errMessagePrefix}.findUsersByName: ${error.message}`);
     throw new Error(`${errMessagePrefix}.findUsersByName: ${error.message}`);
   }
 }
@@ -356,7 +539,6 @@ async function getLocationByIP(id, ip) {
       throw new Error(data.message);
     }
 
-    // Build and return the location object
     const location = {
       latitude: data.lat,
       longitude: data.lon,
@@ -386,24 +568,54 @@ async function findAll() {
   }
 }
 
-async function update(user) {
+async function update(userId, user) {
   try {
     validateUserUpdate(user);
-    const { userId, firstName, lastName, email, latitude, longitude } = user;
-    if (!userId) {
-      throw new Error("User ID is required");
+    const {
+      firstName,
+      lastName,
+      displayName,
+      email,
+      longitude,
+      latitude,
+      radiusInKm,
+      interests,
+      sex,
+      orientation,
+      bio,
+    } = user;
+    const emailExists = await userDao.findByEmail(email);
+    if (emailExists && emailExists.length && emailExists[0].userId !== userId) {
+      throw new Error("Email already exists");
     }
 
-    return await userDao.update(
+    const result = userDao.update(
       userId,
       firstName,
       lastName,
+      displayName,
       email,
+      longitude,
       latitude,
-      longitude
+      radiusInKm,
+      interests,
+      sex,
+      orientation,
+      bio
     );
+    if (result.affectedRows === 0) {
+      throw new Error("User not updated");
+    }
+    return await findById(userId);
   } catch (error) {
-    throw new Error(`${errMessagePrefix}.update: ${error.message}`);
+    console.error(`${errMessagePrefix}.update: ${error.message}`);
+    if (error.message.includes("exists")) {
+      throw new ForbiddenException("Email already exists");
+    }
+    if (error.message.includes("updated")) {
+      throw new ServiceUnavailableException(error.message);
+    }
+    throw new BadRequestException("Invalid user object: " + error.message);
   }
 }
 
@@ -418,7 +630,7 @@ async function update(user) {
  */
 async function updatePassword(userId, password) {
   try {
-    if (!isPasswordStrong(password)) {
+    if (!password || !isPasswordStrong(password)) {
       throw new Error(
         "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
       );
@@ -430,7 +642,61 @@ async function updatePassword(userId, password) {
     }
     return user;
   } catch (error) {
+    if (error.message.includes("Password must be at least 8 characters long")) {
+      throw new BadRequestException(error.message);
+    }
+    console.error(`${errMessagePrefix}.updatePassword: ${error.message}`);
     throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
+  }
+}
+
+async function reportUser(userId, reportedUserId, reason) {
+  try {
+    if (!reportedUserId || reportedUserId === userId || reportedUserId === "") {
+      throw new Error("Invalid reported user id");
+    }
+    if (!isValidReason(reason)) {
+      throw new Error("Invalid reason");
+    }
+    const user = await findById(reportedUserId);
+    if (!user) {
+      throw new Error(`User with Id: ${userId} not found`);
+    }
+    const oldReport = await userDao.getReportBySenderAndReceiver(
+      userId,
+      reportedUserId
+    );
+    if (oldReport.length > 0) {
+      throw new Error("User already reported");
+    }
+    const queryOutput = await userDao.reportUser(
+      userId,
+      reportedUserId,
+      reason
+    );
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    await updateFameRating(reportedUserId);
+    if (queryOutput.affectedRows === 0) {
+      throw new Error("User not reported");
+    }
+    return user;
+  } catch (error) {
+    console.error(`${errMessagePrefix}.reportUser: ${error.message}`);
+    if (error.message.includes("Invalid")) {
+      throw new BadRequestException(error.message);
+    }
+    if (error.message.includes("already reported")) {
+      throw new ForbiddenException(error.message);
+    }
+    if (error.message.includes("not found")) {
+      throw new NotFoundException(error.message);
+    }
+    if (error.message.includes("reported")) {
+      throw new ServiceUnavailableException(error.message);
+    }
+    throw new ServiceUnavailableException(error.message);
   }
 }
 
@@ -439,10 +705,14 @@ module.exports = {
   remove,
   findById,
   findByEmail,
+  findAuthUserByEmail,
   findUsersByName,
   findOrCreate,
   getLocationByIP,
   findAll,
   update,
+  updateFameRating,
   updatePassword,
+  updateLocation,
+  reportUser,
 };

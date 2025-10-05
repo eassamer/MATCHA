@@ -6,6 +6,7 @@ import { IoCall, IoVideocam } from "react-icons/io5";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { ActionMenu } from "./action-menu";
 
 export interface Message {
   id: number;
@@ -23,9 +24,9 @@ export const Chat = ({
   setNewMessage,
 }: {
   user: {
-    name: string,
-    avatar: string,
-    initials: string,
+    name: string;
+    avatar: string;
+    initials: string;
   };
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -67,9 +68,9 @@ export const Chat = ({
             onClick={() => {
               router.push("/messages");
             }}
-            className="lg:hidden bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-3"
+            className="lg:hidden bg-transparent rounded-[11px] border-2 border-[#E8E6EA] p-2"
           >
-            <ArrowLeft size="24" className="text-primary" />
+            <ArrowLeft size="20" className="text-primary" />
           </button>
           <Avatar className="h-12 w-12">
             <AvatarImage
@@ -104,9 +105,7 @@ export const Chat = ({
           >
             <IoVideocam className="text-[24px] text-primary" />
           </Button>
-          <button className="p-2 border-[#E8E6EA] border-2 rounded-[11px]">
-            <MoreVertical className="h-5 w-5" />
-          </button>
+          <ActionMenu />
         </div>
       </div>
 
