@@ -1,57 +1,62 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { User } from "@/lib/types";
+import { getMe } from "@/hooks/users";
+import { getErrorMessage } from "@/lib/api";
 
-export interface UserState {
-  bio: string;
-  birthDate?: Date;
-  createdAt?: Date;
-  displayName: string;
-  email: string;
-  emailVerified: boolean;
-  firstName: string;
-  includingRange: number;
-  interests: number;
-  lastName: string;
-  latitude: string;
-  longitude: string;
-  radiusInKm: number;
-  sex: string;
-  userId: string;
-  userImages: string[];
-}
+/** The signed-in user. `userId === ""` means nothing has been loaded yet. */
+export type UserState = User;
 
 export const initialState: UserState = {
   userId: "",
-  email: "",
-  emailVerified: false,
   firstName: "",
   lastName: "",
   displayName: "",
+  email: "",
+  emailVerified: false,
   bio: "",
-  birthDate: undefined,
-  createdAt: undefined,
+  birthDate: null,
+  createdAt: null,
+  city: null,
+  region: null,
+  country: null,
+  profession: null,
+  latitude: null,
+  longitude: null,
+  radiusInKm: 100,
   includingRange: 0,
   interests: 0,
-  latitude: "",
-  longitude: "",
-  radiusInKm: 0,
   sex: "",
+  orientation: [],
+  fameRating: 50,
+  isOnline: false,
+  lastOnline: null,
   userImages: [],
 };
+
+export const fetchCurrentUser = createAsyncThunk<User, void, { rejectValue: string }>(
+  "user/fetchCurrent",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getMe();
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<UserState>) => {
-      return action.payload;
-    },
-    clearUser: (state) => {
-      state = initialState;
-      return state;
-    },
+    setUser: (_state, action: PayloadAction<UserState>) => action.payload,
+    clearUser: () => initialState,
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchCurrentUser.fulfilled, (_state, action) => action.payload);
   },
 });
 
 export const { setUser, clearUser } = userSlice.actions;
+export const isUserLoaded = (user: UserState) => user.userId !== "";
 
 export default userSlice.reducer;

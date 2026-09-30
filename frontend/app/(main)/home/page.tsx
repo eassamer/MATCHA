@@ -2,25 +2,22 @@
 import DetailsCard from "@/components/profile/details-card";
 import { SwipeButtons } from "@/components/home/SwipeButtons";
 import { SwipeCard } from "@/components/home/SwipeCard";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FilterButton from "@/components/home/FilterButton";
 import RecentMessages from "@/components/messages/recent-messages";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchNearbyUsers } from "@/lib/features/users/userNearBySlice";
 import { BounceLoader } from "react-spinners";
 
 export default function Home() {
   const [direction, setDirection] = useState("");
   const [showDetailsCard, setShowDetailsCard] = useState(false);
-  const cards = useAppSelector((state) => state.usersNearBy.usersNearBy);
-  const [loader, setLoader] = useState(true);
+  const { items: cards, status, error } = useAppSelector((state) => state.usersNearBy);
+  const dispatch = useAppDispatch();
+  const loading = status === "idle" || status === "loading";
+  const ready = status === "ready";
+  const topCard = cards[cards.length - 1];
 
-  useEffect(() => {
-    if (cards.length == 1 && cards[0].displayName == "") {
-      setLoader(true);
-    } else {
-      setLoader(false);
-    }
-  });
   return (
     <div className="size-full lg:pt-14 pt-0 bg-[#F3F4F8] lg:px-10 px-0 flex flex-col items-start justify-start gap-6">
       <h1 className="hidden lg:block font-poppins text-[34px] font-bold">
@@ -44,9 +41,30 @@ export default function Home() {
               <h1 className="font-poppins text-[24px] font-bold">Discover</h1>
             </div>
           )}
-          {loader && (
-            <div className="size-full flex items-center justify-center">
+          {loading && (
+            <div
+              data-testid="nearby-loader"
+              className="size-full flex items-center justify-center"
+            >
               <BounceLoader color="#C13D88" />
+            </div>
+          )}
+          {status === "error" && (
+            <div
+              role="alert"
+              className="size-full flex flex-col items-center justify-center gap-3 px-8 text-center"
+            >
+              <h2 className="font-poppins text-[22px] font-semibold">
+                We couldn&apos;t load profiles
+              </h2>
+              <p className="font-poppins text-[14px] text-gray-500">{error}</p>
+              <button
+                type="button"
+                onClick={() => dispatch(fetchNearbyUsers())}
+                className="mt-2 rounded-[12px] bg-primary px-6 py-3 font-poppins font-bold text-white"
+              >
+                Try again
+              </button>
             </div>
           )}
           {!showDetailsCard && (
@@ -54,14 +72,14 @@ export default function Home() {
               <FilterButton />
             </div>
           )}
-          {showDetailsCard && (
+          {showDetailsCard && topCard && (
             <DetailsCard
-              card={cards[cards.length - 1]}
+              card={topCard}
               setShowDetailsCard={setShowDetailsCard}
               setDirection={setDirection}
             />
           )}
-          {!showDetailsCard && !loader && (
+          {!showDetailsCard && ready && (
             <SwipeCard
               cards={cards}
               direction={direction}
@@ -69,9 +87,9 @@ export default function Home() {
               setDirection={setDirection}
             />
           )}
-          {cards.length > 0 && !showDetailsCard && !loader && (
+          {topCard && !showDetailsCard && ready && (
             <SwipeButtons
-              card={cards[cards.length - 1]}
+              card={topCard}
               setDirection={setDirection}
               setShowDetailsCard={setShowDetailsCard}
             />

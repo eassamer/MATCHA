@@ -46,7 +46,7 @@ async function createUser(overrides = {}) {
     firstName: `First${n}`,
     lastName: `Last${n}`,
     displayName: `user${n}`,
-    email: `user${n}@test.com`,
+    email: `test${n}@matcha.test`,
     password: "Password123",
     sex: "female",
     orientation: ["male", "female", "other"],

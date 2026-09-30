@@ -87,7 +87,7 @@ export function ActionMenu() {
           <DialogHeader>
             <DialogTitle>Block User</DialogTitle>
             <DialogDescription>
-              Are you sure you want to block this user? They won't be able to
+              Are you sure you want to block this user? They won&apos;t be able to
               contact you again.
             </DialogDescription>
           </DialogHeader>

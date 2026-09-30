@@ -9,7 +9,7 @@ import {
 import { useAppDispatch } from "@/lib/hooks";
 import { addDislike, addLike, addSuperLike } from "@/hooks/likes";
 
-export function calculateAge(dateOfBirth: Date) {
+export function calculateAge(dateOfBirth: Date | string) {
   const birthDate = new Date(dateOfBirth); // Parse the birthdate
   const currentDate = new Date(); // Get the current date
   let age = currentDate.getFullYear() - birthDate.getFullYear(); // Calculate the age based on years
