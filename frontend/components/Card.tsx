@@ -1,6 +1,6 @@
 "use client";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Location } from "iconsax-react";
 import {
   setUsersNearBy,
@@ -8,8 +8,9 @@ import {
 } from "@/lib/features/users/userNearBySlice";
 import { useAppDispatch } from "@/lib/hooks";
 import { addDislike, addLike, addSuperLike } from "@/hooks/likes";
+import { createDragGuard } from "@/lib/dragGuard";
 
-export function calculateAge(dateOfBirth: Date) {
+export function calculateAge(dateOfBirth: Date | string) {
   const birthDate = new Date(dateOfBirth); // Parse the birthdate
   const currentDate = new Date(); // Get the current date
   let age = currentDate.getFullYear() - birthDate.getFullYear(); // Calculate the age based on years
@@ -43,6 +44,8 @@ export const Card = ({
   const rotate = useTransform(x, [-100, 100], [-20, 20]);
   const opacity = useTransform(x, [-100, 0, 100], [0.5, 1, 0.5]);
   const dispatch = useAppDispatch();
+  // a drag release also fires a click; only open details on a real tap
+  const dragGuard = useRef(createDragGuard()).current;
 
   const isFront = id === cards[cards.length - 1].id;
 
@@ -71,6 +74,7 @@ export const Card = ({
   }, [direction]);
 
   const dragEnd = () => {
+    dragGuard.onDragEnd();
     const dragThreshold = 100;
     if (x.get() < -dragThreshold) {
       dispatch(setUsersNearBy(cards.filter((card) => card.id !== id)));
@@ -96,10 +100,11 @@ export const Card = ({
         transition: direction.length > 0 ? "all 0.2s ease-in-out" : "none",
       }}
       onClick={() => {
-        setShowDetailsCard(true);
+        if (dragGuard.shouldHandleClick()) setShowDetailsCard(true);
       }}
       drag
       dragMomentum={false}
+      onDragStart={dragGuard.onDragStart}
       onDragEnd={dragEnd}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       className="w-fit h-fit relative flex items-center justify-end hover:cursor-grab active:cursor-grabbing"

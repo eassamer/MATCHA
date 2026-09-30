@@ -1,70 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import axios from "axios";
-import * as jose from "jose";
+import { getSession, resolveRedirect } from "@/lib/auth/session";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.includes("/public/") ||
-    pathname.match(/\.(jpg|jpeg|png|gif|svg|ico)$/) ||
-    pathname.startsWith("/static")
-  ) {
-    return NextResponse.next();
-  }
-  if (pathname.startsWith("/auth")) {
-    const token = request.cookies.get("jwt");
-    if (token && token.value) {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/`,
-          {
-            headers: {
-              Authorization: `bearer ${token.value}`,
-            },
-          }
-        );
-        if (response.status !== 200) {
-          return NextResponse.next();
-        }
-      } catch (error) {
-        //@ts-expect-error error.response.data is not always defined
-        console.error(error?.response?.data);
-        return NextResponse.next();
-      }
-      return NextResponse.redirect(new URL("/home", request.url));
-    }
-    return NextResponse.next();
-  }
-  try {
-    const jwt = request.cookies.get("jwt");
-    if (!jwt || !jwt.value) {
-      return NextResponse.redirect(new URL("/auth/signup", request.url));
-    }
-    const decodedToken = jose.decodeJwt(jwt.value);
+  const token = request.cookies.get("jwt")?.value;
+  // JWT_SECRET (server-only env, same value as the backend) enables signature
+  // verification; without it only the expiry is checked.
+  const session = await getSession(token, process.env.JWT_SECRET);
+  const target = resolveRedirect(pathname, session);
 
-    // Check if token is expired
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (decodedToken.exp && decodedToken.exp > currentTime) {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/`, {
-        headers: {
-          Authorization: `bearer ${jwt.value}`,
-        },
-      });
-      if (response.status !== 200) {
-        return NextResponse.redirect(new URL("/auth/signup", request.url));
-      }
-    }
-
+  if (!target) {
     return NextResponse.next();
-  } catch (error) {
-    //@ts-expect-error error.response.data is not always defined
-    console.error(error?.response?.data);
-    return NextResponse.redirect(new URL("/auth/signup", request.url));
   }
+  const response = NextResponse.redirect(new URL(target, request.url));
+  if (session.state === "expired" || session.state === "invalid") {
+    response.cookies.delete("jwt");
+  }
+  return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // everything except Next internals and static assets
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp)$).*)",
+  ],
 };

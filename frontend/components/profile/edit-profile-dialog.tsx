@@ -15,6 +15,9 @@ import { interestsShifter } from "@/lib/constants";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setUser } from "@/lib/features/user/userSlice";
 import { updateUser } from "@/hooks/users";
+import { buildProfileUpdatePayload } from "@/lib/profile";
+import { getErrorMessage } from "@/lib/api";
+import toast from "react-hot-toast";
 
 // Define validation schema
 const profileSchema = z.object({
@@ -33,7 +36,7 @@ export default function EditProfileDialog({
   profileInfo: profileInfoType;
   setProfileInfo: React.Dispatch<React.SetStateAction<profileInfoType>>;
 }) {
-  let interestOptions: { label: string; value: string }[] = [];
+  const interestOptions: { label: string; value: string }[] = [];
   interestsShifter.map((interest, index) => {
     interestOptions.push({ label: interest.name, value: interest.name });
   });
@@ -106,37 +109,28 @@ export default function EditProfileDialog({
       }));
     }
   };
-  const handleSubmit = () => {
-    if (validateForm()) {
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!validateForm() || saving) return;
+    setSaving(true);
+    try {
+      // the payload keeps the user's real coordinates and identity fields
+      const updated = await updateUser(buildProfileUpdatePayload(user, formData));
+      dispatch(setUser(updated));
       setProfileInfo({
         ...profileInfo,
-        name: formData.displayName,
-        bio: formData.bio || "",
-        profession: formData.job || "",
-        interests: formData.interests || [],
+        name: updated.displayName,
+        bio: updated.bio,
+        profession: updated.profession ?? formData.job ?? "",
+        interests: InterestsHandler.intToInterests(updated.interests),
       });
-
-      dispatch(
-        setUser({
-          ...user,
-
-          displayName: formData.displayName,
-          bio: formData.bio || "",
-          interests: InterestsHandler.interestsToInt(formData.interests || []),
-        })
-      );
-      updateUser({
-        ...user,
-        latitude: "3.13",
-        longitude: "-77.13",
-        displayName: formData.displayName,
-        bio: formData.bio || "",
-        interests: InterestsHandler.interestsToInt(formData.interests || []),
-      }).catch((error) => {
-        console.error("Error updating user:", error);
-      });
+      toast.success("Profile updated");
       setOpen(false);
-      // Show success message or notification here
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -251,10 +245,11 @@ export default function EditProfileDialog({
             <div className="mt-auto p-4">
               <Button
                 onClick={handleSubmit}
+                disabled={saving}
                 className="w-full py-6 rounded-lg text-white font-bold font-poppins"
                 style={{ backgroundColor: "#C13D88" }}
               >
-                Save Changes
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>

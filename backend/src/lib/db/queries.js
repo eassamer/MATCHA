@@ -110,23 +110,25 @@ const queries = {
   GROUP BY users.userId
 `,
   FIND_AUTH_USER_BY_EMAIL: `
-SELECT 
-  users.*, 
-  GROUP_CONCAT(DISTINCT i.locationUrl ORDER BY i.idx) AS userImages,
+SELECT
+  users.*,
+  (
+    SELECT JSON_ARRAYAGG(locationUrl)
+    FROM images i
+    WHERE i.ownerId = users.userId
+    ORDER BY i.idx
+  ) AS userImages,
   ${joinLikes},
   ${joinLikedBy},
   ${joinMatches}
 FROM users
-LEFT JOIN images i ON i.ownerId = users.userId
-LEFT JOIN dislikes d ON (d.receiverId = users.userId)
 WHERE users.email = ?
-  AND d.id IS NULL
-GROUP BY users.userId
 `,
 
   FIND_ALL_USERS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId GROUP BY users.userId`,
   FIND_USERS_BY_NAME: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE LOWER(firstName) = LOWER(?) OR LOWER(lastName) = LOWER(?) ORDER BY firstName, lastName LIMIT ? OFFSET ? GROUP BY users.userId`,
   UPDATE_USER_PASSWORD: `UPDATE users SET password = ? WHERE userId = ?`,
+  FIND_PASSWORD_HASH_BY_ID: `SELECT password FROM users WHERE userId = ?`,
   DELETE_USER_QUERY: `DELETE FROM users WHERE userId = ?`,
   SET_USER_INTERESTS: `UPDATE users SET interests = ? WHERE userId = ?`,
   FIND_USERS_BY_INTERESTS: `SELECT ${userFieldsWithImages} FROM users LEFT JOIN images i ON i.ownerId = users.userId WHERE interests = ? GROUP BY users.userId`,
@@ -149,27 +151,27 @@ GROUP BY users.userId
   UPDATE_USER: `UPDATE users SET firstName = ?, lastName = ?, displayName = ?, email = ?, longitude = ?, latitude = ?, radiusInKm = ?, interests = ?, sex = ?, orientation = ?, bio = ? WHERE userId = ?`,
   UPDATE_FAME_RATING: `UPDATE users u
   JOIN (
-      SELECT 
-          u.userId AS user_id,
+      SELECT
+          s.userId AS user_id,
           COUNT(DISTINCT l.id) AS like_count,
           COUNT(DISTINCT m.id) AS match_count,
           COUNT(DISTINCT d.id) AS dislike_count,
           COUNT(DISTINCT r.id) AS report_count
-      FROM users u
-      LEFT JOIN likes l ON l.receiverId = u.userId
-      LEFT JOIN matches m ON (m.user1Id = u.userId OR m.user2Id = u.userId)
-      LEFT JOIN dislikes d ON d.receiverId = u.userId
-      LEFT JOIN report r ON r.receiverId = u.userId
-      GROUP BY u.userId
+      FROM users s
+      LEFT JOIN likes l ON l.receiverId = s.userId
+      LEFT JOIN matches m ON (m.user1Id = s.userId OR m.user2Id = s.userId)
+      LEFT JOIN dislikes d ON d.receiverId = s.userId
+      LEFT JOIN report r ON r.receiverId = s.userId
+      WHERE s.userId = ?
+      GROUP BY s.userId
   ) stats ON u.userId = stats.user_id
-  SET u.fameRating = 
-      CASE 
+  SET u.fameRating =
+      CASE
           WHEN (like_count + match_count + dislike_count + report_count) = 0 THEN 50
-          ELSE (like_count + match_count) * 100 / 
+          ELSE (like_count + match_count) * 100 DIV
                (like_count + match_count + dislike_count + report_count)
-      END;
-  ;
-  `,
+      END
+  WHERE u.userId = ?`,
   UPDATE_LAST_LOCATION: `UPDATE users SET longitude = ?, latitude = ?, city = ?, region = ?, country = ?  WHERE userId = ?`,
   // oAuth user queries
   ADD_OAUTH_USER: `INSERT INTO oauthUsers (userId, providerId, provider, email, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
@@ -192,16 +194,18 @@ GROUP BY users.userId
   FIND_IMAGES_BY_USER: `SELECT * FROM images WHERE ownerId = ? ORDER BY idx`,
   // like queries
   ADD_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
+  ADD_SUPER_LIKE: `INSERT INTO likes (id, senderId, receiverId, superLike, createdAt) VALUES (uuid(), ?, ?, ?, ?)`,
   DELETE_LIKE: `DELETE FROM likes WHERE senderId = ? AND receiverId = ?`,
   DELETE_DISLIKE: `DELETE FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   // match queries
   CHECK_MATCH: `SELECT * FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
-  ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id) VALUES (uuid(), ?, ?)`,
-  DELETE_MATCH: `DELETE FROM matches WHERE user1Id = ? AND user2Id = ?`,
+  ADD_MATCH: `INSERT INTO matches (id, user1Id, user2Id, createdAt) VALUES (uuid(), ?, ?, ?)`,
+  DELETE_MATCH: `DELETE FROM matches WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
   // message queries
-  ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content1) VALUES (?, ?, ?, ?)`,
+  ADD_MESSAGE: `INSERT INTO messages (id, senderId, receiverId, content, createdAt) VALUES (?, ?, ?, ?, ?)`,
+  FIND_MESSAGE_BY_ID: `SELECT * FROM messages WHERE id = ?`,
   DELETE_MESSAGE: `DELETE FROM messages WHERE id = ?`,
-  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
+  FIND_MESSAGES_BETWEEN_USERS: `SELECT * FROM messages WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) ORDER BY createdAt DESC, id DESC LIMIT ? OFFSET ?`,
   // relations
   GET_NEARBY_USERS: `
   SELECT ${userFieldsWithImages},
@@ -242,12 +246,16 @@ LEFT JOIN images i ON i.ownerId = l.receiverId
 WHERE l.receiverId = ?
 GROUP BY l.id, users.userId
 `,
-  GET_MATCHES: `SELECT m.*, ${userFieldsWithImages} FROM matches m JOIN users u ON (m.user1Id = u.userId OR m.user2Id = u.userId) WHERE user1Id = ? OR user2Id = ?`,
-  FIND_MATCH: `SELECT 
-  CASE 
-    WHEN m.user1Id = ? THEN m.user2Id 
-    ELSE m.user1Id 
-  END AS matchedUserId,
+  GET_MATCHES: `
+  SELECT m.id AS matchId, m.createdAt AS matchedAt, ${userFieldsWithImages}
+  FROM matches m
+  JOIN users ON users.userId = CASE WHEN m.user1Id = ? THEN m.user2Id ELSE m.user1Id END
+  WHERE m.user1Id = ? OR m.user2Id = ?
+  ORDER BY m.createdAt DESC`,
+  FIND_MATCH: `SELECT
+  m.id AS matchId,
+  m.createdAt AS matchedAt,
+  CASE WHEN m.user1Id = ? THEN m.user2Id ELSE m.user1Id END AS matchedUserId,
   (
     SELECT JSON_OBJECT(
       'userId', mu.userId,
@@ -261,22 +269,21 @@ GROUP BY l.id, users.userId
       'latitude', mu.latitude,
       'sex', mu.sex,
       'orientation', mu.orientation,
+      'fameRating', mu.fameRating,
       'userImages', (
-        SELECT GROUP_CONCAT(DISTINCT mui.locationUrl ORDER BY mui.idx)
+        SELECT JSON_ARRAYAGG(mui.locationUrl)
         FROM images mui
         WHERE mui.ownerId = mu.userId
+        ORDER BY mui.idx
       )
     )
     FROM users mu
-    WHERE mu.userId = CASE 
-      WHEN m.user1Id = ? THEN m.user2Id 
-      ELSE m.user1Id 
-    END
+    WHERE mu.userId = CASE WHEN m.user1Id = ? THEN m.user2Id ELSE m.user1Id END
   ) AS matchedUser
 FROM matches m
-WHERE (m.user1Id = ? OR m.user2Id = ?)`,
+WHERE (m.user1Id = ? AND m.user2Id = ?) OR (m.user1Id = ? AND m.user2Id = ?)`,
   CHECK_LIKE: `SELECT * FROM likes WHERE senderId = ? AND receiverId = ?`,
-  ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId) VALUES (uuid(), ?, ?)`,
+  ADD_DISLIKE: `INSERT INTO dislikes (id, senderId, receiverId, createdAt) VALUES (uuid(), ?, ?, ?)`,
   CHECK_DISLIKE: `SELECT * FROM dislikes WHERE senderId = ? AND receiverId = ?`,
   GET_LIKES_BY_SENDER_ID: `SELECT * FROM likes WHERE senderId = ?`,
   GET_LIKE_BY_SENDER_ID_AND_RECEIVER_ID: `
@@ -296,8 +303,13 @@ WHERE (m.user1Id = ? OR m.user2Id = ?)`,
   CHECK_BLOCK: `SELECT * FROM blocks WHERE (blockerId = ? AND blockedId = ?) OR (blockerId = ? AND blockedId = ?)`,
   DELETE_BLOCK: `DELETE FROM blocks WHERE blockerId = ? AND blockedId = ?`,
   GET_BLOCKED_USERS: `SELECT blocks.*, ${userFieldsWithImages} FROM blocks JOIN users ON (blocks.blockedId = users.userId) WHERE blockerId = ?`,
-  ADD_VIEW: `INSERT INTO views (id, viewerId, viewedId, createdAt) SELECT uuid(), ?, ?, ? WHERE NOT EXISTS (SELECT * FROM views WHERE viewerId = ? AND viewedId = ?)`,
-  GET_VIEWS: `SELECT blocks.*, ${userFieldsWithImages} FROM views JOIN users WHERE viewedId = ? and users.userId = viewerId`,
+  ADD_VIEW: `INSERT INTO views (id, viewerId, viewedId, createdAt) SELECT uuid(), ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM views WHERE viewerId = ? AND viewedId = ?)`,
+  GET_VIEWS: `
+  SELECT v.id AS viewId, v.createdAt AS viewedAt, ${userFieldsWithImages}
+  FROM views v
+  JOIN users ON users.userId = v.viewerId
+  WHERE v.viewedId = ?
+  ORDER BY v.createdAt DESC`,
   CHECK_VIEW: `SELECT * FROM views WHERE viewerId = ? AND viewedId = ?`,
 };
 

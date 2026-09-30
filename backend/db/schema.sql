@@ -1,6 +1,6 @@
 USE matcha;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     userId varchar(36) PRIMARY KEY,
     firstName VARCHAR(50) NOT NULL,
     lastName VARCHAR(50) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE oauthUsers (
+CREATE TABLE IF NOT EXISTS oauthUsers (
     userId varchar(36) PRIMARY KEY,
     providerId VARCHAR(50) NOT NULL, -- google, facebook, etc
     provider VARCHAR(50) NOT NULL, -- google, facebook, etc
@@ -39,7 +39,7 @@ CREATE TABLE oauthUsers (
     createdAt DATETIME NOT NULL
 );
 
-CREATE TABLE images (
+CREATE TABLE IF NOT EXISTS images (
     imageId INT AUTO_INCREMENT PRIMARY KEY,
     locationUrl varchar(255) NOT NULL,
     ownerId varchar(36),
@@ -48,45 +48,45 @@ CREATE TABLE images (
     FOREIGN KEY (ownerId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE likes (
+CREATE TABLE IF NOT EXISTS likes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
     superLike BOOLEAN DEFAULT false,
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE dislikes (
+CREATE TABLE IF NOT EXISTS dislikes (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE matches (
+CREATE TABLE IF NOT EXISTS matches (
     id varchar(36) PRIMARY KEY,
     user1Id varchar(36),
     user2Id varchar(36),
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (user1Id) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (user2Id) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
-    content1 TEXT NOT NULL,
-    createdAt DATETIME NOT NULL,
+    content TEXT NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (receiverId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE report (
+CREATE TABLE IF NOT EXISTS report (
     id varchar(36) PRIMARY KEY,
     senderId varchar(36),
     receiverId varchar(36),
@@ -96,17 +96,17 @@ CREATE TABLE report (
 );
 
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id varchar(36) PRIMARY KEY,
     userId varchar(36),
     type VARCHAR(50) NOT NULL, -- like, match, message, etc
     content TEXT NOT NULL,
     isRead BOOLEAN DEFAULT false,
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE blocks (
+CREATE TABLE IF NOT EXISTS blocks (
     id varchar(36) PRIMARY KEY,
     blockerId varchar(36),
     blockedId varchar(36),
@@ -114,11 +114,11 @@ CREATE TABLE blocks (
     FOREIGN KEY (blockedId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE views (
+CREATE TABLE IF NOT EXISTS views (
     id varchar(36) PRIMARY KEY,
     viewerId varchar(36),
     viewedId varchar(36),
-    createdAt DATETIME NOT NULL,
+    createdAt DATETIME(3) NOT NULL,
     FOREIGN KEY (viewerId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (viewedId) REFERENCES users(userId) ON DELETE CASCADE
 );

@@ -174,7 +174,7 @@ async function deleteLike(senderId, receiverId) {
  */
 async function getMatches(userId) {
   try {
-    const queryInput = [userId];
+    const queryInput = [userId, userId, userId];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.GET_MATCHES, queryInput, (err, result) => {
         if (err) {
@@ -199,7 +199,8 @@ async function getMatches(userId) {
  */
 async function deleteMatch(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    // a match row may have been inserted in either direction
+    const queryInput = [senderId, receiverId, receiverId, senderId];
     return new Promise(async (resolve, reject) => {
       (await client).execute(
         queries.DELETE_MATCH,
@@ -269,7 +270,8 @@ async function checkDislike(senderId, receiverId) {
 
 async function getMatch(user1Id, user2Id) {
   try {
-    const queryInput = [user1Id, user1Id, user2Id, user2Id];
+    // CASE (x2) from user1's point of view, then the pair in both directions
+    const queryInput = [user1Id, user1Id, user1Id, user2Id, user2Id, user1Id];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.FIND_MATCH, queryInput, (err, result) => {
         if (err) {
@@ -295,7 +297,7 @@ async function getMatch(user1Id, user2Id) {
 
 async function addMatch(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, new Date()];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.ADD_MATCH, queryInput, (err, result) => {
         if (err) {
@@ -320,7 +322,7 @@ async function addMatch(senderId, receiverId) {
  */
 async function addDislike(senderId, receiverId) {
   try {
-    const queryInput = [senderId, receiverId];
+    const queryInput = [senderId, receiverId, new Date()];
     return new Promise(async (resolve, reject) => {
       (await client).execute(queries.ADD_DISLIKE, queryInput, (err, result) => {
         if (err) {

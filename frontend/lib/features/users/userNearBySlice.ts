@@ -1,71 +1,66 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { NearbyUser } from "@/lib/types";
+import { getNearbyUsers } from "@/hooks/relations";
+import { getErrorMessage } from "@/lib/api";
 
-export interface UserNearByType {
-  id: number;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  displayName: string;
-  birthDate?: Date;
-  email: string;
-  createdAt: string;
-  city: string;
-  country: string;
-  region: string;
-  longitude: number;
-  latitude: number;
-  radiusInKm: number;
-  interests: any;
-  sex: string;
-  bio: string;
-  emailVerified: number;
-  fameRating: number;
-  userImages: string[];
-  distance: number;
-}
+export type UserNearByType = NearbyUser;
+
+export type LoadStatus = "idle" | "loading" | "ready" | "error";
 
 export interface UsersNearByState {
-  usersNearBy: UserNearByType[];
+  items: NearbyUser[];
+  status: LoadStatus;
+  error: string | null;
 }
 
 const initialState: UsersNearByState = {
-  usersNearBy: [
-    {
-      id: 0,
-      userId: "",
-      firstName: "",
-      lastName: "",
-      displayName: "",
-      birthDate: undefined,
-      email: "",
-      createdAt: "",
-      longitude: 0,
-      city: "",
-      country: "",
-      region: "",
-      latitude: 0,
-      radiusInKm: 0,
-      interests: [],
-      sex: "",
-      bio: "",
-      emailVerified: 0,
-      fameRating: 0,
-      userImages: [],
-      distance: 0,
-    },
-  ],
+  items: [],
+  status: "idle",
+  error: null,
 };
+
+export const fetchNearbyUsers = createAsyncThunk<NearbyUser[], void, { rejectValue: string }>(
+  "usersNearBy/fetch",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getNearbyUsers();
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
 
 export const usersNearBySlice = createSlice({
   name: "usersNearBy",
   initialState,
   reducers: {
-    setUsersNearBy: (state, action: PayloadAction<UserNearByType[]>) => {
-      state.usersNearBy = action.payload;
+    setUsersNearBy: (state, action: PayloadAction<NearbyUser[]>) => {
+      state.items = action.payload;
+      state.status = "ready";
+      state.error = null;
     },
+    removeUserNearBy: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter((user) => user.userId !== action.payload);
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchNearbyUsers.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchNearbyUsers.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.status = "ready";
+        state.error = null;
+      })
+      .addCase(fetchNearbyUsers.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.payload ?? action.error.message ?? "Could not load profiles";
+      });
   },
 });
 
-export const { setUsersNearBy } = usersNearBySlice.actions;
+export const { setUsersNearBy, removeUserNearBy } = usersNearBySlice.actions;
 
 export default usersNearBySlice.reducer;

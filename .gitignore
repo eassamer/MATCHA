@@ -11,3 +11,8 @@ frontend/matcha/.next
 frontend/matcha/next-env.d.ts
 frontend/matcha/package-lock.json
 .vscode
+
+# local audit docs (not committed)
+docs/AUDIT.md
+docs/TICKETS.md
+docs/design/

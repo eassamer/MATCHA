@@ -1,46 +1,46 @@
-import { UserState } from "@/lib/features/user/userSlice";
-import axios from "axios";
+import { api } from "@/lib/api";
+import { normalizeUser } from "@/lib/normalize";
+import type { Coordinates, User } from "@/lib/types";
 
-export async function updateUser(user: UserState) {
-  try {
-    const response = await axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, user, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        return err;
-      });
-    return response;
-  } catch (error) {
-    return error;
-  }
-}
-
-export async function updateLocation(coords: {
+/** The fields `POST /users/update` expects (the backend rewrites all of them). */
+export interface UserUpdatePayload {
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  email: string;
   latitude: number;
   longitude: number;
-}) {
-  const { latitude, longitude } = coords;
-  try {
-    const response = await axios
-      .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/update/location`,
-        { longitude, latitude },
-        {
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        return err;
-      });
-    return response;
-  } catch (error) {
-    return error;
-  }
+  radiusInKm: number;
+  interests: number;
+  sex: string;
+  orientation: string[];
+  bio: string;
+  profession?: string;
+}
+
+export async function getMe(): Promise<User> {
+  const res = await api.get("/users/user/me");
+  return normalizeUser(res.data);
+}
+
+export async function getUser(id: string): Promise<User> {
+  const res = await api.get("/users/user", { params: { id } });
+  return normalizeUser(res.data);
+}
+
+export async function updateUser(payload: UserUpdatePayload): Promise<User> {
+  const res = await api.post("/users/update", payload);
+  return normalizeUser(res.data);
+}
+
+export async function updateLocation(coords: Coordinates): Promise<User> {
+  const res = await api.post("/users/update/location", {
+    latitude: coords.latitude,
+    longitude: coords.longitude,
+  });
+  return normalizeUser(res.data);
+}
+
+export async function updatePassword(currentPassword: string, password: string): Promise<void> {
+  await api.post("/users/update/password", { currentPassword, password });
 }

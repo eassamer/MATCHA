@@ -92,11 +92,12 @@ async function update(req, res) {
  */
 async function updatePassword(req, res) {
   try {
-    const user = await userService.updatePassword(
+    const result = await userService.updatePassword(
       req.user.id,
-      req.body.password
+      req.body.currentPassword,
+      req.body.password ?? req.body.newPassword
     );
-    res.status(200).json(user);
+    res.status(200).json(result);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
   }

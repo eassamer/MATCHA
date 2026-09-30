@@ -31,7 +31,6 @@ export const SwipeCard = ({
         </div>
       )}
       {cards.length > 0 &&
-        cards[0].displayName != "" &&
         cards.map((card, id) => {
           return (
             <Card

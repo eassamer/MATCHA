@@ -3,15 +3,17 @@ import Image from "next/image";
 import { FormField, FormFieldInput } from "../FormField";
 import { TermsAndPolicy } from "../TermsAndPolicy";
 import { SignInOptions } from "./SigninOptions";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/shared/Button";
+import { login } from "@/hooks/auth";
+import { getErrorMessage } from "@/lib/api";
 
 export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const SigninFormFields: FormFieldInput[] = [
     {
       label: "Email",
@@ -32,21 +34,20 @@ export const SignIn = () => {
   ];
   const router = useRouter();
 
-  const handleSubmit = () => {
-    axios
-      .post(
-        process.env.NEXT_PUBLIC_API_URL + "/auth/login",
-        { email: email, password: password },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        localStorage.setItem("user", JSON.stringify(res.data));
-        toast.success("Logged in successfully");
-        router.push("/home");
-      })
-      .catch((err) => {
-        toast.error("Failed to login" + err.response.data.error);
-      });
+  // The backend sets the jwt cookie; the app shell loads the user from
+  // /users/user/me on the next page, so nothing is handed over via localStorage.
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await login({ email, password });
+      toast.success("Logged in successfully");
+      router.push("/home");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setSubmitting(false);
+    }
   };
   return (
     <div
@@ -94,8 +95,8 @@ export const SignIn = () => {
                 lg:px-10
                 md:gap-0"
       >
-        <Button type={true} className="font-bold" onClick={handleSubmit}>
-          Sign In
+        <Button type={true} className="font-bold" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Signing in..." : "Sign In"}
         </Button>
         <SignInOptions />
       </div>

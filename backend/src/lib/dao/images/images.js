@@ -1,6 +1,6 @@
 const client = require('@lib/db/dbconnect');
 const queries = require('@lib/db/queries');
-errMessagePrefix = 'ImageDao: ';
+const errMessagePrefix = 'ImageDao: ';
 
 /**
  * Creates a new image entry in the database.
@@ -23,10 +23,10 @@ async function create(image) {
       await deleteImage(images[image.idx].imageId);
     }
     const queryInput = [
-      locationUrl = image.locationUrl,
-      ownerId = image.ownerId,
-      idx = image.idx,
-      publicId = image.public_id,
+      image.locationUrl,
+      image.ownerId,
+      image.idx,
+      image.public_id,
     ];
     return new Promise(
       async (resolve, reject) => {

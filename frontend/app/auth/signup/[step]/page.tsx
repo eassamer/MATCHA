@@ -7,7 +7,8 @@ import ProfileDetailsLarge from "@/components/auth/Signup/ProfileDetailsLarge";
 import IAmA from "@/components/auth/Signup/IAmA";
 import Interests from "@/components/auth/Signup/Interests";
 import { usePathname, useRouter } from "next/navigation";
-import axios from "axios";
+import { register } from "@/hooks/auth";
+import { getErrorMessage } from "@/lib/api";
 import { InterestsHandler } from "@/lib/InterestsHandler";
 import {
   GenderSchema,
@@ -116,29 +117,16 @@ const Page = () => {
       checkAllFields();
       if (errorMessage.length > 0) return;
       setSubmitting(true);
-      axios
-        .post(
-          process.env.NEXT_PUBLIC_API_URL + "/auth/register",
-          constructPayload(),
-          { withCredentials: true }
-        )
-        .then((res) => {
-          setSubmitting(false);
-          localStorage.setItem("user", JSON.stringify(res.data));
+      // the backend sets the jwt cookie; /home loads the user from /users/user/me
+      register(constructPayload())
+        .then(() => {
           toast.success("Account created successfully");
           router.push("/home");
         })
-        .catch((err) => {
-          //TODO: better error messaging
-          setSubmitting(false);
-          toast.error(
-            "An error occurred" + err?.response?.data?.error || "ERROR",
-            {
-              duration: 5000,
-            }
-          );
-        });
-      setSubmitting(false);
+        .catch((error) => {
+          toast.error(getErrorMessage(error), { duration: 5000 });
+        })
+        .finally(() => setSubmitting(false));
       return;
     } else router.push("/auth/signup/" + (step + 1));
   };
