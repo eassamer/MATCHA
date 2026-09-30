@@ -1,6 +1,6 @@
 const authService = require("@services/auth/auth.service");
 
-register = async (req, res) => {
+const register = async (req, res) => {
   try {
     const { newUser, token } = await authService.registerUser(req.body);
     res.cookie("jwt", token);
@@ -10,7 +10,7 @@ register = async (req, res) => {
   }
 };
 
-login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { user, token } = await authService.authenticateUser(
       req.body.email,
@@ -28,12 +28,12 @@ login = async (req, res) => {
   }
 };
 
-FourtyTwoAuthenticate = (req, res) => {
+const FourtyTwoAuthenticate = (req, res) => {
   const authUrl = authService.FourtyTwoAuthenticate();
   res.status(200).json({ authUrl });
 };
 
-oauthCallback = (req, res) => {
+const oauthCallback = (req, res) => {
   // Set JWT token on successful OAuth authentication
   const token = authService.generateToken(req.user);
   res.cookie("jwt", token);

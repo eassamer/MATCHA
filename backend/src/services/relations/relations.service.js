@@ -134,15 +134,15 @@ async function addLike(userId, receiverId) {
       await userService.updateFameRating(receiverId);
       io.to(senderId).emit("match", receiverId);
       io.to(receiverId).emit("match", senderId);
-      notificationsService.createNotifcation(
+      await notificationsService.createNotifcation(
         receiverId,
         "match",
-        `You have a new match with ${sender.name}`
+        `You have a new match with ${sender.displayName}`
       );
-      notificationsService.createNotifcation(
+      await notificationsService.createNotifcation(
         senderId,
         "match",
-        `You have a new match with ${receiver.name}`
+        `You have a new match with ${receiver.displayName}`
       );
       return await relationDao.getMatch(senderId, receiverId);
     } else {
@@ -152,10 +152,10 @@ async function addLike(userId, receiverId) {
         "like",
         await getLikeBySenderIdAndReceiverId(senderId, receiverId)
       );
-      notificationsService.createNotifcation(
+      await notificationsService.createNotifcation(
         receiverId,
         "like",
-        `${sender.name} liked you`
+        `${sender.displayName} liked you`
       );
       return receiver;
     }
@@ -192,15 +192,15 @@ async function addSuperLike(userId, receiverId) {
       await relationDao.deleteLike(receiverId, senderId);
       io.to(senderId).emit("match", receiverId);
       io.to(receiverId).emit("match", senderId);
-      notificationsService.createNotifcation(
+      await notificationsService.createNotifcation(
         receiverId,
         "match",
-        `You have a new match with ${sender.name}`
+        `You have a new match with ${sender.displayName}`
       );
-      notificationsService.createNotifcation(
+      await notificationsService.createNotifcation(
         senderId,
         "match",
-        `You have a new match with ${receiver.name}`
+        `You have a new match with ${receiver.displayName}`
       );
       return await relationDao.getMatch(senderId, receiverId);
     }
@@ -209,10 +209,10 @@ async function addSuperLike(userId, receiverId) {
       "superLike",
       await getLikeBySenderIdAndReceiverId(senderId, receiverId)
     );
-    notificationsService.createNotifcation(
+    await notificationsService.createNotifcation(
       receiverId,
       "superLike",
-      `${sender.name} super liked you`
+      `${sender.displayName} super liked you`
     );
     return receiver;
   } catch (error) {
@@ -260,15 +260,15 @@ async function deleteMatch(senderId, receiverId) {
     const io = getIO();
     io.to(senderId).emit("unmatch", receiverId);
     io.to(receiverId).emit("unmatch", senderId);
-    notificationsService.createNotifcation(
+    await notificationsService.createNotifcation(
       receiverId,
       "unmatch",
       `${senderId} has unmatched you`
     );
-    notificationsService.createNotifcation(
+    await notificationsService.createNotifcation(
       senderId,
       "unmatch",
-      `you have unmatched ${receiver.name}`
+      `you have unmatched ${receiver.displayName}`
     );
     return receiver;
   } catch (error) {
@@ -313,7 +313,7 @@ async function addDislike(senderId, receiverId) {
       "dislike",
       await getLikeBySenderIdAndReceiverId(senderId, receiverId)
     );
-    notificationsService.createNotifcation(
+    await notificationsService.createNotifcation(
       receiverId,
       "dislike",
       `${senderId} disliked you`

@@ -16,7 +16,7 @@ async function createMessage(req, res) {
 }
 async function getMessagesBetweenUsers(req, res) {
   try {
-    const { receiverId, take = 0, limit = 10 } = req.query;
+    const { receiverId, take, limit } = req.query;
     if (!receiverId) {
       return res.status(400).json({ error: 'Receiver ID is required' });
     }

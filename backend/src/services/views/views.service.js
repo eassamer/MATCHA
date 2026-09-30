@@ -1,53 +1,65 @@
-var viewsDao = require('@lib/dao/views/views');
-const { NotFoundException } = require('@lib/utils/exceptions');
-var userService = require('@services/user/user.service');
-var notificationsService = require('@services/notifications/notifications.service');
+const viewsDao = require("@lib/dao/views/views");
+const userService = require("@services/users/users.service");
+const notificationsService = require("@services/notifications/notifications.service");
 const { getIO } = require("@lib/socketManager");
+const { BadRequestException } = require("@lib/utils/exceptions");
 
+const errMessagePrefix = "ViewsService: "; //for better debugging
 
-const errMessagePrefix = 'ViewsService: '; //for better debugging
-
+/**
+ * @description users who viewed the given profile, most recent first
+ */
 async function getViewsByUserId(userId) {
   try {
-    const views = await viewsDao.findByUserId(userId);
-    return views;
+    return await viewsDao.findByUserId(userId);
   } catch (err) {
     err.message = `${errMessagePrefix}.getViewsByUserId: ${err.message}`;
     throw err;
   }
 }
 
+/**
+ * @description records a profile visit (once per viewer/viewed pair) and notifies the viewed user
+ * @returns {{created: boolean, viewerId: string, viewedId: string}}
+ */
 async function addView(viewerId, viewedId) {
   try {
-    const viewer = await userService.findById(viewerId);
-    const viewed = await userService.findById(viewedId);
-    if (!viewer || !viewed) {
-      throw new NotFoundException('User does not exist');
+    if (!viewedId || typeof viewedId !== "string") {
+      throw new BadRequestException("Viewed user id is required");
     }
-    const existingView = await viewsDao.checkView(viewerId, viewedId);
-    if (existingView.length > 0) {
-      return { message: 'View already exists' };
+    if (viewerId === viewedId) {
+      return { created: false, viewerId, viewedId, message: "Own profile views are not recorded" };
+    }
+    const viewer = await userService.findById(viewerId); // throws NotFoundException
+    await userService.findById(viewedId);
+
+    const existing = await viewsDao.checkView(viewerId, viewedId);
+    if (existing.length > 0) {
+      return { created: false, viewerId, viewedId, message: "View already recorded" };
     }
     const result = await viewsDao.create(viewerId, viewedId);
-    if (result) {
-      const io = getIO();
-      io.to(viewedId).emit(`${viewer.name} has viewed your profile`, {
-        viewerId: viewerId,
-        viewedId: viewedId,
-        timestamp: new Date(),
-      });
-      await notificationsService.createNotifcation(viewedId, 'view', `${viewer.name} has viewed your profile`);
+    if (result.affectedRows === 0) {
+      return { created: false, viewerId, viewedId, message: "View already recorded" };
     }
-    return result;
+
+    getIO().to(viewedId).emit("view", {
+      viewerId,
+      displayName: viewer.displayName,
+      createdAt: new Date(),
+    });
+    await notificationsService.createNotifcation(
+      viewedId,
+      "view",
+      `${viewer.displayName} has viewed your profile`
+    );
+    return { created: true, viewerId, viewedId };
   } catch (err) {
     err.message = `${errMessagePrefix}.addView: ${err.message}`;
     throw err;
   }
 }
 
-
-
-moduke.exports = {
+module.exports = {
   getViewsByUserId,
   addView,
 };

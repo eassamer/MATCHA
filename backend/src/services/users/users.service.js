@@ -15,6 +15,7 @@ const {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  UnauthorizedException,
   ServiceUnavailableException,
 } = require("@lib/utils/exceptions");
 
@@ -314,10 +315,8 @@ async function updateFameRating(userId) {
     if (!user) {
       throw new Error(`User with Id: ${userId} not found`);
     }
-    const queryOutput = await userDao.updateFameRating(userId);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
+    // affectedRows is 0 when the computed rating equals the stored one, so it is not an error
+    await userDao.updateFameRating(userId);
     return await findById(userId);
   } catch (error) {
     console.error(`${errMessagePrefix}.updateFameRating: ${error.message}`);
@@ -628,26 +627,31 @@ async function update(userId, user) {
  * @throws if the new password is invalid
  * @throws if database query fails
  */
-async function updatePassword(userId, password) {
-  try {
-    if (!password || !isPasswordStrong(password)) {
-      throw new Error(
-        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
-      );
-    }
-    const user = await findById(userId);
-    const queryOutput = await userDao.updatePassword(userId, password);
-    if (queryOutput.affectedRows === 0) {
-      throw new Error("User not updated");
-    }
-    return user;
-  } catch (error) {
-    if (error.message.includes("Password must be at least 8 characters long")) {
-      throw new BadRequestException(error.message);
-    }
-    console.error(`${errMessagePrefix}.updatePassword: ${error.message}`);
-    throw new Error(`${errMessagePrefix}.updatePassword: ${error.message}`);
+async function updatePassword(userId, currentPassword, newPassword) {
+  if (!newPassword || !isPasswordStrong(newPassword)) {
+    throw new BadRequestException(
+      "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+    );
   }
+  if (!currentPassword) {
+    throw new BadRequestException("Current password is required");
+  }
+  const rows = await userDao.findPasswordHashById(userId);
+  if (!rows || rows.length === 0) {
+    throw new NotFoundException(`User with Id: ${userId} not found`);
+  }
+  if (!(await argon2.verify(rows[0].password, currentPassword))) {
+    throw new UnauthorizedException("Current password is incorrect");
+  }
+  if (currentPassword === newPassword) {
+    throw new BadRequestException("New password must be different from the current password");
+  }
+  const hashed = await hashPassword(newPassword);
+  const queryOutput = await userDao.updatePassword(userId, hashed);
+  if (queryOutput.affectedRows === 0) {
+    throw new ServiceUnavailableException("Password not updated");
+  }
+  return { message: "Password updated" };
 }
 
 async function reportUser(userId, reportedUserId, reason) {

@@ -66,7 +66,7 @@ async function updatePassword(userId, password) {
 }
 
 async function updateFameRating(userId) {
-  const queryInput = [userId];
+  const queryInput = [userId, userId]; // subquery filter + outer WHERE
   return new Promise(async (resolve, reject) => {
     (await client).execute(
       queries.UPDATE_FAME_RATING,
@@ -337,7 +337,28 @@ async function getReportBySenderAndReceiver(senderId, receiverId) {
   });
 }
 
+/**
+ * @description fetches only the password hash of a user (for credential checks)
+ * @returns an array with one row `{ password }` or an empty array
+ */
+async function findPasswordHashById(userId) {
+  return new Promise(async (resolve, reject) => {
+    (await client).execute(
+      queries.FIND_PASSWORD_HASH_BY_ID,
+      [userId],
+      (err, result) => {
+        if (err) {
+          err.message = `${errMessagePrefix}.findPasswordHashById: ${err.message}`;
+          return reject(err);
+        }
+        resolve(result);
+      }
+    );
+  });
+}
+
 module.exports = {
+  findPasswordHashById,
   create,
   remove,
   updateFameRating,

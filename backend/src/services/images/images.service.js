@@ -5,10 +5,10 @@ const {
   ServiceUnavailableException,
 } = require("@lib/utils/exceptions");
 
-cloudinary = require("cloudinary").v2;
-imageDao = require("@lib/dao/images/images");
+const cloudinary = require("cloudinary").v2;
+const imageDao = require("@lib/dao/images/images");
 const { v4: uuidv4 } = require("uuid");
-errMessagePrefix = "imagesService: ";
+const errMessagePrefix = "imagesService: ";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

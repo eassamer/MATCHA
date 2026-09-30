@@ -3,9 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "migrate": "node backend/src/lib/db/migrate.js",
-    "test": "jest"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate": "node src/lib/db/migrate.js",
+    "seed": "node scripts/seed.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@types/node": "^22.10.2",
@@ -51,6 +54,7 @@
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
     "babel-jest": "^29.7.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
   }
 }
