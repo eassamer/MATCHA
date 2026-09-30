@@ -7,6 +7,7 @@ const {
   ServiceUnavailableException,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } = require("@lib/utils/exceptions");
 
 const errMessagePrefix = "RelationService: ";
@@ -19,6 +20,11 @@ const errMessagePrefix = "RelationService: ";
 async function getNearbyUsers(userId) {
   try {
     const user = await userService.findById(userId);
+    if (user.latitude == null || user.longitude == null) {
+      throw new BadRequestException(
+        "Your location is not set yet. Allow geolocation or set your location in your profile."
+      );
+    }
 
     const nearby = await relationDao.getNearbyUsers(
       user.userId,
@@ -31,6 +37,7 @@ async function getNearbyUsers(userId) {
     return nearby;
   } catch (error) {
     console.error(`${errMessagePrefix}.getNearbyUsers: ${error.message}`);
+    if (error.status) throw error;
     throw new ServiceUnavailableException(error.message);
   }
 }

@@ -6,11 +6,7 @@ const errMessagePrefix = "UserService: ";
 const fetch = require("node-fetch");
 const argon2 = require("argon2");
 const imagesService = require("@services/images/images.service");
-const nodeGeo = require("node-geocoder");
-const geocoder = nodeGeo({
-  provider: "google",
-  apiKey: process.env.GOOGLE_GEOCODE_API_KEY,
-});
+const { reverseGeocode } = require("@lib/geocode");
 const {
   NotFoundException,
   ForbiddenException,
@@ -445,37 +441,25 @@ async function findAuthUserByEmail(email) {
 }
 
 async function updateLocation(id, longitude, latitude) {
+  if (!isValidLocation(latitude, longitude)) {
+    throw new BadRequestException("Invalid location");
+  }
+  const user = await findById(id); // throws NotFoundException
+
+  // Place names are best-effort: a failing geocoder must never lose the coordinates.
+  const place = await reverseGeocode(latitude, longitude);
+  const city = place?.city ?? user.city ?? null;
+  const region = place?.region ?? user.region ?? null;
+  const country = place?.country ?? user.country ?? null;
+
   try {
-    if (!isValidLocation(latitude, longitude)) {
-      throw new BadRequestException("Invalid location");
-    }
-    const user = await findById(id);
-    const res = await geocoder.reverse({ lat: latitude, lon: longitude });
-    if (res.length === 0) {
-      throw new BadRequestException("Invalid location");
-    }
-    const city = res[0].city || res[0].locality || res[0].name;
-    const region = res[0].administrativeLevels.level1short;
-    const country = res[0].country;
-
-    const queryOutput = await userDao.updateLastLocation(
-      id,
-      latitude,
-      longitude,
-      city,
-      region,
-      country
-    );
-
-    if (queryOutput.affectedRows !== 0) {
-      user.longitude = longitude;
-      user.latitude = latitude;
-    }
-    return user;
+    // DAO signature is (userId, longitude, latitude, ...): keep the order straight
+    await userDao.updateLastLocation(id, longitude, latitude, city, region, country);
   } catch (error) {
     console.error(`${errMessagePrefix}.updateLocation: ${error.message}`);
-    throw new BadRequestException(error.message);
+    throw new ServiceUnavailableException("Could not save your location");
   }
+  return await findById(id);
 }
 
 /**
